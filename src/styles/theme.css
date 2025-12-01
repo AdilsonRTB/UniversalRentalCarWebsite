@@ -1,0 +1,172 @@
+/* Custom Color Palette Override for Ant Design Vue */
+
+/* Primary Color - Orange */
+:root {
+  --primary-color: #FE7743;
+  --primary-color-hover: #ff8c5a;
+  --primary-color-active: #e6663b;
+  --primary-color-outline: rgba(254, 119, 67, 0.2);
+  
+  --secondary-color: #273F4F;
+  --accent-color: #447D9B;
+  --background-color: #D7D7D7;
+  --background-light: #f5f5f5;
+  --text-color: #273F4F;
+  --text-secondary: #666;
+}
+
+/* Override Ant Design Primary Colors */
+.ant-btn-primary {
+  background-color: #FE7743;
+  border-color: #FE7743;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: #ff8c5a;
+  border-color: #ff8c5a;
+}
+
+.ant-btn-primary:active {
+  background-color: #e6663b;
+  border-color: #e6663b;
+}
+
+.ant-btn-primary[disabled] {
+  background-color: #d9d9d9;
+  border-color: #d9d9d9;
+}
+
+/* Input Focus Colors */
+.ant-input:focus,
+.ant-input-focused {
+  border-color: #FE7743;
+  box-shadow: 0 0 0 2px rgba(254, 119, 67, 0.2);
+}
+
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+  border-color: #FE7743;
+}
+
+.ant-select-focused:not(.ant-select-disabled) .ant-select-selector {
+  border-color: #FE7743;
+  box-shadow: 0 0 0 2px rgba(254, 119, 67, 0.2);
+}
+
+/* Form Item Labels */
+.ant-form-item-label > label {
+  color: #273F4F;
+  font-weight: 500;
+}
+
+/* Links */
+a {
+  color: #FE7743;
+}
+
+a:hover {
+  color: #ff8c5a;
+}
+
+/* Menu Selected Items */
+.ant-menu-item-selected {
+  color: #FE7743 !important;
+}
+
+.ant-menu-item-selected::after {
+  border-right-color: #FE7743;
+}
+
+.ant-menu-horizontal > .ant-menu-item-selected::after {
+  border-bottom-color: #FE7743;
+}
+
+/* Card Hover Effects */
+.ant-card-hoverable:hover {
+  border-color: #FE7743;
+  box-shadow: 0 4px 12px rgba(254, 119, 67, 0.15);
+}
+
+/* Tags */
+.ant-tag {
+  border-color: #447D9B;
+  background-color: rgba(68, 125, 155, 0.1);
+  color: #447D9B;
+}
+
+/* Progress */
+.ant-progress-bg {
+  background-color: #FE7743;
+}
+
+/* Switch */
+.ant-switch-checked {
+  background-color: #FE7743;
+}
+
+/* Radio and Checkbox */
+.ant-radio-checked .ant-radio-inner {
+  border-color: #FE7743;
+  background-color: #FE7743;
+}
+
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #FE7743;
+  border-color: #FE7743;
+}
+
+/* Loading Spin */
+.ant-spin-dot-item {
+  background-color: #FE7743;
+}
+
+/* Alert */
+.ant-alert-info {
+  background-color: rgba(68, 125, 155, 0.1);
+  border: 1px solid #447D9B;
+}
+
+.ant-alert-info .ant-alert-icon {
+  color: #447D9B;
+}
+
+/* Custom utility classes */
+.bg-primary {
+  background-color: #FE7743 !important;
+}
+
+.bg-secondary {
+  background-color: #273F4F !important;
+}
+
+.bg-accent {
+  background-color: #447D9B !important;
+}
+
+.bg-light {
+  background-color: #D7D7D7 !important;
+}
+
+.text-primary {
+  color: #FE7743 !important;
+}
+
+.text-secondary {
+  color: #273F4F !important;
+}
+
+.text-accent {
+  color: #447D9B !important;
+}
+
+.border-primary {
+  border-color: #FE7743 !important;
+}
+
+.border-secondary {
+  border-color: #273F4F !important;
+}
+
+.border-accent {
+  border-color: #447D9B !important;
+}
