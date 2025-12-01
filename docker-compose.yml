@@ -1,42 +1,4 @@
 services:
-  cmsdb:
-    image: postgres:16
-    container_name: postgres_db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: afm
-      POSTGRES_DB: cms_db
-    ports:
-      - "5410:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 2s
-      retries: 10
-
-  cmservices:
-    image: docker.io/adylsonrtb/cmservices:1.0.0
-    container_name: fastapi_cms
-    depends_on:
-      cmsdb:
-        condition: service_healthy
-    environment:
-      DB_HOST: cmsdb
-      DB_PORT: 5432
-      DB_NAME: cms_db
-      DB_USER: postgres
-      DB_PASSWORD: afm
-      ENVIRONMENT: development
-      DEBUG: "True"
-      ALLOWED_HOSTS: "*"
-      ALLOWED_ORIGINS: "http://localhost:8011,http://localhost:8081"
-    ports:
-      - "8010:8010"
-    command: >
-      uvicorn app.main:app --host 0.0.0.0 --port 8010 --reload
-
   rentapp:
     image: docker.io/adylsonrtb/rent-app:1.0.1
     container_name: rent_app
@@ -46,8 +8,6 @@ services:
       API_TARGET: http://localhost:8010
       HEALTH_TARGET: http://localhost:8010
       VEHICLE_TARGET: http://84.247.171.243:8090
-    depends_on:
-      - cmservices
 
 volumes:
   postgres_data:
