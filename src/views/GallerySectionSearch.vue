@@ -22,12 +22,12 @@
                   <a-button type="text" class="action-btn-modern" @click="viewVehicle(vehicle?.id)">
                     <CarOutlined style="font-size: large;"/>
                   </a-button>
-                  <a-button type="text" class="action-btn-modern">
+                  <a-button type="text" class="action-btn-modern" @click="shareLink">
                     <ShareAltOutlined />
                   </a-button>
-                  <!--a-button type="text" class="action-btn-modern">
+                  <a-button type="text" class="action-btn-modern" @click="visible = true">
                     <ExpandOutlined />
-                  </!--a-button-->
+                  </a-button>
                 </div>
                 <div class="specs-grid-modern">
                   <div class="spec-item-modern">
@@ -116,11 +116,19 @@
       @reservation-confirmed="handleReservationConfirmed"
     />
   </section>
+  <div style="display: none">
+    <a-image-preview-group :preview="{ visible, onVisibleChange: vis => (visible = vis) }">
+          <a-image v-for="(image, index) in vehicleImages" :key="index"
+            :src="image.image"
+          />
+
+        </a-image-preview-group>
+    </div>
 </template>
 
 <script setup>
 import { defineProps, computed, ref } from 'vue'
-import { CarOutlined, ShareAltOutlined, CalendarOutlined, EnvironmentOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons-vue'
+import { CarOutlined, ShareAltOutlined, CalendarOutlined, EnvironmentOutlined, SettingOutlined, UserOutlined, ExpandOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import ReservationModal from '../components/ReservationModal.vue'
@@ -146,6 +154,21 @@ const props = defineProps({
     default: null
   }
 })
+
+const visible = ref(false);
+
+const shareLink = () => {
+  const linkToShare = window.location.href + `vehicle/${props.vehicle.id}`
+
+  if (navigator.share) {
+    navigator.share({
+      title: document.title,
+      url: linkToShare
+    }).catch(err => console.error('Erro ao compartilhar', err))
+  } else {
+    alert('Compartilhamento não suportado nesse navegador.')
+  }
+}
 
 // Modal state
 const showReservationModal = ref(false)
@@ -352,14 +375,13 @@ const viewVehicle = (vehicleId) => {
   position: absolute;
   bottom: 30px;
   left: 20px;
-  gap: 12px;
 }
 
 .spec-item-modern {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 10px;
+  -gap: 5px;
+  padding: 0px;
   -border-radius: 12px;
   -background: #f8fafc;
 }

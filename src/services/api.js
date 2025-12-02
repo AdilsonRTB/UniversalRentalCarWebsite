@@ -75,17 +75,9 @@ export const vehicleService = {
   createVehicleEvaluations: (evaluationData) => api.post(`/customer/evaluations/`, evaluationData, {
     headers: {'Authorization': `Token ${localStorage.getItem('authToken')}`}
   }),
-  /*getVehiclesByOwner: (ownerId) => api.get(`/vehicles/owner/${ownerId}`),
-  getAvailableVehicles: () => api.get('/vehicles/available'),
-  getPromotionalVehicles: () => api.get('/vehicles/promotional'),
-  getOwners: () => api.get('/vehicles/owners'),
-  searchVehicles: (params) => api.get('/vehicles/search', { params }),
-  createVehicle: (vehicleData) => api.post('/vehicles', vehicleData),
-  updateVehicle: (id, vehicleData) => api.put(`/vehicles/${id}`, vehicleData),
-  updateAvailability: (id, available) => api.patch(`/vehicles/${id}/availability`, null, { params: { available } }),
-  deleteVehicle: (id) => api.delete(`/vehicles/${id}`)*/
 
-  getEvaluationsStats: () => api.get(`/vehicle-rental/api/evaluations/statistics/`)
+  getEvaluationsStats: () => api.get(`/vehicle-rental/api/evaluations/statistics/`),
+  getAllEvaluations: () => api.get('/evaluations/'),
 
 }
 

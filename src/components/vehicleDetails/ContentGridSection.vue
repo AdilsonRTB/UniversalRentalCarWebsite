@@ -138,7 +138,7 @@
           </div>
         </div>
         
-        <!--div class="booking-summary-modern">
+        <div class="booking-summary-modern">
           <div class="summary-item">
             <span class="summary-label">{{ t('vehicles.subtotal') }} ({{ totalDays }} {{ totalDays === 1 ? t('vehicles.day') : t('vehicles.days') }}):</span>
             <span class="summary-value">{{ subtotal }} CVE</span>
@@ -151,10 +151,10 @@
             <span class="summary-label">{{ t('vehicles.total') }}:</span>
             <span class="summary-value">{{ totalPrice }} CVE</span>
           </div>
-        </!--div-->
+        </div>
         
         <div class="booking-actions-modern">
-          <a-button v-if="isAuthenticated"
+          <a-button
             type="primary" 
             size="large"
             class="book-now-btn-modern"
@@ -164,48 +164,46 @@
           >
             {{ t('vehicles.bookNow') }}
           </a-button>
-          <a-button class="hero-auth-btn primary"
-            @click="login" size="large" v-else>
-              <LoginOutlined />
-              {{ t('auth.login') }}
-            </a-button>
-          <!--a-button
-            size="large" 
-            class="contact-owner-btn-modern"
-            @click="contactOwner"
-          >
-            <MessageOutlined />
-            {{ t('vehicles.contactOwner') }}
-          </!--a-button-->
+
         </div>
       </div>
     </div>
+    <ReservationModal
+      v-model:visible="showReservationModal"
+      :vehicle="vehicle"
+      :pickup-date="bookingDates.startDate"
+      :return-date="bookingDates.endDate"
+      :calculate-days="totalDays"
+      :calculate-total="totalPrice"
+      @reservation-confirmed="handleReservationConfirmed"
+    />
   </div>
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, onMounted, watch} from 'vue'
+import { defineProps, ref, watch} from 'vue'
 import { 
   CarOutlined, 
   SettingOutlined, 
   CalendarOutlined, 
   TeamOutlined, 
   //CheckCircleFilled,
-  LoginOutlined
+  //LoginOutlined
   //MessageOutlined
 } from '@ant-design/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { useLanguageAndCurrency } from '../../composables/useLanguageAndCurrency'
 import dayjs from 'dayjs'
-import { bookingService, authService } from '../../services/api'
+//import { bookingService, authService } from '../../services/api'
 import { message } from 'ant-design-vue'
+import ReservationModal from '../ReservationModal.vue'
 
-import { useRouter } from 'vue-router'
+//import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 const { formatCurrency } = useLanguageAndCurrency()
 
-const loading = ref(false)
+//const loading = ref(false)
 
 const props = defineProps({
   vehicle: {
@@ -238,7 +236,19 @@ const props = defineProps({
   }
 })
 
-const router = useRouter()
+const showReservationModal = ref(false)
+
+const handleBooking = () => {
+  showReservationModal.value = true
+}
+
+// Função chamada quando reserva é confirmada
+const handleReservationConfirmed = (reservationData) => {
+  console.log('Reserva confirmada:', reservationData)
+  message.success('Reserva efetuada com sucesso!')
+
+  // clean up booking dates
+}
 
 const isAuthenticated = ref(!!localStorage.getItem('authToken'))
 // Watch for auth changes
@@ -246,12 +256,12 @@ watch(() => localStorage.getItem('authToken'), (newToken) => {
   isAuthenticated.value = !!newToken
 })
 
-const login = async () => {
+/*const login = async () => {
   // Redirect to login page instead of using Keycloak
   router.push('/login')
-}
+}*/
 
-const emit = defineEmits(['book', 'contact', 'update:startDate', 'update:endDate'])
+//const emit = defineEmits(['book', 'contact', 'update:startDate', 'update:endDate'])
 
 const disabledStartDate = (current) => {
   return current && current < dayjs().startOf('day')
@@ -261,7 +271,7 @@ const disabledEndDate = (current) => {
   return current && (current < dayjs().startOf('day') || (props.bookingDates.startDate && current <= dayjs(props.bookingDates.startDate)))
 }
 
-const customer = ref(null)
+/*const customer = ref(null)
 
 const getCustomerData = async () => {
   loading.value = true
@@ -275,9 +285,9 @@ const getCustomerData = async () => {
   } finally {
     loading.value = false
   }
-}
+}*/
 
-const createBookingServices = async () => {
+/*const createBookingServices = async () => {
   loading.value = true
 
   const bookingData = {
@@ -337,9 +347,9 @@ const handleBooking = () => {
   emit('contact')
 }*/
 
-onMounted(() => {
+/*onMounted(() => {
   getCustomerData()
-})
+})*/
 </script>
 
 <style scoped>
@@ -608,10 +618,11 @@ onMounted(() => {
 }
 
 .book-now-btn-modern {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #e06a3c !important;
   border: none;
   height: 48px;
   font-weight: 600;
+  color: white;
 }
 
 .contact-owner-btn-modern {

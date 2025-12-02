@@ -2,81 +2,130 @@
     <!-- Success Stories -->
         <div class="success-stories">
           <div class="stories-header">
-            <h3>Histórias de Sucesso</h3>
+            <h3>Avaliação dos nossos clientes</h3>
             <p>Veja como nossa plataforma transforma experiências</p>
           </div>
           
-          <a-row :gutter="[24, 24]">
-            <a-col :xs="24" :md="12" :lg="6">
+          <a-carousel
+            :dots="evaluations.length > 1"
+            :infinite="dynamicCarouselSettings.infinite"
+            :slidesToShow="dynamicCarouselSettings.slidesToShow"
+            :slidesToScroll="1"
+            autoplay
+            :autoplaySpeed="4000"
+            :responsive="carouselResponsive"
+            :arrows="evaluations.length > dynamicCarouselSettings.slidesToShow"
+            class="evaluations-carousel"
+          >
+            <div v-for="(evaluation, index) in evaluations" :key="index" class="carousel-slide">
               <div class="story-card">
-                <div class="story-avatar">
-                  <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face" alt="João" />
-                </div>
-                <div class="story-content">
-                  <h4>João Silva</h4>
-                  <span class="story-role">Proprietário</span>
-                  <p>"Consegui rentabilizar meu carro em 300% no primeiro ano!"</p>
-                  <div class="story-stats">
-                    <span>💰 R$ 2.500/mês</span>
-                  </div>
-                </div>
-              </div>
-            </a-col>
-            
-            <a-col :xs="24" :md="12" :lg="6">
-              <div class="story-card">
-                <div class="story-avatar">
-                  <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face" alt="Maria" />
-                </div>
-                <div class="story-content">
-                  <h4>Maria Santos</h4>
-                  <span class="story-role">Locatária</span>
-                  <p>"Economia de 60% comparado às locadoras tradicionais!"</p>
-                  <div class="story-stats">
-                    <span>💡 15 viagens</span>
-                  </div>
-                </div>
-              </div>
-            </a-col>
-            
-            <a-col :xs="24" :md="12" :lg="6">
-              <div class="story-card">
-                <div class="story-avatar">
-                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face" alt="Carlos" />
-                </div>
-                <div class="story-content">
-                  <h4>Carlos Lima</h4>
-                  <span class="story-role">Empresário</span>
-                  <p>"Solução perfeita para a frota da minha empresa!"</p>
-                  <div class="story-stats">
-                    <span>🚗 12 veículos</span>
-                  </div>
-                </div>
-              </div>
-            </a-col>
+                <a-comment>
 
-            <a-col :xs="24" :md="12" :lg="6">
-              <div class="story-card">
-                <div class="story-avatar">
-                  <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face" alt="Ana" />
-                </div>
-                <div class="story-content">
-                  <h4>Ana Costa</h4>
-                  <span class="story-role">Viajante</span>
-                  <p>"Experiências incríveis em cada destino que visito!"</p>
-                  <div class="story-stats">
-                    <span>✈️ 8 cidades</span>
-                  </div>
-                </div>
+                  <template #author><h4>{{ evaluation.customer_info.full_name }}</h4></template>
+                  <template #avatar>
+                    <div class="story-avatar">
+                      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1B7Cc2RgL0MKHiALbNRzEqENaNh4J5QsDoQ&s" alt="placeholder" />
+                    </div>
+                  </template>
+                  <template #content>
+
+                    <a-typography-paragraph
+                      :ellipsis="{ rows: 4, expandable: true, symbol: 'mais' }"
+                      :content="evaluation.comments"
+
+                    />
+                  </template>
+                  <template #datetime>
+                    <a-tooltip :title="dayjs(evaluation.created_at).format('YYYY-MM-DD HH:mm:ss')">
+                      <span>{{ dayjs(evaluation.created_at).fromNow() }}</span>
+                    </a-tooltip>
+                  </template>
+                  <a-rate v-model:value="evaluation.overall_rating" disabled />
+                </a-comment>
               </div>
-            </a-col>
-          </a-row>
+            </div>
+          </a-carousel>
         </div>
 </template>
 
+
+<script setup>
+import { ref, onMounted, computed } from 'vue';
+import { vehicleService } from '@/services/api';
+import dayjs from 'dayjs';
+import "dayjs/locale/pt";
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
+dayjs.locale('pt');
+
+const evaluations = ref([]);
+
+// Configurações dinâmicas do carrossel
+const dynamicCarouselSettings = computed(() => {
+  const evaluationsCount = evaluations.value.length;
+  
+  // Se tem menos de 3 avaliações, mostrar apenas o número disponível
+  const maxSlidesToShow = Math.min(evaluationsCount, 3);
+  
+  return {
+    slidesToShow: maxSlidesToShow,
+    slidesToScroll: 1,
+    infinite: evaluationsCount > maxSlidesToShow, // Só ser infinito se tiver mais slides que os mostrados
+    autoplay: evaluationsCount > 1 // Só autoplay se tiver mais de 1 avaliação
+  };
+});
+
+const carouselResponsive = computed(() => {
+  const evaluationsCount = evaluations.value.length;
+  
+  return [
+    {
+      breakpoint: 1200,
+      settings: {
+        slidesToShow: Math.min(evaluationsCount, 3),
+        slidesToScroll: 1,
+        infinite: evaluationsCount > Math.min(evaluationsCount, 3)
+      }
+    },
+    {
+      breakpoint: 992,
+      settings: {
+        slidesToShow: Math.min(evaluationsCount, 2),
+        slidesToScroll: 1,
+        infinite: evaluationsCount > Math.min(evaluationsCount, 2)
+      }
+    },
+    {
+      breakpoint: 768,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        infinite: evaluationsCount > 1
+      }
+    }
+  ];
+});
+
+const getEvaluationsStats = async () => {
+  try {
+    const response = await vehicleService.getAllEvaluations();
+    evaluations.value = response.data;
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas de avaliações:', error);
+    return null;
+  }
+};
+
+onMounted(async () => {
+  await getEvaluationsStats();
+});
+
+</script>
+
 <style scoped>
 .success-stories {
-  margin-bottom: 80px;
+  margin-bottom: 48px;
   position: relative;
   z-index: 1;
 }
@@ -105,6 +154,7 @@
   border: 2px solid #e2e8f0;
   transition: all 0.3s ease;
   height: 100%;
+  min-height: 250px;
 }
 
 .story-card:hover {
@@ -114,11 +164,11 @@
 }
 
 .story-avatar {
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   border: 3px solid #FE7743;
 }
 
@@ -155,6 +205,89 @@
   font-size: 14px;
   font-weight: 600;
   color: #10b981;
+}
+
+/* Carousel Styles */
+.evaluations-carousel {
+  position: relative;
+}
+
+.carousel-slide {
+  padding: 0px;
+}
+
+:deep(.ant-carousel .slick-slide) {
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+:deep(.ant-carousel .slick-list) {
+  margin: 0 -12px;
+}
+
+:deep(.ant-carousel .slick-dots) {
+  bottom: -50px;
+}
+
+:deep(.ant-carousel .slick-dots li button) {
+  background: #d1d5db;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+}
+
+:deep(.ant-carousel .slick-dots li.slick-active button) {
+  background: #FE7743;
+}
+
+:deep(.ant-carousel .slick-arrow) {
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: 2px solid #FE7743;
+  border-radius: 50%;
+  color: #FE7743;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+:deep(.ant-carousel .slick-arrow:hover) {
+  background: #FE7743;
+  color: white;
+  transform: scale(1.1);
+}
+
+:deep(.ant-carousel .slick-prev) {
+  left: -20px;
+}
+
+:deep(.ant-carousel .slick-next) {
+  right: -20px;
+}
+
+:deep(.ant-carousel .slick-arrow.slick-disabled) {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  :deep(.ant-carousel .slick-arrow) {
+    display: none !important;
+  }
+  
+  .carousel-slide {
+    padding: 0 8px;
+  }
+  
+  :deep(.ant-carousel .slick-slide) {
+    padding: 0 8px;
+  }
+  
+  :deep(.ant-carousel .slick-list) {
+    margin: 0 -8px;
+  }
 }
 
 </style>

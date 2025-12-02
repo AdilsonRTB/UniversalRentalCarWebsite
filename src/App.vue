@@ -29,7 +29,7 @@
                 <p class="footer-description-modern">
                   {{ t('footer.description') }}
                 </p>
-                <div class="social-media-modern">
+                <!--div class="social-media-modern">
                   <h4>{{ t('footer.followUs') }}</h4>
                   <div class="social-links-modern">
                     <a href="www.facebook.com" class="social-link-modern facebook" aria-label="Facebook">
@@ -39,7 +39,7 @@
                       <InstagramOutlined />
                     </a>
                   </div>
-                </div>
+                </!--div-->
               </div>
             </a-col>
             
@@ -52,13 +52,13 @@
                   <li><router-link to="/search?type=motorcycle">{{ t('footer.motorcycleRental') }}</router-link></li>
                   <li><router-link to="/search?type=van">{{ t('footer.vanRental') }}</router-link></li>
                   <li><router-link to="/search?type=truck">{{ t('footer.truckRental') }}</router-link></li>
-                  <li><router-link to="/register?type=owner">Minhas Reservas</router-link></li>
+                  <li><router-link :to="(token !== null && token !== '') ? '/owner-dashboard?tab=my-bookings' : '/booking-status'">Minhas Reservas</router-link></li>
                 </ul>
               </div>
             </a-col>
 
             <!-- Support -->
-            <a-col :xs="12" :lg="4">
+            <!--a-col :xs="12" :lg="4">
               <div class="footer-section-modern">
                 <h3 class="footer-title-modern">{{ t('footer.support') }}</h3>
                 <ul class="footer-links-modern">
@@ -69,15 +69,53 @@
                   <li><router-link to="/insurance">{{ t('footer.insurance') }}</router-link></li>
                 </ul>
               </div>
-            </a-col>
+            </!--a-col-->
             <a-col :xs="12" :lg="4">
               <div class="footer-section-modern">
                 <h3 class="footer-title-modern">Contatos</h3>
                 <ul class="footer-links-modern">
-                  <li><router-link to="/email"><MailOutlined /> universal@gmail.com</router-link></li>
-                  <li><router-link to="/phone"><WhatsAppOutlined /> (+231) 9999993</router-link></li>
-                </ul>
+                <!-- Link de email -->
+                <li>
+                  <a href="mailto:universal@gmail.com">
+                    <MailOutlined /> universal@gmail.com
+                  </a>
+                </li>
+
+                <!-- Link de WhatsApp -->
+                <li>
+                  <a href="https://wa.me/2319999993" target="_blank" rel="noopener noreferrer">
+                    <WhatsAppOutlined /> (+231) 9999993
+                  </a>
+                </li>
+              </ul>
+
               </div>
+            </a-col>
+            <a-col :xs="24" :lg="8">
+              <div class="social-media-modern">
+                  <h3 footer-title-modern>{{ t('footer.followUs') }}</h3>
+                  <div class="social-links-modern">
+                    <a href="https://www.facebook.com"
+                        class="social-link-modern facebook"
+                        aria-label="Facebook"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FacebookOutlined />
+                      </a>
+
+                      <a href="https://www.instagram.com" 
+                        class="social-link-modern instagram" 
+                        aria-label="Instagram"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <InstagramOutlined />
+                      </a>
+
+                  </div>
+                </div>
+
             </a-col>
           </a-row>
         </div>
@@ -121,12 +159,14 @@ import {
   BankOutlined,
   PayCircleOutlined
 } from '@ant-design/icons-vue'
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLanguageAndCurrency } from './composables/useLanguageAndCurrency'
 import logo from './assets/logo2.png'
 
 const route = useRoute()
+
+const token = ref(null)
 
 // Language and Currency
 const {
@@ -182,6 +222,14 @@ onMounted(() => {
     selectedKeys.value = ['search']
   }
 })
+
+// change token when is change in localStorage
+watchEffect(
+  () => localStorage.getItem('token'),
+  (newToken) => {
+    token.value = newToken
+  }
+);
 
 watch(route, (newRoute) => {
   // Update selected key when route changes

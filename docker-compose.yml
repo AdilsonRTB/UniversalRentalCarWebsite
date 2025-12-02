@@ -8,6 +8,3 @@ services:
       API_TARGET: http://localhost:8010
       HEALTH_TARGET: http://localhost:8010
       VEHICLE_TARGET: http://84.247.171.243:8090
-
-volumes:
-  postgres_data:

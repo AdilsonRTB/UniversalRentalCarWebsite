@@ -2,23 +2,28 @@
 
 ## Project setup
 ```
-yarn install
+npm install
 ```
 
 ### Compiles and hot-reloads for development
 ```
-yarn serve
+npm run serve
 ```
 
 ### Compiles and minifies for production
 ```
-yarn build
+npm run build
 ```
 
-### Lints and fixes files
+### Create diretory in the server and Copy the dist files
 ```
-yarn lint
+root@vps:~# mkdir universal-rental-a-car
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Acess the page
+```
+development: http://localhost:8080/universal-rental-a-car
+
+production: http://{host}/universal-rental-a-car
+```
+
