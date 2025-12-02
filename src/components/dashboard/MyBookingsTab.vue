@@ -12,7 +12,7 @@
       <div class="actions-card">
         <div class="actions-header">
           <h4>Ações e Filtros</h4>
-          <a-button type="primary" @click="navigateToSearch" class="new-booking-btn" size="middle" :style="{
+          <a-button type="primary" @click="navigateToSearch" class="new-booking-btn" size="large" :style="{
               '--btn-bg': backgroundHero,
               '--btn-bg-hover': backgroundHero
             }">
@@ -184,17 +184,17 @@
             >
               <DeleteOutlined /> Cancelar
             </a-button>
-            <a-button
+            <!--a-button
               v-if="['cancelled', 'completed'].includes(booking.status)"
               type="primary"
               @click="$emit('cancel-booking', booking)"
               class="action-btn"
             >
               <CalendarOutlined /> Reservar
-            </a-button>
+            </!--a-button-->
 
             <a-button
-              v-if="['confirmed', 'completed'].includes(booking.status) && !booking.evaluation"
+              v-if="['completed'].includes(booking.status) && !booking.evaluation"
               type="primary"
               @click="rateRental(booking)"
               class="action-btn"
@@ -764,12 +764,12 @@ const navigateToVehicleDetails = (booking) => {
 .new-booking-btn {
   border-radius: 12px;
   font-weight: 600;
-  background: var(--btn-bg, linear-gradient(135deg, #667eea, #764ba2));
+  background: var(--btn-bg, linear-gradient(90deg,#3A1C71 0%,#FDBB2D 100%));
   border: none;
 }
 
 .new-booking-btn:hover {
-  background: var(--btn-bg-hover, linear-gradient(135deg, #5a67d8, #6b46c1)) !important;
+  background: var(--btn-bg-hover, linear-gradient(90deg,#3A1C71 0%,#FDBB2D 100%)) !important;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 

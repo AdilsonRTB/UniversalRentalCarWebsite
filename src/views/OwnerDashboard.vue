@@ -40,7 +40,7 @@
                     <span class="stat-label">Reservas Ativos</span>
                   </div>
                 </div>
-                <div class="stat-card-hero">
+                <!--div class="stat-card-hero">
                   <div class="stat-icon">
                     <StarOutlined />
                   </div>
@@ -48,8 +48,8 @@
                     <span class="stat-number">{{ userStats.loyaltyPoints }}</span>
                     <span class="stat-label">Pontos</span>
                   </div>
-                </div>
-                <div class="stat-card-hero">
+                </!--div>
+                <div-- class="stat-card-hero">
                   <div class="stat-icon">
                     <TrophyOutlined />
                   </div>
@@ -57,7 +57,7 @@
                     <span class="stat-number">{{ getClientClassification() }}</span>
                     <span class="stat-label">Classificação</span>
                   </div>
-                </div>
+                </div-->
                 
 
               </div>
@@ -325,10 +325,10 @@ import { ref, computed, onMounted } from 'vue'
 import {
   UserOutlined,
   BookOutlined,
-  StarOutlined,
+  /*StarOutlined,
   TrophyOutlined,
   MessageOutlined,
-  CreditCardOutlined
+  CreditCardOutlined*/
 } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'

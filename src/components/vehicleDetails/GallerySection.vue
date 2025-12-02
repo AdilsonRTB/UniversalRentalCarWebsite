@@ -6,10 +6,10 @@
           <div v-for="(image, index) in vehicleImages" :key="index" class="carousel-slide-modern">
             <img :src="image.image" :alt="`${vehicle?.brand_name} ${vehicle?.model} - Imagem ${index + 1}`" class="vehicle-image-modern" />
             <div class="image-overlay-actions">
-              <a-button type="text" class="action-btn-modern">
+              <!--a-button type="text" class="action-btn-modern">
                 <CarOutlined style="font-size: large;"/>
-              </a-button>
-              <a-button type="text" class="action-btn-modern">
+              </!--a-button-->
+              <a-button type="text" class="action-btn-modern" @click="shareLink">
                 <ShareAltOutlined />
               </a-button>
               <a-button type="text" class="action-btn-modern">
@@ -25,7 +25,20 @@
 
 <script setup>
 import { defineProps } from 'vue'
-import { CarOutlined, ShareAltOutlined, ExpandOutlined } from '@ant-design/icons-vue'
+import { ShareAltOutlined, ExpandOutlined } from '@ant-design/icons-vue'
+
+
+const shareLink = () => {
+  const linkToShare = window.location.href
+  if (navigator.share) {
+    navigator.share({
+      title: document.title,
+      url: linkToShare
+    }).catch(err => console.error('Erro ao compartilhar', err))
+  } else {
+    alert('Compartilhamento não suportado nesse navegador.')
+  }
+}
 
 defineProps({
   vehicle: {

@@ -196,7 +196,7 @@
           </div>
 
           <!-- Quick Actions -->
-          <div class="card-actions">
+          <!--div class="card-actions">
             <a-button @click="printBooking" class="action-btn">
               <PrinterOutlined /> Imprimir
             </a-button>
@@ -210,6 +210,39 @@
             >
               <MessageOutlined /> Contatar
             </a-button>
+          </!--div-->
+          <div class="card-actions">
+            <a-button @click="navigateToVehicleDetails(searchResult)" class="action-btn">
+              <EyeOutlined /> Detalhes
+            </a-button>
+            <!--a-button @click="navigateToMessages" class="action-btn">
+              <MessageOutlined /> Contato
+            </!--a-button-->
+            <!--a-button
+              v-if="['pending', 'confirmed'].includes(searchResult.status)"
+              danger
+              @click="$emit('cancel-booking', searchResult)"
+              class="action-btn"
+            >
+              <DeleteOutlined /> Cancelar
+            </!--a-button-->
+            <!--a-button
+              v-if="['cancelled', 'completed'].includes(searchResult.status)"
+              type="primary"
+              @click="$emit('cancel-booking', searchResult)"
+              class="action-btn"
+            >
+              <CalendarOutlined /> Reservar
+            </!--a-button-->
+
+            <!--a-button
+              v-if="['confirmed', 'completed'].includes(searchResult.status) && !searchResult.evaluation"
+              type="primary"
+              @click="rateRental(searchResult)"
+              class="action-btn"
+            >
+              <StarOutlined /> Avaliar
+            </!--a-button-->
           </div>
         </div>
       </div>
@@ -259,9 +292,9 @@ import {
   PhoneOutlined,
   CloseOutlined,
   InboxOutlined,
-  PrinterOutlined,
+  /*PrinterOutlined,
   DownloadOutlined,
-  MessageOutlined,
+  MessageOutlined,*/
   QrcodeOutlined
 } from '@ant-design/icons-vue'
 
@@ -297,6 +330,13 @@ const formRules = {
     { required: true, message: 'Por favor, insira o seu email' },
     { type: 'email', message: 'Por favor, insira um email válido' }
   ]
+}
+
+
+const navigateToVehicleDetails = (booking) => {
+  if (booking.id) {
+    window.open(`/vehicle/${searchResult.value.vehicle_info.id}`, '_blank');
+  }
 }
 
 // Methods
@@ -364,13 +404,13 @@ const getStatusDisplay = (status) => {
   return statusMap[status] || status
 }
 
-const printBooking = () => {
+/*const printBooking = () => {
   window.print()
 }
 
 const downloadBooking = () => {
   // Implement download functionality
-}
+}*/
 
 // QR Scanner functionality
 const qrScannerRef = ref(null)

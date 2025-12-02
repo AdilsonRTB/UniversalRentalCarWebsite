@@ -223,7 +223,7 @@
             <!-- Login Link -->
             <div class="login-link" >
               <span>Já tem uma conta?</span>
-              <router-link to="/login" class="login-text">
+              <router-link :to="{ path: '/', query: { from: $route.fullPath } }" class="login-text">
                 Fazer login
               </router-link>
             </div>

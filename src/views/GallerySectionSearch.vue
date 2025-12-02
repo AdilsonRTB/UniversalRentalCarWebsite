@@ -22,7 +22,7 @@
                   <a-button type="text" class="action-btn-modern" @click="viewVehicle(vehicle?.id)">
                     <CarOutlined style="font-size: large;"/>
                   </a-button>
-                  <a-button type="text" class="action-btn-modern">
+                  <a-button type="text" class="action-btn-modern" @click="shareLink">
                     <ShareAltOutlined />
                   </a-button>
                   <!--a-button type="text" class="action-btn-modern">
@@ -146,6 +146,20 @@ const props = defineProps({
     default: null
   }
 })
+
+
+const shareLink = () => {
+  const linkToShare = window.location.href + `vehicle/${props.vehicle.id}`
+
+  if (navigator.share) {
+    navigator.share({
+      title: document.title,
+      url: linkToShare
+    }).catch(err => console.error('Erro ao compartilhar', err))
+  } else {
+    alert('Compartilhamento não suportado nesse navegador.')
+  }
+}
 
 // Modal state
 const showReservationModal = ref(false)
@@ -352,14 +366,13 @@ const viewVehicle = (vehicleId) => {
   position: absolute;
   bottom: 30px;
   left: 20px;
-  gap: 12px;
 }
 
 .spec-item-modern {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 10px;
+  -gap: 5px;
+  padding: 0px;
   -border-radius: 12px;
   -background: #f8fafc;
 }

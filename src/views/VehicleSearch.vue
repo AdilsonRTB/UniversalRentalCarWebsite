@@ -44,7 +44,7 @@
         <div class="content-wrapper">
           
           <!-- Advanced Filters -->
-          <div class="advanced-filters-section">
+          <div class="advanced-filters-section" id="filtro">
             <div class="filters-header">
               <h3 class="filters-title">Filtros</h3>
               <!--a-button type="text" class="toggle-filters">{{ t('search.showMore') }}</!--a-button-->
@@ -197,11 +197,11 @@
                         <div class="feature-mini">
 
                           <SettingOutlined />
-                          <span>{{ vehicle.fuel_type }} </span>
+                          <span>{{ getLabelFuel(vehicle.fuel_type) }} </span>
                         </div>
                         <div class="feature-mini">
                           <DeploymentUnitOutlined />
-                          <span>{{ vehicle.gearbox_type }}</span>
+                          <span>{{ getLabelTransmission(vehicle.gearbox_type) }}</span>
                         </div>
                         <div class="feature-mini">
                           <DashboardOutlined/>
@@ -304,7 +304,11 @@ import { useI18n } from 'vue-i18n'
 import { message } from 'ant-design-vue'
 import VehicleDetails from './VehicleDetailsSearch.vue'
 import dayjs from 'dayjs'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
+
+const openLoginModal = ref(false);
 // Use i18n and language/currency functionality
 const { t } = useI18n()
 
@@ -349,6 +353,25 @@ const loading = ref(false)
 const sortBy = ref('price-asc')
 const transmissionFilter = ref([])
 const vehicleId = ref(null);
+
+const getLabelTransmission = (type) => {
+  const labels = {
+    manual: 'Manual',
+    automatic: 'Automático'
+  }
+  return labels[type] || type
+}
+
+const getLabelFuel = (type) => {
+  const labels = {
+    gasoline: 'Gasolina',
+    diesel: 'Diesel',
+    electric: 'Elétrico',
+    hybrid: 'Híbrido',
+    petrol: 'Gasóleo'
+  }
+  return labels[type] || type
+}
 
 
 const openDetailsRendels = async (id) => {
@@ -467,6 +490,13 @@ onMounted(() => {
   filters.value.startDate = dayjs().add(1, 'day');
   filters.value.endDate = dayjs().add(3, 'day');
 
+  console.log(route.query.from)
+
+  if (route.query.from === 'register') {
+    // open modal login
+    openLoginModal.value = true;
+  }
+
 })
 </script>
 
@@ -484,7 +514,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  margin-top: 80px;
+  -margin-top: 80px;
   background: linear-gradient(90deg,#3A1C71 0%,#FDBB2D 100%) !important;
 }
 
@@ -514,14 +544,14 @@ onMounted(() => {
 }
 
 .floating-element.element-1 {
-  top: 50px;
-  left: -20px;
+  top: 100px;
+  left: 0px;
   animation-delay: 0s;
 }
 
 .floating-element.element-2 {
-  bottom: 240px;
-  right: -40px;
+  bottom: 200px;
+  left: -100px;
   animation-delay: -1.0s;
 }
 
