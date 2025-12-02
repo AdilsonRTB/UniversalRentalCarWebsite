@@ -12,7 +12,7 @@
               <a-button type="text" class="action-btn-modern" @click="shareLink">
                 <ShareAltOutlined />
               </a-button>
-              <a-button type="text" class="action-btn-modern">
+              <a-button type="text" class="action-btn-modern" @click="visible = true">
                 <ExpandOutlined />
               </a-button>
             </div>
@@ -21,12 +21,21 @@
       </div>
     </div>
   </section>
+  <div style="display: none">
+    <a-image-preview-group :preview="{ visible, onVisibleChange: vis => (visible = vis) }">
+          <a-image v-for="(image, index) in vehicleImages" :key="index"
+            :src="image.image"
+          />
+
+        </a-image-preview-group>
+    </div>
 </template>
 
 <script setup>
-import { defineProps } from 'vue'
+import { defineProps, ref } from 'vue'
 import { ShareAltOutlined, ExpandOutlined } from '@ant-design/icons-vue'
 
+const visible = ref(false);
 
 const shareLink = () => {
   const linkToShare = window.location.href
