@@ -3,7 +3,7 @@
     :open="visible" 
     @cancel="handleCancel"
     :footer="null"
-    :width="1000"
+    :width="800"
     centered
     class="reservation-modal"
   >
@@ -39,6 +39,18 @@
                   <div class="detail-item">
                     <span class="detail-label">Período:</span>
                     <span class="detail-value">{{ calculateDays }} {{ calculateDays === 1 ? 'dia' : 'dias' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Taxa de serviço:</span>
+                    <span class="detail-value">1000 CVE</span>
+                  </div>
+                  <div class="detail-item" v-if="withDriver">
+                    <span class="detail-label">Com motorista (+20%)</span>
+                    <span class="detail-value">{{ withDriverValue }} CVE</span>
+                  </div>
+                  <div class="detail-item" v-if="carSeat">
+                    <span class="detail-label">Assento Criança</span>
+                    <span class="detail-value">0 CVE</span>
                   </div>
                   <div class="detail-item">
                     <span class="detail-label">Valor Diário:</span>
@@ -92,20 +104,35 @@
                 </a-form-item>
               </div>
 
-              <!-- Email Field -->
-              <a-form-item
-                name="email"
-                class="form-item"
-              >
-                <a-input
-                  v-model:value="formData.email"
-                  size="large"
-                  placeholder="seu.email@exemplo.com"
-                  :prefix="() => h(MailOutlined, { style: { color: '#8b5cf6' } })"
-                  class="form-input"
-                />
-              </a-form-item>
+              <div class="name-row">
+                <!-- Email Field -->
+                <a-form-item
+                  name="email"
+                  class="form-item"
+                >
+                  <a-input
+                    v-model:value="formData.email"
+                    size="large"
+                    placeholder="seu.email@exemplo.com"
+                    :prefix="() => h(MailOutlined, { style: { color: '#8b5cf6' } })"
+                    class="form-input"
+                  />
+                </a-form-item>
 
+                <!-- Phone Field -->
+                <a-form-item
+                  name="phone"
+                  class="form-item"
+                >
+                  <a-input
+                    v-model:value="formData.phone"
+                    size="large"
+                    placeholder="+238 xxx xxxx"
+                    :prefix="() => h(PhoneOutlined, { style: { color: '#8b5cf6' } })"
+                    class="form-input"
+                  />
+                </a-form-item>
+              </div>
               <!-- License Field -->
               <a-form-item
                 name="drivingLicense"
@@ -120,19 +147,7 @@
                 />
               </a-form-item>
 
-              <!-- Phone Field -->
-              <a-form-item
-                name="phone"
-                class="form-item"
-              >
-                <a-input
-                  v-model:value="formData.phone"
-                  size="large"
-                  placeholder="+238 xxx xxxx"
-                  :prefix="() => h(PhoneOutlined, { style: { color: '#8b5cf6' } })"
-                  class="form-input"
-                />
-              </a-form-item>
+
 
               <!-- Terms and Conditions -->
               <div class="terms-section">
@@ -213,6 +228,21 @@ const props = defineProps({
   calculateTotal: {
     type: Number,
     required: true
+  },
+  carSeat: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
+  withDriver: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
+  withDriverValue: {
+    type: Number,
+    required: false,
+    default: 0
   }
 })
 
@@ -500,15 +530,15 @@ watch(() => props.visible, (newVal) => {
 /* Form Header */
 .form-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 10px;
 }
 
 .form-title {
   font-size: 28px;
   font-weight: 700;
   color: #1a202c;
-  margin: 16px 0 8px 0;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  margin: 0px 0 8px 0;
+  background: linear-gradient(90deg,#3A1C71 0%,#FDBB2D 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -525,7 +555,7 @@ watch(() => props.visible, (newVal) => {
   background: #f8fafc;
   border-radius: 12px;
   padding: 20px;
-  margin-bottom: 32px;
+  margin-bottom: 10px;
   border: 1px solid #e2e8f0;
 }
 

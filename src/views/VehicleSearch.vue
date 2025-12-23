@@ -413,12 +413,46 @@ const loadAvailableVehicles = async () => {
     //await loadPromotionalVehicles()
   } catch (error) {
     console.error('Erro ao carregar veículos:', error)
-    // Mock data for development - fallback when API fails
-    // Load promotional vehicles (limited to 10)
-    //await loadPromotionalVehicles()
+    loadMockVehicles()
   } finally {
     loading.value = false
   }
+}
+
+const loadMockVehicles = () => {
+  // Mock data for development
+  allVehicles.value = [
+    {
+      id: 1,
+      brand_name: 'Toyota',
+      model: 'Corolla',
+      year: 2020,
+      type: 'CAR',
+      fuel_type: 'gasoline',
+      gearbox_type: 'automatic',
+      mileage: 15000,
+      daily_rate: 2500,
+      location: 'Praia, Santiago',
+      owner: 'João Silva',
+      photo: null
+    },
+    {
+      id: 2,
+      brand_name: 'Honda',
+      model: 'Civic',
+      year: 2019,
+      type: 'CAR',
+      fuel_type: 'diesel',
+      gearbox_type: 'manual',
+      mileage: 30000,
+      daily_rate: 2200,
+      location: 'Assomada, Santiago',
+      owner: 'Maria Oliveira',
+      photo: null
+    }
+    // Add more mock vehicles as needed
+  ]
+  vehicles.value = allVehicles.value
 }
 
 

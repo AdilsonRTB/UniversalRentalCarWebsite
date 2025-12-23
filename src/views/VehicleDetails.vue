@@ -80,7 +80,7 @@
 
     </a-spin>
 
-    
+
   </div>
 </template>
 
@@ -149,11 +149,13 @@ const loadVehicleDetails = async () => {
     vehicleImages.value = response.data.additional_photos || []
   } catch (error) {
     console.error('Erro ao carregar detalhes do veículo:', error)
-
+    
   } finally {
     loading.value = false
   }
 }
+
+
 
 const handleBooking = async () => {
   bookingLoading.value = true

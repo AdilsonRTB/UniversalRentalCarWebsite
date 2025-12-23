@@ -2,8 +2,8 @@
   <section class="gallery-section-modern">
     <div class="gallery-container">
       <div class="vehicle-image-carousel-modern">
-        <a-row>
-          <a-col :span="14" :md="24" :lg="14" :xs="24">
+        <a-row class="equal-height-row">
+          <a-col :span="14" :md="24" :lg="14" :xs="24" class="image-column">
             <a-carousel :autoplay="true" class="modern-carousel">
               <div v-for="(image, index) in vehicleImages" :key="index" class="carousel-slide-modern">
                 <img :src="image.image" :alt="`${vehicle?.brand_name} ${vehicle?.model} - Imagem ${index + 1}`" class="vehicle-image-modern" />
@@ -65,7 +65,8 @@
               </div>
             </a-carousel>
           </a-col>
-          <a-col :span="10" :md="24" :xs="24" :lg="10" style="background: white;">
+          <a-col :span="10" :md="24" :xs="24" :lg="10" class="content-column">
+            <div class="column-content-wrapper">
 
             <div class="description-card-modern" >
               <div class="card-header-modern">
@@ -73,32 +74,79 @@
                 <!--p class="card-subtitle-modern">Informações sobre o veículo</!--p-->
               </div>
 
-              <div class="description-content-modern">
-                <p>{{ vehicle?.description }}</p>
+              <div class="description-container" :class="{ scrollable: expanded }" >
+                <a-typography-paragraph
+                  :ellipsis="!expanded
+                    ? { rows: 6, expandable: true, symbol: 'ver mais' }
+                    : false
+                  "
+                  :content="vehicle?.description"
+                  @expand="onExpand"
+                />
               </div>
             </div>
 
             <!-- Seção de Preço e Reserva -->
             <div class="pricing-section-modern">
-              <div class="price-display">
-                <div class="main-price">
-                  <span class="price-number">{{ vehicle?.daily_rate }}</span>
-                  <span class="price-currency">CVE</span>
-                  <span class="price-period">/dia</span>
-                </div>
-                <div class="total-price" >
-                  <span class="total-amount">{{ calculateTotal }} CVE</span>
-                  <span class="total-label">Total</span>
+              <!-- Extras Section -->
+              <div class="extras-section">
+                <!--h4 class="extras-title">Extras Disponíveis</!--h4-->
+                <div class="extras-options">
+                  <div class="extra-option">
+                    <a-checkbox v-model:checked="withDriver">Com motorista</a-checkbox>
+                    <span class="extra-price">+20%</span>
+                  </div>
+                  <div class="extra-option">
+                    <a-checkbox v-model:checked="carSeat">Assento Criança</a-checkbox>
+                    <span class="extra-price">Gratuito</span>
+                  </div>
                 </div>
               </div>
+
+              <!-- Price Display -->
+              <div class="price-display">
+                <div class="price-breakdown">
+                  <div class="price-line">
+                    <span class="price-label">Preço diário</span>
+                    <span class="price-value">{{ vehicle?.daily_rate }} CVE</span>
+                  </div>
+                  <div class="price-line">
+                    <span class="price-label">{{ days }} dias</span>
+                    <span class="price-value">{{ days * vehicle?.daily_rate }} CVE</span>
+                  </div>
+                  <div class="price-line">
+                    <span class="price-label">Taxa de serviço</span>
+                    <span class="price-value">1000 CVE</span>
+                  </div>
+                  <div v-if="withDriver" class="price-line">
+                    <span class="price-label">Com motorista (+20%)</span>
+                    <span class="price-value">{{ Math.round((days * vehicle?.daily_rate) * 0.20) }} CVE</span>
+                  </div>
+                  <div v-if="carSeat" class="price-line">
+                    <span class="price-label">Assento Criança</span>
+                    <span class="price-value">0 CVE</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reserve Button -->
               <a-button
-                type="primary" 
+                type="primary"
                 size="large" 
                 class="next-btn-modern"
                 @click="handleReservation"
               >
-                Reservar Agora
+                <div class="button-content">
+                  <span class="button-text">Reservar Agora</span>
+                  <span class="button-total">{{ calculateTotal }} CVE</span>
+                </div>
               </a-button>
+
+              <!-- Details Link -->
+              <!--div class="details-section">
+                <a href="#details" class="details-link">Ver Detalhes do Veículo</a>
+              </!--div-->
+              </div>
             </div>
           </a-col>
         </a-row>
@@ -113,6 +161,9 @@
       :return-date="returnDate"
       :calculate-days="calculateDays"
       :calculate-total="calculateTotal"
+      :with-driver="withDriver"
+      :car-seat="carSeat"
+      :with-driver-value="Math.round((days * vehicle?.daily_rate) * 0.20)"
       @reservation-confirmed="handleReservationConfirmed"
     />
   </section>
@@ -155,7 +206,17 @@ const props = defineProps({
   }
 })
 
+const expanded = ref(false);
+
 const visible = ref(false);
+
+// Extras state
+const withDriver = ref(false);
+const carSeat = ref(false);
+
+const onExpand = (isExpanded) => {
+  expanded.value = isExpanded;
+};
 
 const shareLink = () => {
   const linkToShare = window.location.href + `vehicle/${props.vehicle.id}`
@@ -183,8 +244,17 @@ const days = computed(() => {
 })
 
 const calculateTotal = computed(() => {
-
-  return days.value * props.vehicle?.daily_rate
+  let baseTotal = days.value * props.vehicle?.daily_rate;
+  
+  // Add driver cost (20% extra)
+  if (withDriver.value) {
+    baseTotal *= 1.20;
+  }
+  
+  // Add service fee
+  baseTotal += 1000;
+  
+  return Math.round(baseTotal);
 })
 
 // Função de reserva
@@ -262,6 +332,87 @@ const viewVehicle = (vehicleId) => {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 }
 
+/* Equal Height Columns */
+.equal-height-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.equal-height-row .ant-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.image-column {
+  min-height: 500px;
+}
+
+.content-column {
+  background: white;
+  min-height: 500px;
+}
+
+.column-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+}
+
+.description-card-modern {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 0px;
+}
+
+.description-container {
+  height: 180px;
+  overflow-y: auto;
+  display: block;
+}
+
+.description-container .ant-typography {
+  margin-bottom: 0;
+}
+
+.description-container.scrollable {
+  overflow-y: auto; /* ativa scroll */
+}
+
+.pricing-section-modern {
+  flex-shrink: 0;
+  margin-top: -70px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+  .equal-height-row {
+    display: block;
+  }
+  
+  .image-column,
+  .content-column {
+    min-height: auto;
+  }
+  
+  .column-content-wrapper {
+    height: auto;
+  }
+  
+  .description-card-modern {
+    flex: none;
+  }
+  
+  .pricing-section-modern {
+    margin-top: 20px;
+  }
+}
+
 .vehicle-image-carousel-modern {
   position: relative;
 }
@@ -272,7 +423,8 @@ const viewVehicle = (vehicleId) => {
 
 .carousel-slide-modern {
   position: relative;
-  height: 400px;
+  height: 500px;
+  min-height: 500px;
 }
 
 .vehicle-image-modern {
@@ -351,11 +503,10 @@ const viewVehicle = (vehicleId) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
 }
 
 .card-title-modern {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   margin: 0 0 8px 0;
   color: #111827;
@@ -423,56 +574,41 @@ const viewVehicle = (vehicleId) => {
   background: white;
   border-radius: 12px;
 
-  margin-top: 20px;
-
 }
 
 .price-display {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
-.main-price {
+.price-breakdown {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.price-line {
   display: flex;
-  align-items: baseline;
-  gap: 4px;
-  margin-bottom: 8px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.price-number {
-  font-size: 32px;
-  font-weight: 700;
-  color: #1f2937;
-  line-height: 1;
+.price-line:last-child {
+  border-bottom: none;
 }
 
-.price-currency {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.price-period {
-  font-size: 16px;
-  color: #6b7280;
+.price-label {
+  font-size: 14px;
+  color: #64748b;
   font-weight: 500;
 }
 
-.total-price {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.total-amount {
-  font-size: 16px;
-  font-weight: 600;
-  color: #6b7280;
-}
-
-.total-label {
+.price-value {
   font-size: 14px;
-  color: #6b7280;
-  text-transform: capitalize;
+  color: #1e293b;
+  font-weight: 600;
 }
 
 .price-details {
@@ -493,7 +629,7 @@ const viewVehicle = (vehicleId) => {
 
 .next-btn-modern {
   width: 100% !important;
-  height: 50px !important;
+  height: 60px !important;
   background: #FE7743 !important;
   border: none !important;
   border-radius: 8px !important;
@@ -501,14 +637,99 @@ const viewVehicle = (vehicleId) => {
   font-size: 16px !important;
   color: white !important;
   transition: all 0.3s ease !important;
-
-  -position: absolute;
-  -bottom: 20px;
+  padding: 0 !important;
 }
 
 .next-btn-modern:hover {
   background: #e6693c !important;
   color: white !important;
+}
+
+.button-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.button-text {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.button-total {
+  font-size: 18px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* Extras Section */
+.extras-section {
+  margin-bottom: 0px;
+  padding-bottom: 16px;
+  -border-bottom: 1px solid #e5e7eb;
+}
+
+.extras-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 12px 0;
+}
+
+.extras-options {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.extra-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.extra-option:hover {
+  background: #f3f4f6;
+  border-color: #FE7743;
+}
+
+.extra-price {
+  font-size: 12px;
+  font-weight: 600;
+  color: #FE7743;
+  background: rgba(254, 119, 67, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Details Section */
+.details-section {
+  text-align: center;
+  margin-top: 0px;
+  padding-top: 5px;
+  -border-top: 1px solid #e5e7eb;
+}
+
+.details-link {
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.details-link:hover {
+  color: #FE7743;
+  text-decoration: underline;
 }
 
 
