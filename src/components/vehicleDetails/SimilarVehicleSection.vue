@@ -14,9 +14,9 @@
       >
         <div class="similar-vehicle-image-modern">
           <!--CarOutlined class="vehicle-icon-similar" /-->
-          <CarOutlined class="vehicle-icon-similar" v-if="!vehicle.photo"/>
-          <img :src="vehicle.photo" :alt="`${vehicle?.brand_name} ${vehicle?.model}`" class="vehicle-photo-modern" v-else/>
-
+          <CarOutlined class="vehicle-icon-similar" v-if="!vehicle.photo && !vehicle.primary_photo"/>
+          <img v-if="vehicle.primary_photo" :src="formatImageUrl(vehicle.primary_photo.image)" :alt="`${vehicle?.brand_name} ${vehicle?.model}`" class="vehicle-photo-modern" />
+          <img v-if="!vehicle.primary_photo && vehicle.photo" :src="formatImageUrl(vehicle.photo)" :alt="`${vehicle?.brand_name} ${vehicle?.model}`" class="vehicle-photo-modern" />
           <div v-if="vehicle.hasPromotion" class="promotion-badge-similar">
             🔥 {{ t('vehicles.promotion') }}
           </div>
@@ -30,17 +30,17 @@
           
           <div class="vehicle-location-similar">
             <EnvironmentOutlined class="location-icon-similar" />
-            <span>{{ vehicle.location }}</span>
+            <span>Achada Santo António, Santiago</span>
           </div>
           
           <div class="vehicle-features-mini">
             <div class="feature-mini">
                 <SettingOutlined />
-                <span>{{ vehicle.fuel_type }} </span>
+                <span>{{ fuelTypeMap(vehicle.fuel_type) }} </span>
             </div>
             <div class="feature-mini">
                 <DeploymentUnitOutlined />
-                <span>{{ vehicle.gearbox_type }}</span>
+                <span>{{ gearboxTypeMap(vehicle.gearbox_type) }}</span>
             </div>
             <div class="feature-mini">
                 <DashboardOutlined/>
@@ -55,15 +55,12 @@
             <div class="vehicle-footer-modern">
                 <div class="rating-modern">
                 <StarFilled class="star-icon" />
-                <span>4.5 (12)</span>
+                <span>{{ vehicle.stats.average_overall_rating }} ({{ vehicle.stats.total_evaluations }})</span>
                 </div>
-                <div class="status-modern" v-if="vehicle.is_available">
-                  <CheckCircleFilled class="status-icon" />
-                  <span>{{ t('vehicles.available') }}</span>
-                </div>
-                <div class="status-modern" v-if="!vehicle.is_available">
-                  <CloseCircleOutlined class="status-icon_unavailable" />
-                  <span class="status-icon_unavailable">Indesponível</span>
+                <div class="status-modern" :class="vehicle.is_available ? '' : 'status-modern-unavailable'">
+                  <CheckCircleFilled class="status-icon" v-if="vehicle.is_available"/>
+                  <CloseCircleFilled class="status-icon-error" v-else/>
+                  <span>{{ vehicle.is_available ? t('vehicles.available') : t('vehicles.unavailable') }}</span>
                 </div>
             </div>
           <!--div class="vehicle-price-section">
@@ -95,57 +92,30 @@ import {
     DashboardOutlined,
     StarFilled,
     CheckCircleFilled,
-    CloseCircleOutlined,
   //TeamOutlined,
-  SettingOutlined
+  SettingOutlined,
+  CloseCircleFilled
 } from '@ant-design/icons-vue'
 import { useI18n } from 'vue-i18n'
-//import { useLanguageAndCurrency } from '../../composables/useLanguageAndCurrency'
-//import { useRouter } from 'vue-router'
 import { vehicleService } from '../../services/api'
+import dayjs from 'dayjs'
+import { useUtilities } from '../../composables/utilits.js'
+
+const { formatImageUrl } = useUtilities()
 
 const { t } = useI18n()
-//const { formatCurrency } = useLanguageAndCurrency()
-//const router = useRouter()
 
-const similarVehicles = ref([
-  {
-    id: 2,
-    brand: "Toyota",
-    model: "Corolla",
-    year: 2023,
-    location: "Porto",
-    capacity: 5,
-    transmission: "Automático",
-    price: 45,
-    originalPrice: 55,
-    hasPromotion: true
-  },
-  {
-    id: 3,
-    brand: "Honda",
-    model: "Civic",
-    year: 2022,
-    location: "Lisboa",
-    capacity: 5,
-    transmission: "Manual",
-    price: 42,
-    originalPrice: null,
-    hasPromotion: false
-  },
-  {
-    id: 4,
-    brand: "Volkswagen",
-    model: "Golf",
-    year: 2023,
-    location: "Braga",
-    capacity: 5,
-    transmission: "Automático",
-    price: 48,
-    originalPrice: null,
-    hasPromotion: false
-  }
-])
+const STORAGE_KEYS = {
+  START_DATE: 'vehicle_search_start_date',
+  END_DATE: 'vehicle_search_end_date'
+}
+
+const similarVehicles = ref([])
+
+const filters = ref({
+  startDate: localStorage.getItem(STORAGE_KEYS.START_DATE) || null,
+  endDate: localStorage.getItem(STORAGE_KEYS.END_DATE) || null
+})
 
 const loading = ref(false)
 
@@ -154,27 +124,87 @@ const loadAvailableVehicles = async () => {
   try {
     const response = await vehicleService.getAllVehicles()
     similarVehicles.value = response.data
-
-    // Load promotional vehicles (limited to 10)
-    //await loadPromotionalVehicles()
   } catch (error) {
     console.error('Erro ao carregar veículos:', error)
-    // Mock data for development - fallback when API fails
-    // Load promotional vehicles (limited to 10)
-    //await loadPromotionalVehicles()
   } finally {
     loading.value = false
+    searchVehicles()
   }
+}
+
+
+const searchVehicles = async () => {
+  loading.value = true
+  if (filters.value.startDate && filters.value.endDate) {
+    const start = new Date(filters.value.startDate)
+    const end = new Date(filters.value.endDate)
+    if (start > end) {
+      //message.error('A data de recolha não pode ser posterior à data de devolução.')
+      loading.value = false
+      return
+    }
+  }
+
+  /* filtrar por data active_rentals */
+  if (filters.value.startDate && filters.value.endDate) {
+    const start = dayjs(filters.value.startDate)
+    const end = dayjs(filters.value.endDate)
+
+    console.log('Filtering vehicles between', start.format(), 'and', end.format())
+
+    similarVehicles.value = similarVehicles.value.map(vehicle => {
+      const hasOverlap = vehicle.active_rentals?.some(rental => {
+        const rentalStart = dayjs(rental.start_date)
+        const rentalEnd = dayjs(rental.end_date)
+        return start.isBefore(rentalEnd) && end.isAfter(rentalStart)
+      })
+
+      return {
+        ...vehicle,
+        is_available: !hasOverlap
+      }
+  })
+
+  }
+  loading.value = false
 }
 
 // Initial load
 onMounted(() => {
   loadAvailableVehicles()
+
 })
 
 const navigateToVehicle = (vehicleId) => {
+    window.location.href = `/vehicle/${vehicleId}`;
+}
 
-    window.open(`/vehicle/${vehicleId}`, '_blank');
+const fuelTypeMap = (type) => {
+  switch (type) {
+    case 'gas':
+      return 'Gasolina'
+    case 'diesel':
+      return 'Diesel'
+    case 'electric':
+      return 'Elétrico'
+    case 'hybrid':
+      return 'Híbrido'
+    case 'petrol':
+      return 'Gasóleo'
+    default:
+      return type
+  }
+}
+
+const gearboxTypeMap = (type) => {
+  switch (type) {
+    case 'manual':
+      return 'Manual'
+    case 'automatic':
+      return 'Automático'
+    default:
+      return type
+  }
 }
 </script>
 
@@ -397,6 +427,8 @@ const navigateToVehicle = (vehicleId) => {
   color: #f59e0b;
 }
 
+
+
 .star-icon {
   color: #f59e0b;
   font-size: 12px;
@@ -406,13 +438,22 @@ const navigateToVehicle = (vehicleId) => {
   color: #10b981;
 }
 
+.status-modern-unavailable {
+  color: #ef4444;
+}
+
 .status-icon {
   color: #10b981;
   font-size: 12px;
 }
 
-.status-icon_unavailable {
-  color: #c53e15;
+.status-icon-error {
+  color: #ef4444;
+  font-size: 12px;
+}
+
+.status-icon-unavailable {
+  color: #ef4444;
   font-size: 12px;
 }
 

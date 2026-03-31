@@ -1,5 +1,5 @@
 <template>
-  <div class="auth-container" :style="{ background: contentHero.backgroundGradient }">
+  <div class="auth-container" >
     <!-- Background Elements -->
     <div class="background-decoration">
       <div class="circle circle-1"></div>
@@ -387,13 +387,6 @@ const formRef = ref(null)
 const isLoading = ref(false)
 const currentStep = ref(0)
 
-const contentHero = computed(() => {
-  const bgGradient = localStorage.getItem('bg') || 'linear-gradient(90deg, #1CB5E0 0%, #000851 100%)'
-  return {
-    backgroundGradient: bgGradient
-  }
-})
-
 const formData = reactive({
   // Personal Information
   firstName: '',
@@ -627,7 +620,7 @@ watch(() => formData.postalCode, (newValue) => {
 .auth-container {
   min-height: 100vh;
   position: relative;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg,#3A1C71 0%,#FDBB2D 100%);
   display: flex;
   align-items: center;
   justify-content: center;

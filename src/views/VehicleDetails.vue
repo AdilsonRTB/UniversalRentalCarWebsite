@@ -14,14 +14,10 @@
 
             <div class="hero-title-section">
               <div class="vehicle-badges">
-                <div class="availability-badge-modern available">
-                  <CheckCircleFilled class="badge-icon" />
-                  {{ t('vehicles.available') }}
+                <div  class="availability-badge-modern available">
+                  <SecurityScanOutlined class="badge-icon" />
+                  Seguro
                 </div>
-                <!--div class="availability-badge-modern unvailable" v-else>
-                  <CloseCircleOutlined class="badge-icon" />
-                  Indisponivel
-                </!--div-->
 
                 <div class="verified-badge-modern">
                   <SafetyCertificateOutlined class="badge-icon" />
@@ -37,7 +33,7 @@
                 </div>
                 <div class="meta-item">
                   <EnvironmentOutlined class="meta-icon" />
-                  <span>Praia, Santiago</span>
+                  <span>Achada Santo António, Santiago</span>
                 </div>
 
               </div>
@@ -54,11 +50,10 @@
             :vehicle="vehicle"
             :vehicle-images="vehicleImages"
           />
-          
+          <a-back-top />
           <!-- Content Grid -->
           <ContentGridSection
             :vehicle="vehicle"
-            :booking-dates="bookingDates"
             :booking-loading="bookingLoading"
             :total-days="totalDays"
             :subtotal="subtotal"
@@ -68,13 +63,16 @@
             @contact="contactOwner"
             @update:start-date="(date) => bookingDates.startDate = date"
             @update:end-date="(date) => bookingDates.endDate = date"
+            @updateSection="updateSimilarVehiclesSection"
+            :locations="locations"
+            :config="config"
           />
           
           <!-- Reviews Section -->
           <ReviewsSection :vehicle-id="route.params.id" />
           
           <!-- Similar Vehicles Section -->
-          <SimilarVehicleSection />
+          <SimilarVehicleSection :key="updatesection"/>
         </div>
       </div>
 
@@ -96,32 +94,88 @@ import SimilarVehicleSection from '../components/vehicleDetails/SimilarVehicleSe
 import {
   EnvironmentOutlined,
   CalendarOutlined,
-  CheckCircleFilled,
-  //CloseCircleOutlined,
   SafetyCertificateOutlined,
+  SecurityScanOutlined,
 } from '@ant-design/icons-vue'
 import { vehicleService } from '../services/api'
 import { useI18n } from 'vue-i18n'
-//import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency'
 
 const { t } = useI18n()
-//const { formatCurrency } = useLanguageAndCurrency()
-//const router = useRouter()
 const route = useRoute()
 
 const loading = ref(false)
 const bookingLoading = ref(false)
 const vehicle = ref({})
-//const similarVehicles = ref([])
+
+const config = ref({})
+
+const loadSystemConfig = async () => {
+  try {
+    const response = await vehicleService.getSystemConfig()
+    config.value = response.data
+    // Use config as needed, e.g., set max slides for carousel
+  } catch (error) {
+    console.error('Erro ao carregar configuração do sistema:', error)
+  }
+}
+
+// LocalStorage keys
+const STORAGE_KEYS = {
+  START_DATE: 'vehicle_search_start_date',
+  END_DATE: 'vehicle_search_end_date'
+}
+
 const bookingDates = ref({
-  startDate: null,
-  endDate: null
+  startDate:  null,
+  endDate:  null
 })
+
+const updatesection = ref(0)
+
+const updateSimilarVehiclesSection = () => {
+  updatesection.value += 1
+}
+
+const locations = ref([])
+
+const loadLocations = async () => {
+  try {
+    const response = await vehicleService.getAllLocations()
+    locations.value = response.data
+  } catch (error) {
+    console.error('Erro ao carregar locais de entrega:', error)
+  }
+}
+
+// Load dates from localStorage
+const loadDatesFromStorage = () => {
+  try {
+    const savedStartDate = localStorage.getItem(STORAGE_KEYS.START_DATE)
+    const savedEndDate = localStorage.getItem(STORAGE_KEYS.END_DATE)
+
+    if (savedStartDate) {
+      bookingDates.value.startDate = dayjs(savedStartDate)
+    } else {
+      bookingDates.value.startDate = dayjs().add(1, 'day')
+    }
+    
+    if (savedEndDate) {
+      bookingDates.value.endDate = dayjs(savedEndDate)
+    } else {
+      bookingDates.value.endDate = dayjs().add(3, 'day')
+    }
+  } catch (error) {
+    console.error('Error loading dates from localStorage:', error)
+    // Fallback to default dates
+    bookingDates.value.startDate = dayjs().add(1, 'day')
+    bookingDates.value.endDate = dayjs().add(3, 'day')
+  }
+}
 
 // Mock vehicle images
 const vehicleImages = ref([])
 
-// Computed properties for booking
+// Computed properties for booking url query parameters
 const totalDays = computed(() => {
   if (!bookingDates.value.startDate || !bookingDates.value.endDate) return 0
   return dayjs(bookingDates.value.endDate).diff(dayjs(bookingDates.value.startDate), 'day') || 1
@@ -155,8 +209,6 @@ const loadVehicleDetails = async () => {
   }
 }
 
-
-
 const handleBooking = async () => {
   bookingLoading.value = true
   try {
@@ -180,7 +232,10 @@ const contactOwner = () => {
 }*/
 
 onMounted(() => {
+  loadSystemConfig()
+  loadDatesFromStorage()
   loadVehicleDetails()
+  loadLocations()
 })
 </script>
 

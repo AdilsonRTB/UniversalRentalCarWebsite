@@ -2,8 +2,8 @@
   <div class="overview-tab-content">
 
     <div class="breadcrumb-modern">
-      <span class="breadcrumb-current">Area Pessoal</span>
-      <span class="breadcrumb-separator">›</span>
+      <!--span class="breadcrumb-current">Area Pessoal</!--span>
+      <span-- class="breadcrumb-separator">›</span-->
       <router-link to="/owner-dashboard?tab=overview" class="breadcrumb-link">Dashboard</router-link>
     </div>
     <!-- Quick Actions Grid -->
@@ -17,7 +17,7 @@
           </div>
           <div class="action-content">
             <h4>{{ t('dashboard.searchVehicles') }}</h4>
-            <p>Encontre o veículo ideal</p>
+            <p>{{ t('dashboard.findIdealVehicle') }}</p>
           </div>
           <div class="action-arrow">
             <ArrowRightOutlined />
@@ -30,7 +30,7 @@
           </div>
           <div class="action-content">
             <h4>{{ t('dashboard.myBookings') }}</h4>
-            <p>Gerencie suas reservas</p>
+            <p>{{ t('dashboard.manageBookings') }}</p>
           </div>
           <div class="action-arrow">
             <ArrowRightOutlined />
@@ -42,15 +42,15 @@
             <BellOutlined />
           </div>
           <div class="action-content">
-            <h4>Notificações</h4>
-            <p>Veja suas notificações</p>
+            <h4>{{ t('dashboard.notificationsTitle') }}</h4>
+            <p>{{ t('dashboard.checkNotifications') }}</p>
           </div>
           <div class="action-arrow">
             <ArrowRightOutlined />
           </div>
         </div>
         
-        <div class="action-card messages" @click="$emit('quickAction', 'messages')">
+        <!--div class="action-card messages" @click="$emit('quickAction', 'messages')">
           <div class="action-icon">
             <MessageOutlined />
           </div>
@@ -61,7 +61,7 @@
           <div class="action-arrow">
             <ArrowRightOutlined />
           </div>
-        </div>
+        </!--div-->
         
         <!-- Comentado temporariamente -->
         <!-- 
@@ -96,7 +96,7 @@
 
     <!-- Statistics Overview -->
     <section class="stats-overview-section">
-      <h3 class="section-title">Resumo da Atividade</h3>
+      <h3 class="section-title">{{ t('dashboard.activitySummary') }}</h3>
       
       <div class="stats-grid">
         <div class="stat-card primary">
@@ -105,9 +105,9 @@
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ userStats.totalBookings }}</div>
-            <div class="stat-label">Total de Reservas</div>
+            <div class="stat-label">{{ t('dashboard.totalBookingsLabel') }}</div>
             <div class="stat-change positive">
-              <ArrowUpOutlined /> +{{ userStats.bookingGrowth || 15 }}% este mês
+              <ArrowUpOutlined /> +{{ userStats.bookingGrowth || 15 }}% {{ t('dashboard.thisMonthGrowth') }}
             </div>
           </div>
         </div>
@@ -118,9 +118,9 @@
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ userStats.availablePoints }}</div>
-            <div class="stat-label">Pontos Disponíveis</div>
+            <div class="stat-label">{{ t('dashboard.availablePointsLabel') }}</div>
             <div class="stat-change">
-              ≈ {{ formatCurrency(userStats.availablePoints * 0.5) }} em descontos
+              ≈ {{ formatCurrency(userStats.availablePoints * 0.5) }} {{ t('dashboard.pointsDiscount') }}
             </div>
           </div>
         </div>
@@ -131,14 +131,14 @@
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ user.clientRating.toFixed(1) }}</div>
-            <div class="stat-label">Rating Cliente</div>
+            <div class="stat-label">{{ t('dashboard.clientRating') }}</div>
             <div class="stat-change">
               {{ getClientClassification(user.clientRating) }}
             </div>
           </div>
         </div>
         
-        <div class="stat-card neutral">
+        <!--div-- class="stat-card neutral">
           <div class="stat-icon-bg">
             <WalletOutlined />
           </div>
@@ -149,7 +149,7 @@
               {{ formatCurrency(userStats.totalSpent / 12) }}/mês médio
             </div>
           </div>
-        </div>
+        </!--div-->
       </div>
     </section>
 
@@ -157,23 +157,23 @@
     <section class="performance-section">
       <div class="performance-grid">
         <!-- Spending Chart -->
-        <div class="chart-card">
+        <!--div-- class="chart-card">
           <div class="chart-header">
-            <h4>Histórico de Gastos</h4>
+            <h4>{{ t('dashboard.spendingHistory') }}</h4>
             <a-select v-model:value="chartPeriod" size="small">
-              <a-select-option value="6months">6 Meses</a-select-option>
-              <a-select-option value="12months">12 Meses</a-select-option>
+              <a-select-option value="6months">{{ t('dashboard.months6') }}</a-select-option>
+              <a-select-option value="12months">{{ t('dashboard.months12') }}</a-select-option>
             </a-select>
           </div>
           
           <div class="chart-summary">
             <div class="summary-item">
               <div class="summary-value">{{ formatCurrency(monthlySpending.reduce((a, b) => a + b, 0)) }}</div>
-              <div class="summary-label">Total Período</div>
+              <div class="summary-label">{{ t('dashboard.totalPeriod') }}</div>
             </div>
             <div class="summary-item">
               <div class="summary-value positive">+{{ getGrowthPercentage() }}%</div>
-              <div class="summary-label">Crescimento</div>
+              <div class="summary-label">{{ t('dashboard.growth') }}</div>
             </div>
           </div>
           
@@ -186,33 +186,33 @@
               <div class="bar-label">{{ getMonthLabel(index) }}</div>
             </div>
           </div>
-        </div>
+        </!--div-->
         
         <!-- Metrics Circles -->
-        <div class="metrics-card">
+        <!--div-- class="metrics-card">
           <div class="metrics-header">
-            <h4>Performance</h4>
+            <h4>{{ t('dashboard.performanceTitle') }}</h4>
           </div>
           
           <div class="metrics-grid">
             <div class="metric-circle-item">
               <div class="metric-circle" :style="{ '--progress': (userStats.totalBookings / 20 * 100) }">
                 <div class="metric-value">{{ userStats.totalBookings }}</div>
-                <div class="metric-label">Reservas</div>
+                <div class="metric-label">{{ t('dashboard.bookingsLabel') }}</div>
               </div>
             </div>
             
             <div class="metric-circle-item">
               <div class="metric-circle" :style="{ '--progress': 85 }">
                 <div class="metric-value">85%</div>
-                <div class="metric-label">Satisfação</div>
+                <div class="metric-label">{{ t('dashboard.satisfaction') }}</div>
               </div>
             </div>
             
             <div class="metric-circle-item">
               <div class="metric-circle" :style="{ '--progress': user.clientRating * 20 }">
                 <div class="metric-value">{{ user.clientRating.toFixed(1) }}</div>
-                <div class="metric-label">Rating</div>
+                <div class="metric-label">{{ t('dashboard.rating') }}</div>
               </div>
             </div>
           </div>
@@ -221,18 +221,18 @@
             <div class="insight-item">
               <TrendingUpOutlined class="insight-icon positive" />
               <div class="insight-content">
-                <span class="insight-title">Tendência Positiva</span>
-                <span class="insight-desc">+23% reservas vs. mês anterior</span>
+                <span class="insight-title">{{ t('dashboard.positivetrend') }}</span>
+                <span class="insight-desc">+23% {{ t('dashboard.bookingsVsPrevious') }}</span>
               </div>
             </div>
           </div>
-        </div>
+        </!--div-->
       </div>
     </section>
 
     <!-- Goals & Achievements -->
-    <section class="goals-section">
-      <h3 class="section-title">Metas e Conquistas</h3>
+    <!--section class="goals-section">
+      <h3 class="section-title">{{ t('dashboard.goalsAchievementsTitle') }}</h3>
       
       <div class="goals-grid">
         <div v-for="goal in clientGoals" :key="goal.id" class="goal-card" :class="{ completed: goal.completed }">
@@ -267,7 +267,7 @@
           </div>
         </div>
       </div>
-    </section>
+    </section-->
   </div>
 </template>
 
@@ -276,14 +276,14 @@ import {
   CalendarOutlined,
   BookOutlined,
   StarOutlined,
-  WalletOutlined,
-  CheckCircleOutlined,
+  //WalletOutlined,
+  //CheckCircleOutlined,
   SearchOutlined,
   ArrowUpOutlined,
-  TrendingUpOutlined,
+  //TrendingUpOutlined,
   ArrowRightOutlined,
   BellOutlined,
-  MessageOutlined,
+  //MessageOutlined,
   TrophyOutlined
 } from '@ant-design/icons-vue'
 
@@ -303,17 +303,17 @@ defineProps({
 defineEmits(['quickAction'])
 
 // Reactive data
-const chartPeriod = ref('6months')
+//const chartPeriod = ref('6months')
 
 // Mock data for client spending history
-const monthlySpending = ref([1200, 1800, 2100, 1900, 2600, 3200])
+//const monthlySpending = ref([1200, 1800, 2100, 1900, 2600, 3200])
 
 const user = ref({
   clientRating: 4.5
 })
 
 // Client-focused goals
-const clientGoals = ref([
+/*const clientGoals = ref([
   {
     id: 1,
     title: 'Viajante Frequente',
@@ -347,10 +347,10 @@ const clientGoals = ref([
     completed: false,
     reward: 'Upgrade gratuito'
   }
-])
+])*/
 
 // Helper functions
-const getMonthLabel = (index) => {
+/*const getMonthLabel = (index) => {
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun']
   return months[index] || 'N/A'
 }
@@ -360,7 +360,7 @@ const getGrowthPercentage = () => {
   const first = monthlySpending.value[0]
   const last = monthlySpending.value[monthlySpending.value.length - 1]
   return ((last - first) / first * 100).toFixed(1)
-}
+}*/
 </script>
 
 <style scoped>

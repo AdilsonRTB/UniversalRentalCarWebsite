@@ -23,94 +23,80 @@
                     <!--span class="logo-text-modern">Universal Rent-a-Car</!--span-->
                   </div>
                   <div class="company-tagline">
-                    Conectando você ao veículo perfeito
+                    Encontre o melhor carro para alugar
                   </div>
+                  <span class="footer-description-modern">
+                    Proporcionamos experiências inesquecíveis sobre rodas.
+                  </span>
                 </div>
-                <p class="footer-description-modern">
-                  {{ t('footer.description') }}
-                </p>
-                <!--div class="social-media-modern">
-                  <h4>{{ t('footer.followUs') }}</h4>
-                  <div class="social-links-modern">
-                    <a href="www.facebook.com" class="social-link-modern facebook" aria-label="Facebook">
-                      <FacebookOutlined />
-                    </a>
-                    <a href="www.instagram.com" class="social-link-modern instagram" aria-label="Instagram">
-                      <InstagramOutlined />
-                    </a>
-                  </div>
-                </!--div-->
+
               </div>
             </a-col>
             
             <!-- Quick Links -->
-            <a-col :xs="12" :lg="4">
+            <a-col :xs="12" :lg="6">
               <div class="footer-section-modern">
                 <h3 class="footer-title-modern">{{ t('footer.services') }}</h3>
                 <ul class="footer-links-modern">
-                  <li><router-link to="/search">{{ t('footer.carRental') }}</router-link></li>
-                  <li><router-link to="/search?type=motorcycle">{{ t('footer.motorcycleRental') }}</router-link></li>
-                  <li><router-link to="/search?type=van">{{ t('footer.vanRental') }}</router-link></li>
-                  <li><router-link to="/search?type=truck">{{ t('footer.truckRental') }}</router-link></li>
-                  <li><router-link :to="(token !== null && token !== '') ? '/owner-dashboard?tab=my-bookings' : '/booking-status'">Minhas Reservas</router-link></li>
+                    <li><router-link to="/">{{ t('nav.bookVehicles') }}</router-link></li>
+                    <li><router-link :to="(token !== null && token !== '') ? '/owner-dashboard?tab=my-bookings' : '/booking-status'">{{ t('nav.myReservations') }}</router-link></li>
+                    <li><router-link to="/terms" target="_blank">{{ t('footer.termsOfUse') }}</router-link></li>
+                    <li><router-link to="/privacy" target="_blank">{{ t('footer.privacyPolicy') }}</router-link></li>
                 </ul>
               </div>
             </a-col>
 
-            <!-- Support -->
-            <!--a-col :xs="12" :lg="4">
-              <div class="footer-section-modern">
-                <h3 class="footer-title-modern">{{ t('footer.support') }}</h3>
-                <ul class="footer-links-modern">
-                  <li><router-link to="/help">{{ t('footer.helpCenter') }}</router-link></li>
-                  <li><router-link to="/faq">{{ t('footer.faq') }}</router-link></li>
-                  <li><router-link to="/terms">{{ t('footer.termsOfUse') }}</router-link></li>
-                  <li><router-link to="/privacy">{{ t('footer.privacyPolicy') }}</router-link></li>
-                  <li><router-link to="/insurance">{{ t('footer.insurance') }}</router-link></li>
-                </ul>
-              </div>
-            </!--a-col-->
-            <a-col :xs="12" :lg="4">
+            <a-col :xs="12" :lg="6">
               <div class="footer-section-modern">
                 <h3 class="footer-title-modern">Contatos</h3>
                 <ul class="footer-links-modern">
                 <!-- Link de email -->
                 <li>
-                  <a href="mailto:universal@gmail.com">
-                    <MailOutlined /> universal@gmail.com
+                  <a href="mailto:universal.r.car@gmail.com">
+                    <MailOutlined /> universal.r.car@gmail.com
                   </a>
                 </li>
 
                 <!-- Link de WhatsApp -->
                 <li>
-                  <a href="https://wa.me/2319999993" target="_blank" rel="noopener noreferrer">
-                    <WhatsAppOutlined /> (+231) 9999993
+                  <a href="https://wa.me/2389781304" target="_blank" rel="noopener noreferrer">
+                    <WhatsAppOutlined /> (+238) 978 13 04
+                  </a>
+                </li>
+
+                <li>
+                  <a href="tel:+2383476581" rel="noopener noreferrer">
+                    <PhoneOutlined /> (+238) 347 6581
                   </a>
                 </li>
               </ul>
 
               </div>
             </a-col>
-            <a-col :xs="24" :lg="8">
+            <a-col :xs="24" :lg="4">
               <div class="social-media-modern">
-                  <h3 footer-title-modern>{{ t('footer.followUs') }}</h3>
+                  <h3 class="footer-title-modern">{{ t('footer.followUs') }}</h3>
                   <div class="social-links-modern">
-                    <a href="https://www.facebook.com"
+                    <a href="https://www.facebook.com/people/Universal-Rent-A-Car/61587015102136/"
                         class="social-link-modern facebook"
                         aria-label="Facebook"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <FacebookOutlined />
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="white">
+                          <path d="M9.198 21.5h4v-8.01h3.604l.396-3.98h-4V7.5a1 1 0 0 1 1-1h3v-4h-3a5 5 0 0 0-5 5v2.01h-2l-.396 3.98h2.396v8.01Z"/>
+                        </svg>
                       </a>
 
-                      <a href="https://www.instagram.com" 
+                      <a href="https://www.instagram.com/p/DUkuungDaJC/"
                         class="social-link-modern instagram" 
                         aria-label="Instagram"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <InstagramOutlined />
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="white">
+                          <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10m0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/>
+                        </svg>
                       </a>
 
                   </div>
@@ -125,21 +111,36 @@
           <div class="footer-bottom-content">
             <div class="copyright-section">
               <p class="copyright-modern">
-                © {{ currentYear }} Universal Rent-a-Car. Todos os direitos reservados.
+                © {{ currentYear }} Universal Rent-A-Car. Todos os direitos reservados.
               </p>
             </div>
             <div class="payment-section">
               <span class="payment-label">{{ t('footer.paymentMethods') }}</span>
               <div class="payment-icons-modern">
-                <div class="payment-icon-wrapper">
-                  <CreditCardOutlined />
+                <div class="payment-icon-wrapper visa">
+                  <span class="payment-brand-text">VISA</span>
                 </div>
-                <div class="payment-icon-wrapper">
+                <div class="payment-icon-wrapper mastercard">
+                  <span class="mc-circles">
+                    <span class="mc-circle mc-red"></span>
+                    <span class="mc-circle mc-orange"></span>
+                  </span>
+                </div>
+                <div class="payment-icon-wrapper bank-transfer">
                   <BankOutlined />
                 </div>
-                <div class="payment-icon-wrapper">
-                  <PayCircleOutlined />
-                </div>
+                <!--div class="payment-icon-wrapper barcode">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+                    <rect x="2" y="4" width="2" height="16" />
+                    <rect x="5" y="4" width="1" height="16" />
+                    <rect x="7" y="4" width="3" height="16" />
+                    <rect x="11" y="4" width="1" height="16" />
+                    <rect x="13" y="4" width="2" height="16" />
+                    <rect x="16" y="4" width="1" height="16" />
+                    <rect x="18" y="4" width="2" height="16" />
+                    <rect x="21" y="4" width="1" height="16" />
+                  </svg>
+                </div-->
               </div>
             </div>
           </div>
@@ -151,17 +152,15 @@
 
 <script setup>
 import {
-  FacebookOutlined,
-  InstagramOutlined,
   WhatsAppOutlined,
   MailOutlined,
-  CreditCardOutlined,
   BankOutlined,
-  PayCircleOutlined
+  PhoneOutlined
 } from '@ant-design/icons-vue'
 import { ref, onMounted, watch, computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLanguageAndCurrency } from './composables/useLanguageAndCurrency'
+import { useInactivityLogout } from './composables/useInactivityLogout'
 import logo from './assets/logo2.png'
 
 const route = useRoute()
@@ -172,6 +171,9 @@ const token = ref(null)
 const {
   t,
 } = useLanguageAndCurrency()
+
+// Session inactivity logout (30 min)
+useInactivityLogout()
 
 // Check if current route is an auth page (login, register, forgot-password)
 const isAuthPage = computed(() => {
@@ -187,32 +189,6 @@ const mobileMenuVisible = ref(false)
 const newsletterLoading = ref(false)*/
 
 const currentYear = computed(() => new Date().getFullYear())
-
-
-/*const subscribeNewsletter = async () => {
-  if (!newsletterEmail.value) {
-    return
-  }
-  
-  newsletterLoading.value = true
-  
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    // Show success message
-    console.log('Newsletter subscription successful for:', newsletterEmail.value)
-    newsletterEmail.value = ''
-    
-    // You can replace this with actual API call
-    // await newsletterService.subscribe(newsletterEmail.value)
-    
-  } catch (error) {
-    console.error('Newsletter subscription failed:', error)
-  } finally {
-    newsletterLoading.value = false
-  }
-}*/
 
 onMounted(() => {
   // Set initial selected key based on current route
@@ -537,8 +513,8 @@ watch(route, (newRoute) => {
 .footer-description-modern {
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.7;
-  font-size: 15px;
-  margin-bottom: 32px;
+  font-size: 14px;
+  margin-bottom: 25px;
 }
 
 .social-media-modern h4 {
@@ -558,13 +534,13 @@ watch(route, (newRoute) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   color: white;
   text-decoration: none;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 20px;
+  font-size: 24px;
   position: relative;
   overflow: hidden;
 }
@@ -576,7 +552,7 @@ watch(route, (newRoute) => {
   left: 0;
   right: 0;
   bottom: 0;
-  border-radius: 12px;
+  border-radius: 16px;
   transition: all 0.4s ease;
   z-index: -1;
 }
@@ -810,23 +786,71 @@ watch(route, (newRoute) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.1);
+  width: 52px;
+  height: 36px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: none;
   transition: all 0.3s ease;
 }
 
 .payment-icon-wrapper:hover {
-  background: rgba(254, 119, 67, 0.2);
-  border-color: #FE7743;
   transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-.payment-icon-wrapper .anticon {
-  font-size: 20px;
-  color: #FE7743;
+.payment-icon-wrapper.visa {
+  background: linear-gradient(135deg, #1a1f71 0%, #2a3cba 100%);
+}
+
+.payment-brand-text {
+  font-size: 13px;
+  font-weight: 800;
+  font-style: italic;
+  color: white;
+  letter-spacing: 1px;
+}
+
+.payment-icon-wrapper.mastercard {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.mc-circles {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 28px;
+  height: 18px;
+}
+
+.mc-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.mc-circle.mc-red {
+  background: #eb001b;
+  left: 0;
+}
+
+.mc-circle.mc-orange {
+  background: #f79e1b;
+  right: 0;
+  mix-blend-mode: hard-light;
+}
+
+.payment-icon-wrapper.bank-transfer {
+  background: linear-gradient(135deg, #e65c00 0%, #f09819 100%);
+}
+
+.payment-icon-wrapper.bank-transfer .anticon {
+  font-size: 18px;
+  color: white;
+}
+
+.payment-icon-wrapper.barcode {
+  background: linear-gradient(135deg, #232526 0%, #414345 100%);
 }
 
 /* Responsive */

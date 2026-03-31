@@ -1,8 +1,8 @@
 <template>
-  <a-modal 
-    :open="visible" 
-    @cancel="handleCancel" 
-    :footer="null" 
+  <a-modal
+    :open="visible"
+    @cancel="handleCancel"
+    :footer="null"
     :width="500"
     centered
     class="login-modal"
@@ -19,8 +19,8 @@
                 style="max-width: 180px; height: auto; max-height: 60px; object-fit: contain;"
               />
             </div>
-            <h2 class="form-title">Bem-vindo de volta!</h2>
-            <p class="form-subtitle">Entre na sua conta para continuar</p>
+            <h2 class="form-title">{{ t('auth.welcomeBack') }}</h2>
+            <p class="form-subtitle">{{ t('auth.loginToContinue') }}</p>
           </div>
 
           <!-- Login Form -->
@@ -40,7 +40,7 @@
                 <a-input
                   v-model:value="formData.email"
                   size="large"
-                  placeholder="Insira o seu e-mail"
+                  :placeholder="t('auth.emailPlaceholder')"
                   :prefix="() => h(MailOutlined, { style: { color: '#8b5cf6' } })"
                   class="form-input"
                 />
@@ -54,7 +54,7 @@
                 <a-input-password
                   v-model:value="formData.password"
                   size="large"
-                  placeholder="Password"
+                  :placeholder="t('auth.password')"
                   :prefix="() => h(LockOutlined, { style: { color: '#8b5cf6' } })"
                   class="form-input"
                 />
@@ -62,11 +62,11 @@
 
               <!-- Remember & Forgot -->
               <div class="form-options">
-                <a-checkbox v-model:checked="formData.rememberMe">
-                  Lembrar-me
-                </a-checkbox>
+                <!--a-checkbox v-model:checked="formData.rememberMe">
+                  {{ t('auth.rememberMe') }}
+                </!--a-checkbox-->
                 <a href="#" class="forgot-link" @click.prevent="showForgotPassword">
-                  Esqueceu a palavra-passe?
+                  {{ t('auth.forgotPassword') }}
                 </a>
               </div>
 
@@ -81,21 +81,21 @@
                   class="submit-btn"
                 >
                   <LoginOutlined v-if="!isLoading" />
-                  Entrar
+                  {{ t('auth.loginButton') }}
                 </a-button>
               </a-form-item>
             </a-form>
 
             <!-- Divider -->
             <div class="divider">
-              <span>ou</span>
+              <span>{{ t('auth.or') }}</span>
             </div>
 
             <!-- Register Link -->
             <div class="register-link">
-              <span>Ainda não tem conta?</span>
+              <span>{{ t('auth.noAccount') }}</span>
               <a href="#" class="register-text" @click.prevent="handleRegister">
-                Criar conta
+                {{ t('auth.createAccount') }}
               </a>
             </div>
           </div>
@@ -116,6 +116,7 @@ import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import {authService} from '../services/api'
 import logo from '../assets/logo2.png'
+import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency'
 
 defineProps({
   visible: {
@@ -124,8 +125,9 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'success', 'register'])
+const emit = defineEmits(['close', 'success', 'register', 'openModal'])
 
+const { t } = useLanguageAndCurrency()
 const router = useRouter()
 
 // Form references
@@ -145,12 +147,12 @@ const formData = reactive({
 // Form validation rules
 const formRules = {
   email: [
-    { required: true, message: 'Por favor, insira o seu e-mail' },
-    { type: 'email', message: 'Por favor, insira um e-mail válido' }
+    { required: true, message: t('auth.emailRequired') },
+    { type: 'email', message: t('auth.emailInvalid') }
   ],
   password: [
-    { required: true, message: 'Por favor, insira a sua palavra-passe' },
-    { min: 6, message: 'A palavra-passe deve ter pelo menos 6 caracteres' }
+    { required: true, message: t('auth.passwordRequired') },
+    { min: 6, message: t('auth.passwordMinLength') }
   ]
 }
 
@@ -165,30 +167,19 @@ const handleLogin = async (values) => {
     }
     
     // Use our custom auth service
-    const result = await authService.login(request)
-    
-    console.log('Login successful:', result)
-    
-    // Store authentication data
+  const result = await authService.login(request)
+
     localStorage.setItem('authToken', result.data.token)
-    //localStorage.setItem('userData', JSON.stringify(result.user))
-
-
     if (formData.rememberMe) {
       localStorage.setItem('rememberMe', 'true')
     }
-    
-    //message.success(`Bem-vindo, ${result.customer?.first_name || result.user.username}!`)
-    
-    // Emit success and close modal
+
     emit('success', result)
     emit('close')
-    
-  } catch (error) {
-    console.error('Login error:', error)
-    message.error(error.message || 'Erro ao fazer login. Verifique as suas credenciais.')
-  } finally {
     isLoading.value = false
+  } catch (error) {
+    isLoading.value = false
+    message.error(t('auth.loginErrorCredentials'))
   }
 }
 

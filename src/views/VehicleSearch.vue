@@ -11,29 +11,29 @@
             <div class="element-icon">
               <HeartOutlined />
             </div>
-            <span>Amor pelo que fazemos</span>
+            <span>{{ t('search.chooseComfort') }}</span>
           </div>
-          
+
           <div class="floating-element element-2">
             <div class="element-icon">
               <SafetyOutlined />
             </div>
-            <span>Segurança em primeiro lugar</span>
+            <span>{{ t('search.safetyFirst') }}</span>
           </div>
           
           <div class="floating-element element-3">
             <div class="element-icon">
               <ThunderboltOutlined />
             </div>
-            <span>Processo rápido e fácil</span>
+            <span>{{ t('search.driveWithConfidence') }}</span>
           </div>
           
 
         </div>
         <div class="hero-search-container">
           <div class="hero-search-content">
-            <h1 class="hero-search-title">Alugue o veículo perfeito para você!</h1>
-            <p class="hero-search-subtitle">Encontre veículos disponíveis. Processo simples, seguro e rápido.</p>
+            <h1 class="hero-search-title">{{ t('search.findBestCarToRent') }}</h1>
+            <p class="hero-search-subtitle">{{ t('search.unforgettableExperiences') }}</p>
           </div>
         </div>
 
@@ -46,52 +46,67 @@
           <!-- Advanced Filters -->
           <div class="advanced-filters-section" id="filtro">
             <div class="filters-header">
-              <h3 class="filters-title">Filtros</h3>
+              <h3 class="filters-title">{{ t('search.filters') }}</h3>
               <!--a-button type="text" class="toggle-filters">{{ t('search.showMore') }}</!--a-button-->
             </div>
 
             <div class="filters-grid">
               <div class="filter-group">
                   <div class="search-field">
-                      <label class="filter-label"> Nome | Modelo</label>
-                      <a-input
-                        v-model:value="filters.name"
-                        placeholder="Nome ou modelo do veículo"
+                      <label class="filter-label">{{ t('search.brand') }}</label>
+                      <a-select
+                        v-model:value="filters.brand"
+                        :placeholder="t('search.selectBrand')"
                         size="large"
                         class="modern-input"
                         allowClear
+                        showSearch
+                        :filterOption="(input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0"
                       >
-                        <template #prefix>
-                          <SearchOutlined class="input-icon" />
+                        <template #suffixIcon>
+                          <CarOutlined class="input-icon" />
                         </template>
-                      </a-input>
+                        <a-select-option
+                          v-for="brand in brands" 
+                          :key="brand.id" 
+                          :value="brand.name"
+                        >
+                          {{ brand.name }}
+                        </a-select-option>
+                      </a-select>
                   </div>
               </div>
               
               <div class="filter-group">
-                <label class="filter-label">Data Recolha</label>
+                <label class="filter-label">{{ t('search.pickupDate') }}</label>
                 <a-date-picker
                   v-model:value="filters.startDate"
                   size="large"
-                  placeholder="Selecione a data"
+                  :placeholder="t('search.selectDate')"
                   class="modern-date-picker"
+                  show-time
+                  :disabled-date="disabledDate"
+                  :allowClear="false"
                 />
               </div>
               
               <div class="filter-group">
-                <label class="filter-label">Data Devolução</label>
+                <label class="filter-label">{{ t('search.returnDate') }}</label>
                 <a-date-picker
                   v-model:value="filters.endDate"
                   size="large"
-                  placeholder="Selecione a data"
+                  :placeholder="t('search.selectDate')"
                   class="modern-date-picker"
+                  show-time
+                  :disabled-date="disabledEndDate"
+                  :allowClear="false"
                 />
               </div>
               <div class="filter-group">
                 <div class="search-action">
                     <a-button
                       type="primary"
-                      @click="searchVehicles"
+                      @click="loadAvailableVehicles()"
                       size="large"
                       :loading="loading"
                       class="search-btn-modern"
@@ -132,25 +147,13 @@
                   <div class="transmission-filter">
                     <a-checkbox-group v-model:value="transmissionFilter" @change="filterByTransmission">
                       <a-checkbox value="manual" class="transmission-tag">
-                        Manual
+                        {{ t('search.transmissionManual') }}
                       </a-checkbox>
                       <a-checkbox value="automatic" class="transmission-tag">
-                        Automático
+                        {{ t('search.transmissionAutomatic') }}
                       </a-checkbox>
                     </a-checkbox-group>
                   </div>
-                  
-                  <!--a-select
-                    v-model:value="sortBy"
-                    @change="sortVehicles"
-                    size="large"
-                    class="sort-select"
-                  >
-                    <a-select-option value="price-asc">{{ t('search.sortByPrice') }}</a-select-option>
-                    <a-select-option value="price-desc">{{ t('search.sortByPriceDesc') }}</a-select-option>
-                    <a-select-option value="year-desc">{{ t('search.sortByNewest') }}</a-select-option>
-                    <a-select-option value="year-asc">{{ t('search.sortByOldest') }}</a-select-option>
-                  </!--a-select-->
                 </div>
               </div>
             
@@ -162,11 +165,11 @@
                     :xs="24" :md="12" :lg="8"
                   >
                     <!--div class="vehicle-card-modern" @click="viewVehicle(vehicle.id)"-->
-                    <div class="vehicle-card-modern" @click="openDetailsRendels(vehicle.id)">
+                    <div class="vehicle-card-modern" @click="openDetailsRendels(vehicle.id, vehicle.is_available)">
                     <div class="vehicle-image-modern">
-                      <CarOutlined class="vehicle-icon" v-if="!vehicle.photo"/>
-                      <img :src="vehicle.photo" :alt="`${vehicle?.brand_name} ${vehicle?.model}`" class="vehicle-photo-modern" v-else/>
-
+                      <img v-if="vehicle.primary_photo" :src="formatImageUrl(vehicle.primary_photo.image)" :alt="`${vehicle?.brand_name} ${vehicle?.model}`" class="vehicle-photo-modern"/>
+                      <img v-if="vehicle.photo && !vehicle.primary_photo" :src="formatImageUrl(vehicle.photo)" :alt="`${vehicle?.brand_name} ${vehicle?.model}`" class="vehicle-photo-modern"/>
+                      <CarOutlined class="vehicle-icon" v-if="!vehicle.photo && !vehicle.primary_photo"/>
                     </div>
 
                     <div class="vehicle-content-modern">
@@ -184,7 +187,7 @@
                         </!div-->
                         <div class="detail-item">
                           <EnvironmentOutlined class="detail-icon" />
-                          <span>{{ vehicle.location || 'Praia, Santigo' }}</span>
+                          <span>{{ vehicle.location || 'Achada Santo António, Santiago' }}</span>
                         </div>
                         <div v-if="vehicle.owner" class="detail-item">
                           <UserOutlined class="detail-icon" />
@@ -204,24 +207,25 @@
                           <span>{{ getLabelTransmission(vehicle.gearbox_type) }}</span>
                         </div>
                         <div class="feature-mini">
-                          <DashboardOutlined/>
-                          <span>{{ vehicle.mileage }} KM</span>
+                          <UsergroupAddOutlined/>
+                          <span>{{ vehicle.number_of_seats }} {{ t('search.seats') }}</span>
                         </div>
                       </div>
                       
                       <div class="vehicle-price-modern">
-                        <span class="price-value">{{ vehicle.daily_rate }} CVE</span>
+                        <span class="price-value">{{ formatPriceWithApiRates(vehicle.daily_rate) }}</span>
                         <span class="price-period">/ {{ t('search.perDay') }}</span>
                       </div>
                       
                       <div class="vehicle-footer-modern">
                         <div class="rating-modern">
                           <StarFilled class="star-icon" />
-                          <span>4.5 (12)</span>
+                          <span>{{ vehicle.stats.average_overall_rating }} ({{ vehicle.stats.total_evaluations }})</span>
                         </div>
-                        <div class="status-modern">
-                          <CheckCircleFilled class="status-icon" />
-                          <span>{{ t('vehicles.available') }}</span>
+                        <div class="status-modern" :class="vehicle.is_available ? '' : 'status-modern-unavailable'">
+                          <CheckCircleFilled class="status-icon" v-if="vehicle.is_available"/>
+                          <CloseCircleFilled class="status-icon-error" v-else/>
+                          <span>{{ vehicle.is_available ? t('vehicles.available') : t('vehicles.unavailable') }}</span>
                         </div>
                       </div>
                     </div>
@@ -229,12 +233,15 @@
                   </a-col>
                   <a-col  :span="24" id="details">
                     <div v-if="rentaldetails">
-                      <VehicleDetails :vehicleId="vehicleId" :key="vehicleId"
-                        :startDate="filters.startDate.format('YYYY-MM-DD')"
-                        :endDate="filters.endDate.format('YYYY-MM-DD')"
+                      <VehicleDetails :vehicleId="vehicleId" :key="vehicleId" :availability="availability"
+                        :startDate="filters.startDate.format('YYYY-MM-DD HH:mm:ss')"
+                        :endDate="filters.endDate.format('YYYY-MM-DD HH:mm:ss')"
+                        :config="config"
                       />
                     </div>
                   </a-col>
+
+                  <a-back-top />
                 </a-row>
 
 
@@ -257,12 +264,12 @@
             <div class="steps-action">
               <div class="steps-cta-card">
                 <div class="steps-cta-content">
-                  <h3>Simples assim!</h3>
-                  <p>Em apenas alguns passos você já está dirigindo</p>
+                  <h3>{{ t('search.simpleAsThis') }}</h3>
+                  <p>{{ t('search.fewStepsDriving') }}</p>
                   <div class="steps-buttons">
-                    <a-button type="primary" size="large" @click="scrollToTop">
+                    <a-button type="primary" size="large" @click="scrollToSection('filtro')">
                       <SearchOutlined />
-                      Procurar Veículos
+                      {{ t('search.searchVehiclesCTA') }}
                     </a-button>
 
                   </div>
@@ -278,13 +285,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 //import { useRouter } from 'vue-router'
 import HeaderPage from '../components/HeaderPage.vue'
 import EvaluationsSearchPage from './EvaluationsSearchPage.vue'
 import { 
   SearchOutlined, 
-  EnvironmentOutlined, 
+  EnvironmentOutlined,
   CarOutlined, 
   //CalendarOutlined,
   StarFilled, 
@@ -295,9 +302,11 @@ import {
   SettingOutlined,
   ThunderboltOutlined,
   DeploymentUnitOutlined,
-  DashboardOutlined,
+  //DashboardOutlined,
   HeartOutlined,
-  SafetyOutlined
+  SafetyOutlined,
+  CloseCircleFilled,
+  UsergroupAddOutlined
 } from '@ant-design/icons-vue'
 import { vehicleService } from '../services/api'
 import { useI18n } from 'vue-i18n'
@@ -305,6 +314,12 @@ import { message } from 'ant-design-vue'
 import VehicleDetails from './VehicleDetailsSearch.vue'
 import dayjs from 'dayjs'
 import { useRoute } from 'vue-router'
+import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency.js'
+import { useUtilities } from '../composables/utilits.js'
+
+const { formatImageUrl } = useUtilities()
+
+const { currentCurrency } = useLanguageAndCurrency()
 
 const route = useRoute()
 
@@ -312,17 +327,50 @@ const openLoginModal = ref(false);
 // Use i18n and language/currency functionality
 const { t } = useI18n()
 
-function scrollToTop() {
+/*function scrollToTop() {
   window.scrollTo({
     top: 0,
     behavior: "smooth"
   });
+}*/
+
+const now = dayjs();
+
+const brands = ref([]);
+
+const getAvailableBrands = async () => {
+  try {
+    const response = await vehicleService.getAllVehiclesBrands()
+    brands.value = response.data
+  } catch (error) {
+    console.error('Erro ao carregar marcas disponíveis:', error)
+  }
+}
+
+const disabledDate = (current) => {
+  return current && current < now.startOf("day")
+}
+
+const disabledEndDate = (current) => {
+  if (!current) return false
+  
+  // Não pode ser anterior ao dia de hoje
+  if (current < now.startOf("day")) {
+    return true
+  }
+  
+  // Se existe data de recolha, não pode ser anterior a ela
+  if (filters.value.startDate && current < filters.value.startDate.startOf("day")) {
+    return true
+  }
+  
+  return false
 }
 
 
 function scrollToSection(sectionId) {
   const section = document.getElementById(sectionId);
-  
+
   if (section) {
     section.scrollIntoView({
       behavior: "smooth"
@@ -338,6 +386,7 @@ const rentaldetails = ref(false);
 
 const filters = ref({
   location: '',
+  brand: null,
   name: '',
   type: '',
   year: null,
@@ -347,52 +396,175 @@ const filters = ref({
   hasPromotion: null
 })
 
+// LocalStorage keys
+const STORAGE_KEYS = {
+  START_DATE: 'vehicle_search_start_date',
+  END_DATE: 'vehicle_search_end_date'
+}
+
+// Load dates from localStorage
+const loadDatesFromStorage = () => {
+  try {
+    const savedStartDate = localStorage.getItem(STORAGE_KEYS.START_DATE)
+    const savedEndDate = localStorage.getItem(STORAGE_KEYS.END_DATE)
+    const today = dayjs().startOf('day')
+
+    if (savedStartDate) {
+      const startDate = dayjs(savedStartDate)
+      // Se a data salva for anterior a hoje, ajustar para hoje
+      filters.value.startDate = startDate.isBefore(today) ? dayjs() : startDate
+    } else {
+      filters.value.startDate = dayjs()
+    }
+    
+    if (savedEndDate) {
+      const endDate = dayjs(savedEndDate)
+      // Se a data de devolução for anterior a hoje ou anterior à data de recolha + 1 dia, ajustar
+      const minEndDate = filters.value.startDate.add(2, 'day')
+      filters.value.endDate = endDate.isBefore(minEndDate) ? minEndDate : endDate
+    } else {
+      filters.value.endDate = filters.value.startDate.add(2, 'day')
+    }
+  } catch (error) {
+    console.error('Error loading dates from localStorage:', error)
+    // Fallback to default dates
+    filters.value.startDate = dayjs()
+    filters.value.endDate = dayjs().add(2, 'day')
+  }
+}
+
+// Watch for brand changes to auto-search
+watch(() => filters.value.brand, () => {
+  if (!loading.value) {
+    searchVehicles()
+  }
+})
+
+// Watch for startDate changes and save to localStorage
+watch(() => filters.value.startDate, (newDate) => {
+  if (newDate) {
+    const today = dayjs().startOf('day')
+    
+    // Se a nova data for anterior a hoje, ajustar para hoje
+    if (newDate.isBefore(today)) {
+      filters.value.startDate = dayjs()
+      return
+    }
+    
+    // Verificar se a data de devolução precisa ser ajustada
+    if (filters.value.endDate && filters.value.endDate.isBefore(newDate.add(2, 'day'))) {
+      filters.value.endDate = newDate.add(2, 'day')
+    }
+    
+    localStorage.setItem(STORAGE_KEYS.START_DATE, newDate.toISOString())
+    
+    // Auto-search when start date changes
+    if (!loading.value) {
+      searchVehicles()
+    }
+  } else {
+    // Never allow empty - reset to today
+    filters.value.startDate = dayjs()
+  }
+}, { deep: true })
+
+// Watch for endDate changes and save to localStorage
+watch(() => filters.value.endDate, (newDate) => {
+  if (newDate) {
+    const today = dayjs().startOf('day')
+    
+    // Se a nova data for anterior a hoje, ajustar para hoje + 2 dias
+    if (newDate.isBefore(today)) {
+      filters.value.endDate = dayjs().add(2, 'day')
+      return
+    }
+    
+    // Se existe startDate e endDate for anterior a startDate + 2 dias, ajustar
+    if (filters.value.startDate && newDate.isBefore(filters.value.startDate.add(2, 'day'))) {
+      filters.value.endDate = filters.value.startDate.add(2, 'day')
+      return
+    }
+    
+    localStorage.setItem(STORAGE_KEYS.END_DATE, newDate.toISOString())
+    
+    // Auto-search when end date changes
+    if (!loading.value) {
+      searchVehicles()
+    }
+  } else {
+    // Never allow empty - reset to today + 2 days
+    filters.value.endDate = (filters.value.startDate || dayjs()).add(2, 'day')
+  }
+}, { deep: true })
+
 const vehicles = ref([])
 const allVehicles = ref([])
 const loading = ref(false)
 const sortBy = ref('price-asc')
 const transmissionFilter = ref([])
 const vehicleId = ref(null);
+const availability = ref(false);
+const config = ref({})
 
 const getLabelTransmission = (type) => {
-  const labels = {
-    manual: 'Manual',
-    automatic: 'Automático'
-  }
-  return labels[type] || type
+  if (!type) return ''
+  return t(`vehicles.transmissionTypes.${type}`) || type
 }
 
 const getLabelFuel = (type) => {
-  const labels = {
-    gasoline: 'Gasolina',
-    diesel: 'Diesel',
-    electric: 'Elétrico',
-    hybrid: 'Híbrido',
-    petrol: 'Gasóleo'
+  if (!type) return ''
+  return t(`vehicles.fuelTypes.${type}`) || type
+}
+
+// Função para formatar preço com taxas de câmbio da API
+const formatPriceWithApiRates = (amount) => {
+  if (!amount || !config.value) return `${amount} CVE`
+  
+  switch (currentCurrency.value) {
+    case 'USD': {
+      const usdRate = parseFloat(config.value.usd_exchange_rate || 100)
+      const usdAmount = amount / usdRate
+      return `$${usdAmount.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}`
+    }
+    case 'EUR': {
+      const eurRate = parseFloat(config.value.euro_exchange_rate || 100)
+      const eurAmount = amount / eurRate
+      return `${eurAmount.toLocaleString('fr-FR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}€`
+    }
+    case 'CVE':
+    default:
+      return `${amount.toLocaleString('pt-PT')} CVE`
   }
-  return labels[type] || type
 }
 
 
-const openDetailsRendels = async (id) => {
+const openDetailsRendels = async (id, available) => {
   if (id === vehicleId.value){
     rentaldetails.value = false;
     vehicleId.value = null;
+    availability.value = available;
     return;
   }
   rentaldetails.value = true;
   vehicleId.value = id;
+  availability.value = available;
   scrollToSection('details');
 }
 
 const sortedVehicles = computed(() => {
   const vehicleList = [...vehicles.value]
-  
+
   switch (sortBy.value) {
     case 'price-asc':
-      return vehicleList.sort((a, b) => a.dailyRate - b.dailyRate)
+      return vehicleList.sort((a, b) => a.daily_rate - b.daily_rate)
     case 'price-desc':
-      return vehicleList.sort((a, b) => b.dailyRate - a.dailyRate)
+      return vehicleList.sort((a, b) => b.daily_rate - a.daily_rate)
     case 'year-desc':
       return vehicleList.sort((a, b) => b.year - a.year)
     case 'year-asc':
@@ -407,52 +579,17 @@ const loadAvailableVehicles = async () => {
   try {
     const response = await vehicleService.getAllVehicles()
     allVehicles.value = response.data
-    vehicles.value = response.data
+    //vehicles.value = response.data
+    searchVehicles()
 
     // Load promotional vehicles (limited to 10)
     //await loadPromotionalVehicles()
   } catch (error) {
     console.error('Erro ao carregar veículos:', error)
-    loadMockVehicles()
+    //loadMockVehicles()
   } finally {
     loading.value = false
   }
-}
-
-const loadMockVehicles = () => {
-  // Mock data for development
-  allVehicles.value = [
-    {
-      id: 1,
-      brand_name: 'Toyota',
-      model: 'Corolla',
-      year: 2020,
-      type: 'CAR',
-      fuel_type: 'gasoline',
-      gearbox_type: 'automatic',
-      mileage: 15000,
-      daily_rate: 2500,
-      location: 'Praia, Santiago',
-      owner: 'João Silva',
-      photo: null
-    },
-    {
-      id: 2,
-      brand_name: 'Honda',
-      model: 'Civic',
-      year: 2019,
-      type: 'CAR',
-      fuel_type: 'diesel',
-      gearbox_type: 'manual',
-      mileage: 30000,
-      daily_rate: 2200,
-      location: 'Assomada, Santiago',
-      owner: 'Maria Oliveira',
-      photo: null
-    }
-    // Add more mock vehicles as needed
-  ]
-  vehicles.value = allVehicles.value
 }
 
 
@@ -462,35 +599,63 @@ const searchVehicles = async () => {
     const start = new Date(filters.value.startDate)
     const end = new Date(filters.value.endDate)
     if (start > end) {
-      message.error('A data de recolha não pode ser posterior à data de devolução.')
+      message.error(t('validation.pickupDateCannotBePriorToReturn'))
       loading.value = false
       return
     }
   }
   /* filtrar no allVehicles */
   vehicles.value = allVehicles.value.filter(vehicle => {
+    const matchesBrand = filters.value.brand
+      ? vehicle.brand_name.toLowerCase() === filters.value.brand.toLowerCase()
+      : true
+
     const matchesName = filters.value.name
       ? vehicle.brand_name.toLowerCase().includes(filters.value.name.toLowerCase()) ||
         vehicle.model.toLowerCase().includes(filters.value.name.toLowerCase())
       : true
 
-    return matchesName
+    return matchesBrand && matchesName
   })
+
+  /* filtrar por data active_rentals */
+  if (filters.value.startDate && filters.value.endDate) {
+    const start = dayjs(filters.value.startDate)
+    const end = dayjs(filters.value.endDate)
+
+    console.log('Filtering vehicles between', start.format(), 'and', end.format())
+
+    vehicles.value = vehicles.value.map(vehicle => {
+      const hasOverlap = vehicle.active_rentals?.some(rental => {
+        const rentalStart = dayjs(rental.start_date)
+        const rentalEnd = dayjs(rental.end_date)
+        return start.isBefore(rentalEnd) && end.isAfter(rentalStart)
+      })
+
+      return {
+        ...vehicle,
+        is_available: !hasOverlap
+      }
+  })
+
+  }
   loading.value = false
+  rentaldetails.value = false;
 }
 
-/*const viewVehicle = (vehicleId) => {
-  router.push(`/vehicle/${vehicleId}`)
-}*/
+const loadSystemConfig = async () => {
+  try {
+    const response = await vehicleService.getSystemConfig()
+    config.value = response.data
+    // Use config as needed, e.g., set max slides for carousel
+  } catch (error) {
+    console.error('Erro ao carregar configuração do sistema:', error)
+  }
+}
 
 const getVehicleTypeLabel = (type) => {
-  const labels = {
-    CAR: 'Carro',
-    MOTORCYCLE: 'Moto',
-    VAN: 'Van',
-    TRUCK: 'Caminhão'
-  }
-  return labels[type] || type
+  if (!type) return ''
+  return t(`vehicles.typeLabels.${type.toLowerCase()}`) || type
 }
 
 const getVehicleTypeColor = (type) => {
@@ -509,20 +674,49 @@ const getVehicleTypeColor = (type) => {
 
 const filterByTransmission = () => {
   rentaldetails.value = false;
+  let baseVehicles = [...allVehicles.value]
+  
+  // Apply brand filter first if selected
+  if (filters.value.brand) {
+    baseVehicles = baseVehicles.filter(vehicle => 
+      vehicle.brand_name.toLowerCase() === filters.value.brand.toLowerCase()
+    )
+  }
+  
+  // Then apply transmission filter
   if (transmissionFilter.value.length === 0) {
-    vehicles.value = [...allVehicles.value]
+    vehicles.value = baseVehicles
   } else {
-    vehicles.value = allVehicles.value.filter(vehicle => 
+    vehicles.value = baseVehicles.filter(vehicle => 
       transmissionFilter.value.includes(vehicle.gearbox_type)
     )
+  }
+  
+  // Apply date filtering if dates are selected
+  if (filters.value.startDate && filters.value.endDate) {
+    const start = dayjs(filters.value.startDate)
+    const end = dayjs(filters.value.endDate)
+
+    vehicles.value = vehicles.value.map(vehicle => {
+      const hasOverlap = vehicle.active_rentals?.some(rental => {
+        const rentalStart = dayjs(rental.start_date)
+        const rentalEnd = dayjs(rental.end_date)
+        return start.isBefore(rentalEnd) && end.isAfter(rentalStart)
+      })
+
+      return {
+        ...vehicle,
+        is_available: !hasOverlap
+      }
+    })
   }
 }
 
 onMounted(() => {
+  loadSystemConfig()
+  getAvailableBrands()
+  loadDatesFromStorage()
   loadAvailableVehicles()
-
-  filters.value.startDate = dayjs().add(1, 'day');
-  filters.value.endDate = dayjs().add(3, 'day');
 
   console.log(route.query.from)
 
@@ -579,19 +773,19 @@ onMounted(() => {
 
 .floating-element.element-1 {
   top: 100px;
-  left: 0px;
+  left: 80px;
   animation-delay: 0s;
 }
 
 .floating-element.element-2 {
   bottom: 200px;
-  left: -100px;
+  left: -10px;
   animation-delay: -1.0s;
 }
 
 .floating-element.element-3 {
   bottom: 100px;
-  left: 10px;
+  left: 90px;
   animation-delay: -2s;
 }
 
@@ -702,8 +896,19 @@ onMounted(() => {
   box-shadow: 0 0 0 3px rgba(254, 119, 67, 0.1) !important;
 }
 
+.modern-input :deep(.ant-select-selector) {
+  border: none !important;
+  background: transparent !important;
+}
+
+.modern-input :deep(.ant-select-focused .ant-select-selector) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .input-icon {
-  color: #9ca3af;
+  color: #9ca3af !important;
+  font-size: 16px !important;
 }
 
 .search-btn-modern {
@@ -1261,8 +1466,17 @@ onMounted(() => {
   color: #10b981;
 }
 
+.status-modern-unavailable {
+  color: #ef4444;
+}
+
 .status-icon {
   color: #10b981;
+  font-size: 12px;
+}
+
+.status-icon-error {
+  color: #ef4444;
   font-size: 12px;
 }
 

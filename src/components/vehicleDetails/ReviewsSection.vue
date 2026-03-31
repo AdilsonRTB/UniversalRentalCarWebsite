@@ -14,7 +14,7 @@
     <div class="reviews-stats-modern">
       <div class="rating-overview">
         <div class="average-rating">
-          <span class="rating-number">{{ evaluations?.statistics?.total_evaluations }}</span>
+          <span class="rating-number">{{ evaluations?.statistics?.average_overall_rating }}</span>
           <div class="rating-stars">
             <a-rate :value="evaluations?.statistics?.average_overall_rating" disabled allow-half />
           </div>
@@ -111,11 +111,11 @@
                 <a-rate :value="evaluation.service_quality_rating" disabled size="small" />
                 <span class="rating-number">{{ evaluation.service_quality_rating }}/5</span>
               </div>
-              <div class="rating-detail">
+              <!--div class="rating-detail">
                 <span class="rating-label">Relação Qualidade/Preço:</span>
                 <a-rate :value="evaluation.value_for_money_rating" disabled size="small" />
                 <span class="rating-number">{{ evaluation.value_for_money_rating }}/5</span>
-              </div>
+              </!--div-->
               <!--div class="rating-detail overall-rating">
                 <span class="rating-label">Avaliação Geral:</span>
                 <a-rate :value="evaluation.overall_rating" disabled size="small" />

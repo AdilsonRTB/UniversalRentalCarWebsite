@@ -2,16 +2,18 @@
   <div class="my-bookings-content">
 
     <div class="breadcrumb-modern">
-      <span class="breadcrumb-current">Area Pessoal</span>
+      <!--router-link to="/owner-dashboard?tab=overview" class="breadcrumb-link">Dashboard</!--router-link-->
+      <span class="breadcrumb-link">Dashboard</span>
       <span class="breadcrumb-separator">›</span>
-      <router-link to="/owner-dashboard?tab=overview" class="breadcrumb-link">Dashboard</router-link>
+      <span class="breadcrumb-current">{{ $t('bookings.myBookingsClient') }}</span>
+
     </div>
 
     <!-- Actions & Filters Section -->
     <section class="actions-section">
       <div class="actions-card">
         <div class="actions-header">
-          <h4>Ações e Filtros</h4>
+          <h4>{{ $t('bookings.actionsAndFilters') }}</h4>
           <a-button type="primary" @click="navigateToSearch" class="new-booking-btn" size="large" :style="{
               '--btn-bg': backgroundHero,
               '--btn-bg-hover': backgroundHero
@@ -23,44 +25,51 @@
         
         <div class="filters-grid">
           <div class="filter-item">
-            <label>Status</label>
+            <label>{{ $t('bookings.status') }}</label>
             <a-select
+              v-model:value="statusFilter"
               :placeholder="$t('bookings.filterByStatus')"
               style="width: 100%"
-              @change="$emit('filter-bookings', $event)"
               allow-clear
             >
-              <a-select-option value="PENDING">{{ $t('bookings.pending') }}</a-select-option>
-              <a-select-option value="CONFIRMED">{{ $t('bookings.confirmed') }}</a-select-option>
-              <a-select-option value="ACTIVE">{{ $t('bookings.active') }}</a-select-option>
-              <a-select-option value="COMPLETED">{{ $t('bookings.completed') }}</a-select-option>
-              <a-select-option value="CANCELLED">{{ $t('bookings.cancelled') }}</a-select-option>
+              <a-select-option value="pending">{{ $t('bookings.pending') }}</a-select-option>
+              <a-select-option value="confirmed">{{ $t('bookings.confirmed') }}</a-select-option>
+              <a-select-option value="active">{{ $t('bookings.active') }}</a-select-option>
+              <a-select-option value="completed">{{ $t('bookings.completed') }}</a-select-option>
+              <a-select-option value="cancelled">{{ $t('bookings.cancelled') }}</a-select-option>
             </a-select>
           </div>
           
           <div class="filter-item">
-            <label>Período</label>
+            <label>{{ $t('bookings.period') }}</label>
             <a-range-picker 
+              v-model:value="dateRange"
               style="width: 100%"
               format="DD/MM/YYYY"
-              placeholder="['Data início', 'Data fim']"
-              @change="handleDateRangeChange"
+              :placeholder="[$t('common.startDate'), $t('common.endDate')]"
             />
           </div>
           
           <div class="filter-item">
-            <label>Ordenar por</label>
+            <label>{{ $t('bookings.sortBy') }}</label>
             <a-select
-              placeholder="Ordenação"
+              v-model:value="sortBy"
+              :placeholder="$t('bookings.sortBy')"
               style="width: 100%"
-              @change="handleSortChange"
             >
-              <a-select-option value="date-desc">Data (Mais recente)</a-select-option>
-              <a-select-option value="date-asc">Data (Mais antiga)</a-select-option>
-              <a-select-option value="price-desc">Valor (Maior)</a-select-option>
-              <a-select-option value="price-asc">Valor (Menor)</a-select-option>
+              <a-select-option value="date-desc">{{ $t('bookings.sortDateNewest') }}</a-select-option>
+              <a-select-option value="date-asc">{{ $t('bookings.sortDateOldest') }}</a-select-option>
+              <a-select-option value="price-desc">{{ $t('bookings.sortValueHighest') }}</a-select-option>
+              <a-select-option value="price-asc">{{ $t('bookings.sortValueLowest') }}</a-select-option>
             </a-select>
           </div>
+        </div>
+
+        <!-- Clear Filters Button -->
+        <div class="filters-actions" v-if="hasActiveFilters">
+          <a-button @click="clearFilters" class="clear-filters-btn">
+            <DeleteOutlined /> {{ $t('bookings.clearFilters') }}
+          </a-button>
         </div>
       </div>
     </section>
@@ -68,10 +77,10 @@
     <!-- Bookings Grid -->
     <section class="bookings-section">
       <div class="bookings-header">
-        <h4>{{ filteredBookings.length }} reserva(s) encontrada(s)</h4>
+        <h4>{{ filteredBookings.length }} {{ $t('bookings.bookingsFound') }}</h4>
         <a-space>
           <a-button @click="refreshBookings">
-            <ReloadOutlined /> Atualizar
+            <ReloadOutlined /> {{ $t('bookings.update') }}
           </a-button>
         </a-space>
       </div>
@@ -82,18 +91,18 @@
           :key="booking.id" 
           class="booking-card"
           :class="{ 
-            'pending': booking.status === 'PENDING',
-            'confirmed': booking.status === 'CONFIRMED',
-            'active': booking.status === 'ACTIVE',
-            'completed': booking.status === 'COMPLETED',
-            'cancelled': booking.status === 'CANCELLED'
+            'pending': booking.status === 'pending',
+            'confirmed': booking.status === 'confirmed',
+            'active': booking.status === 'active',
+            'completed': booking.status === 'completed',
+            'cancelled': booking.status === 'cancelled'
           }"
         >
           <!-- Vehicle Image/Icon -->
           <div class="vehicle-cover">
             <div class="vehicle-icon-wrapper">
-              <CarOutlined class="vehicle-icon-similar" v-if="!booking.vehicle_info.photo"/>
-              <img :src="url + booking.vehicle_info.photo" :alt="`${booking.vehicle_info?.brand} ${booking.vehicle_info?.model}`" class="vehicle-photo-modern" v-else/>
+              <CarOutlined class="vehicle-icon-similar" v-if="!booking.vehicle_info.primary_photo && !booking.vehicle_info.photo"/>
+              <img :src="url + (booking.vehicle_info.primary_photo || booking.vehicle_info.photo)" :alt="`${booking.vehicle_info?.brand} ${booking.vehicle_info?.model}`" class="vehicle-photo-modern" v-else/>
             </div>
             <div class="status-badge" :class="booking.status.toLowerCase()">
               {{ booking.status_display }}
@@ -136,14 +145,14 @@
               <DollarOutlined />
               <div class="summary-info">
                 <span class="summary-label">{{ $t('bookings.totalValue') }}</span>
-                <span class="summary-value price">{{ booking.total_amount }} CVE</span>
+                <span class="summary-value price">{{ formatPrice(booking.total_amount) }}</span>
               </div>
             </div>
             <div class="summary-item">
               <ClockCircleOutlined />
               <div class="summary-info">
                 <span class="summary-label">{{ $t('bookings.days') }}</span>
-                <span class="summary-value">{{ booking.days_duration }} dia(s)</span>
+                <span class="summary-value">{{ booking.days_duration }} {{ $t('bookings.daysLabel') }}</span>
               </div>
             </div>
           </div>
@@ -151,7 +160,7 @@
           <!-- Progress Bar (for active bookings) -->
           <div v-if="['pending', 'confirmed'].includes(booking.status)" class="progress-section">
             <div class="progress-info">
-              <span>Progresso da viagem</span>
+              <span>{{ $t('bookings.tripProgress') }}</span>
               <span>{{ getBookingProgress(booking) }}%</span>
             </div>
             <div class="progress-bar">
@@ -160,7 +169,7 @@
           </div>
           <div v-else class="progress-section">
             <div class="progress-info">
-              <span>Progresso da viagem</span>
+              <span>{{ $t('bookings.tripProgress') }}</span>
               <span> </span>
             </div>
             <div class="progress-bar">
@@ -171,19 +180,19 @@
           <!-- Quick Actions -->
           <div class="card-actions">
             <a-button @click="navigateToVehicleDetails(booking)" class="action-btn">
-              <EyeOutlined /> Detalhes
+              <EyeOutlined /> {{ $t('bookings.details') }}
             </a-button>
             <!--a-button @click="navigateToMessages" class="action-btn">
               <MessageOutlined /> Contato
             </!--a-button-->
-            <a-button
+            <!--a-button
               v-if="['pending', 'confirmed'].includes(booking.status)"
               danger
               @click="$emit('cancel-booking', booking)"
               class="action-btn"
             >
-              <DeleteOutlined /> Cancelar
-            </a-button>
+              <DeleteOutlined /> {{ $t('bookings.cancel') }}
+            </a-button-->
             <!--a-button
               v-if="['cancelled', 'completed'].includes(booking.status)"
               type="primary"
@@ -210,10 +219,10 @@
         <div class="empty-icon">
           <InboxOutlined />
         </div>
-        <h4>Nenhuma reserva encontrada</h4>
-        <p>Você ainda não possui reservas ou não há reservas que correspondam aos filtros selecionados.</p>
+        <h4>{{ $t('bookings.noBookingsFound') }}</h4>
+        <p>{{ $t('bookings.noBookingsMessage') }}</p>
         <a-button type="primary" @click="navigateToSearch">
-          <PlusOutlined /> Fazer nova reserva
+          <PlusOutlined /> {{ $t('bookings.makeNewBooking') }}
         </a-button>
       </div>
 
@@ -225,15 +234,173 @@
           :pageSize="pageSize"
           :showSizeChanger="false"
           :showQuickJumper="true"
-          :showTotal="(total, range) => `${range[0]}-${range[1]} de ${total} reservas`"
+          :showTotal="paginationShowTotal"
         />
       </div>
     </section>
 
+    <!-- Booking Details Modal -->
+    <a-modal
+      v-model:open="detailsModalVisible"
+      :title="$t('bookings.rentalDetails')"
+      :width="800"
+      :footer="null"
+      @cancel="closeDetailsModal"
+    >
+      <div class="details-modal-content" v-if="selectedBookingDetails">
+        <!-- Vehicle Info -->
+        <div class="details-section">
+          <h4 class="details-section-title">
+            <CarOutlined /> {{ $t('bookings.vehicleInformation') }}
+          </h4>
+          <div class="details-vehicle-card">
+            <div class="details-vehicle-image">
+              <CarOutlined v-if="!selectedBookingDetails.vehicle_info?.primary_photo && !selectedBookingDetails.vehicle_info?.photo" />
+              <img :src="url + (selectedBookingDetails.vehicle_info?.primary_photo || selectedBookingDetails.vehicle_info?.photo)" :alt="selectedBookingDetails.vehicle_info?.brand" v-else />
+            </div>
+            <div class="details-vehicle-info">
+              <h5>{{ selectedBookingDetails.vehicle_info?.brand }} {{ selectedBookingDetails.vehicle_info?.model }}</h5>
+              <p><strong>{{ $t('bookings.year') }}:</strong> {{ selectedBookingDetails.vehicle_info?.year }}</p>
+              <p><strong>{{ $t('bookings.plate') }}:</strong> {{ selectedBookingDetails.vehicle_info?.registration_number }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rental Period -->
+        <div class="details-section">
+          <h4 class="details-section-title">
+            <CalendarOutlined /> {{ $t('bookings.rentalPeriod') }}
+          </h4>
+          <div class="details-grid">
+            <div class="details-item">
+              <span class="details-label">{{ $t('bookings.startDate') }}</span>
+              <span class="details-value">{{ formatDate(selectedBookingDetails.start_date) }}</span>
+            </div>
+            <div class="details-item">
+              <span class="details-label">{{ $t('bookings.endDate') }}</span>
+              <span class="details-value">{{ formatDate(selectedBookingDetails.end_date) }}</span>
+            </div>
+            <div class="details-item">
+              <span class="details-label">{{ $t('bookings.duration') }}</span>
+              <span class="details-value">{{ selectedBookingDetails.days_duration }} {{ $t('bookings.daysLabel') }}</span>
+            </div>
+            <div class="details-item">
+              <span class="details-label">{{ $t('bookings.status') }}</span>
+              <span class="details-value" :class="selectedBookingDetails.status.toLowerCase()">
+                {{ selectedBookingDetails.status_display }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Locations -->
+        <div class="details-section">
+          <h4 class="details-section-title">
+            <EnvironmentOutlined /> {{ $t('bookings.locations') }}
+          </h4>
+          <div class="details-grid">
+            <div class="details-item">
+              <span class="details-label">{{ $t('bookings.pickupLocation') }}</span>
+              <span class="details-value">{{ selectedBookingDetails.pickup_location_info?.name || '-' }}</span>
+              <span class="details-subtext" v-if="selectedBookingDetails.pickup_location_info?.address">
+                {{ selectedBookingDetails.pickup_location_info.address }}
+              </span>
+            </div>
+            <div class="details-item">
+              <span class="details-label">{{ $t('bookings.returnLocation') }}</span>
+              <span class="details-value">{{ selectedBookingDetails.return_location_info?.name || '-' }}</span>
+              <span class="details-subtext" v-if="selectedBookingDetails.return_location_info?.address">
+                {{ selectedBookingDetails.return_location_info.address }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Services -->
+        <div class="details-section" v-if="selectedBookingDetails.driver || selectedBookingDetails.car_seat || hasServiceFees(selectedBookingDetails)">
+          <h4 class="details-section-title">
+            <CheckCircleOutlined /> {{ $t('bookings.additionalServices') }}
+          </h4>
+          <div class="details-services">
+            <div class="service-tag" v-if="selectedBookingDetails.driver">
+              <UserOutlined /> {{ $t('bookings.driverService') }}
+              <span class="service-price">{{ formatPrice(selectedBookingDetails.payment_details?.driver_fee_total || 0) }}</span>
+            </div>
+            <div class="service-tag" v-if="selectedBookingDetails.car_seat">
+              <SafetyOutlined /> {{ $t('bookings.carSeat') }}
+              <span class="service-price">{{ formatPrice(selectedBookingDetails.payment_details?.car_seat_fee_total || 0) }}</span>
+            </div>
+            <div class="service-tag service-fee-tag" v-if="selectedBookingDetails.service_fees?.insurance_fee > 0">
+              <SafetyOutlined /> {{ $t('bookings.insuranceFee') }}
+              <span class="service-price">{{ formatPrice(selectedBookingDetails.service_fees.insurance_fee) }}</span>
+            </div>
+            <div class="service-tag service-fee-tag" v-if="selectedBookingDetails.service_fees?.security_deposit > 0">
+              <DollarOutlined /> {{ $t('bookings.securityDeposit') }}
+              <span class="service-price">{{ formatPrice(selectedBookingDetails.service_fees.security_deposit) }}</span>
+            </div>
+            <div class="service-tag service-fee-tag" v-if="selectedBookingDetails.service_fees?.commission_amount > 0">
+              <PercentageOutlined /> {{ $t('bookings.commission') }}
+              <span class="service-price">{{ formatPrice(selectedBookingDetails.service_fees.commission_amount) }}</span>
+            </div>
+            <div class="service-tag service-fee-tag" v-if="selectedBookingDetails.service_fees?.late_return_fee > 0">
+              <ClockCircleOutlined /> {{ $t('bookings.lateReturnFee') }}
+              <span class="service-price">{{ formatPrice(selectedBookingDetails.service_fees.late_return_fee) }}</span>
+            </div>
+            <div class="service-tag service-fee-tag" v-if="selectedBookingDetails.service_fees?.damage_fee > 0">
+              <ToolOutlined /> {{ $t('bookings.damageFee') }}
+              <span class="service-price">{{ formatPrice(selectedBookingDetails.service_fees.damage_fee) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Details -->
+        <div class="details-section">
+          <h4 class="details-section-title">
+            <DollarOutlined /> {{ $t('bookings.paymentDetails') }}
+          </h4>
+          <div class="details-payment">
+            <div class="payment-row">
+              <span>{{ $t('bookings.dailyRate') }}</span>
+              <span>{{ formatPrice(selectedBookingDetails.daily_rate) }}</span>
+            </div>
+            <div class="payment-row">
+              <span>{{ $t('bookings.subtotal') }} ({{ selectedBookingDetails.days_duration }} {{ $t('bookings.daysLabel') }})</span>
+              <span>{{ formatPrice(selectedBookingDetails.subtotal) }}</span>
+            </div>
+            <div class="payment-row" v-if="selectedBookingDetails.payment_details?.total_services_fees > 0">
+              <span>{{ $t('bookings.servicesFees') }}</span>
+              <span>{{ formatPrice(selectedBookingDetails.payment_details.total_services_fees) }}</span>
+            </div>
+            <div class="payment-row total">
+              <span>{{ $t('bookings.total') }}</span>
+              <span>{{ formatPrice(selectedBookingDetails.total_amount) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="details-section" v-if="selectedBookingDetails.notes">
+          <h4 class="details-section-title">
+            <FileTextOutlined /> {{ $t('bookings.notes') }}
+          </h4>
+          <div class="details-notes">
+            {{ selectedBookingDetails.notes }}
+          </div>
+        </div>
+
+        <!-- Created Date -->
+        <div class="details-footer">
+          <span class="details-created">
+            {{ $t('bookings.bookedOn') }}: {{ formatDate(selectedBookingDetails.created_at) }}
+          </span>
+        </div>
+      </div>
+    </a-modal>
+
     <!-- Rating Modal -->
     <a-modal
       v-model:open="ratingModalVisible"
-      title="Avaliar Aluguel"
+      :title="$t('bookings.rateRental')"
       :width="600"
       :footer="null"
       @cancel="closeRatingModal"
@@ -247,7 +414,7 @@
           </div>
           <div class="vehicle-details">
             <h4>{{ selectedBooking.vehicle_info.brand }} {{ selectedBooking.vehicle_info.model }}</h4>
-            <p>Período: {{ formatDate(selectedBooking.start_date) }} - {{ formatDate(selectedBooking.end_date) }}</p>
+            <p>{{ $t('bookings.period') }}: {{ formatDate(selectedBooking.start_date) }} - {{ formatDate(selectedBooking.end_date) }}</p>
           </div>
         </div>
 
@@ -260,9 +427,9 @@
         >
           <!-- Overall Rating -->
           <a-form-item 
-            label="Avaliação Geral"
+            :label="$t('bookings.overallRating')"
             name="overall_rating"
-            :rules="[{ required: true, message: 'Por favor, selecione uma avaliação geral!' }]"
+            :rules="[{ required: true, message: $t('bookings.overallRatingError') }]"
           >
             <a-rate
               v-model:value="ratingForm.overall_rating" 
@@ -275,9 +442,9 @@
 
           <!-- Vehicle Condition Rating -->
           <a-form-item 
-            label="Condição do Veículo" 
+            :label="$t('bookings.vehicleCondition')" 
             name="vehicle_condition_rating"
-            :rules="[{ required: true, message: 'Por favor, avalie a condição do veículo!' }]"
+            :rules="[{ required: true, message: $t('bookings.vehicleConditionError') }]"
           >
             <a-rate 
               v-model:value="ratingForm.vehicle_condition_rating" 
@@ -290,9 +457,9 @@
 
           <!-- Service Quality Rating -->
           <a-form-item 
-            label="Qualidade do Atendimento" 
+            :label="$t('bookings.serviceQuality')" 
             name="service_quality_rating"
-            :rules="[{ required: true, message: 'Por favor, avalie a qualidade do atendimento!' }]"
+            :rules="[{ required: true, message: $t('bookings.serviceQualityError') }]"
           >
             <a-rate 
               v-model:value="ratingForm.service_quality_rating" 
@@ -305,9 +472,9 @@
 
           <!-- Value for Money Rating -->
           <a-form-item 
-            label="Custo-Benefício" 
+            :label="$t('bookings.valueForMoney')" 
             name="value_for_money_rating"
-            :rules="[{ required: true, message: 'Por favor, avalie o custo-benefício!' }]"
+            :rules="[{ required: true, message: $t('bookings.valueForMoneyError') }]"
           >
             <a-rate 
               v-model:value="ratingForm.value_for_money_rating" 
@@ -322,7 +489,7 @@
           <a-form-item name="comments">
             <a-textarea
               v-model:value="ratingForm.comments"
-              placeholder="Compartilhe sua experiência com este aluguel..."
+              :placeholder="$t('bookings.commentsPlaceholder')"
               :rows="4"
               :maxlength="500"
               show-count
@@ -332,16 +499,16 @@
           <!-- Would Recommend -->
           <a-form-item  name="would_recommend">
             <a-radio-group v-model:value="ratingForm.would_recommend" style="display: flex; gap: 12px;">
-              <a-radio :value="true">Recomendaria este veículo</a-radio>
-              <a-radio :value="false">Não recomendaria este veículo</a-radio>
+              <a-radio :value="true">{{ $t('bookings.wouldRecommend') }}</a-radio>
+              <a-radio :value="false">{{ $t('bookings.wouldNotRecommend') }}</a-radio>
             </a-radio-group>
           </a-form-item>
 
           <!-- Had Issues -->
           <a-form-item  name="had_issues">
             <a-radio-group v-model:value="ratingForm.had_issues" @change="onIssuesChange" style="display: flex; gap: 12px;">
-              <a-radio :value="false">Não tive problemas</a-radio>
-              <a-radio :value="true">Tive alguns problemas</a-radio>
+              <a-radio :value="false">{{ $t('bookings.noProblems') }}</a-radio>
+              <a-radio :value="true">{{ $t('bookings.hadProblems') }}</a-radio>
             </a-radio-group>
           </a-form-item>
 
@@ -349,11 +516,11 @@
           <a-form-item 
             v-if="ratingForm.had_issues"
             name="issue_description"
-            :rules="ratingForm.had_issues ? [{ required: true, message: 'Por favor, descreva os problemas encontrados!' }] : []"
+            :rules="ratingForm.had_issues ? [{ required: true, message: $t('bookings.issueDescriptionError') }] : []"
           >
             <a-textarea
               v-model:value="ratingForm.issue_description"
-              placeholder="Descreva os problemas que enfrentou durante o aluguel..."
+              :placeholder="$t('bookings.issueDescriptionPlaceholder')"
               :rows="3"
               :maxlength="300"
               show-count
@@ -363,7 +530,7 @@
           <!-- Form Actions -->
           <div class="form-actions">
             <a-button @click="closeRatingModal" style="margin-right: 12px">
-              Cancelar
+              {{ $t('common.cancel') }}
             </a-button>
             <a-button 
               type="primary" 
@@ -374,7 +541,7 @@
                 '--btn-bg-hover': backgroundHero
               }"
             >
-              Enviar Avaliação
+              {{ $t('bookings.submitRating') }}
             </a-button>
           </div>
         </a-form>
@@ -389,25 +556,35 @@ import {
   CarOutlined,
   EyeOutlined,
   //MessageOutlined,
-  DeleteOutlined,
+  //DeleteOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
-  //CheckCircleOutlined,
+  CheckCircleOutlined,
   DollarOutlined,
   ReloadOutlined,
   InboxOutlined,
-  StarOutlined
+  StarOutlined,
+  UserOutlined,
+  EnvironmentOutlined,
+  SafetyOutlined,
+  FileTextOutlined,
+  PercentageOutlined,
+  ToolOutlined
 } from '@ant-design/icons-vue'
 
 import dayjs from 'dayjs'
-import { defineProps, defineEmits, ref, computed } from 'vue'
+import { defineProps, defineEmits, ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-//import { useLanguageAndCurrency } from '../../composables/useLanguageAndCurrency'
+import { useI18n } from 'vue-i18n'
+import { useLanguageAndCurrency } from '../../composables/useLanguageAndCurrency'
 import { baseURL, vehicleService } from '../../services/api'
 
 const url = computed(() => baseURL)
 
-//const { formatCurrency } = useLanguageAndCurrency()
+// Internationalization
+const { t } = useI18n()
+
+const { currentCurrency } = useLanguageAndCurrency()
 const router = useRouter()
 
 const props = defineProps({
@@ -431,9 +608,63 @@ const emit = defineEmits([
 
 // Reactive data
 const currentPage = ref(1)
-const pageSize = ref(9)
+const pageSize = ref(5)
 const dateRange = ref([])
 const sortBy = ref('date-desc')
+const statusFilter = ref(null)
+const config = ref({})
+
+// Load system config for exchange rates
+const loadSystemConfig = async () => {
+  try {
+    const response = await vehicleService.getSystemConfig()
+    config.value = response.data
+  } catch (error) {
+    console.error('Erro ao carregar configuração do sistema:', error)
+  }
+}
+
+// Convert CVE to selected currency
+const convertFromCVE = (amountInCVE) => {
+  if (!amountInCVE || !config.value) return amountInCVE
+  
+  const amount = parseFloat(amountInCVE)
+  
+  switch (currentCurrency.value) {
+    case 'USD': {
+      const usdRate = parseFloat(config.value.usd_exchange_rate || 100)
+      return amount / usdRate
+    }
+    case 'EUR': {
+      const eurRate = parseFloat(config.value.euro_exchange_rate || 100)
+      return amount / eurRate
+    }
+    case 'CVE':
+    default:
+      return amount
+  }
+}
+
+// Format price with currency symbol
+const formatPrice = (amountInCVE) => {
+  const convertedAmount = convertFromCVE(amountInCVE)
+  
+  switch (currentCurrency.value) {
+    case 'USD':
+      return `$${convertedAmount.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}`
+    case 'EUR':
+      return `${convertedAmount.toLocaleString('fr-FR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}€`
+    case 'CVE':
+    default:
+      return `${convertedAmount.toLocaleString('pt-PT')} CVE`
+  }
+}
 
 // Rating modal data
 const ratingModalVisible = ref(false)
@@ -450,6 +681,10 @@ const ratingForm = ref({
   had_issues: false,
   issue_description: ''
 })
+
+// Details modal data
+const detailsModalVisible = ref(false)
+const selectedBookingDetails = ref(null)
 
 // Computed properties
 /*const activeBookingsCount = computed(() =>
@@ -469,12 +704,17 @@ const totalSpent = computed(() =>
 const filteredBookings = computed(() => {
   let filtered = [...props.myBookings]
 
+  // Status filter
+  if (statusFilter.value) {
+    filtered = filtered.filter(booking => booking.status === statusFilter.value)
+  }
+
   // Date range filter
   if (dateRange.value && dateRange.value.length === 2) {
     const [startDate, endDate] = dateRange.value
     filtered = filtered.filter(booking => {
-      const bookingStart = dayjs(booking.startDate)
-      const bookingEnd = dayjs(booking.endDate)
+      const bookingStart = dayjs(booking.start_date)
+      const bookingEnd = dayjs(booking.end_date)
       return bookingStart.isBetween(startDate, endDate, 'day', '[]') ||
              bookingEnd.isBetween(startDate, endDate, 'day', '[]')
     })
@@ -484,13 +724,13 @@ const filteredBookings = computed(() => {
   filtered.sort((a, b) => {
     switch (sortBy.value) {
       case 'date-desc':
-        return dayjs(b.startDate).valueOf() - dayjs(a.startDate).valueOf()
+        return dayjs(b.start_date).valueOf() - dayjs(a.start_date).valueOf()
       case 'date-asc':
-        return dayjs(a.startDate).valueOf() - dayjs(b.startDate).valueOf()
+        return dayjs(a.start_date).valueOf() - dayjs(b.start_date).valueOf()
       case 'price-desc':
-        return b.totalPrice - a.totalPrice
+        return parseFloat(b.total_amount) - parseFloat(a.total_amount)
       case 'price-asc':
-        return a.totalPrice - b.totalPrice
+        return parseFloat(a.total_amount) - parseFloat(b.total_amount)
       default:
         return 0
     }
@@ -504,6 +744,20 @@ const paginatedBookings = computed(() => {
   const end = start + pageSize.value
   return filteredBookings.value.slice(start, end)
 })
+
+const hasActiveFilters = computed(() => {
+  return statusFilter.value !== null || (dateRange.value && dateRange.value.length === 2)
+})
+
+// Watch filters to reset pagination
+watch([statusFilter, dateRange, sortBy], () => {
+  currentPage.value = 1
+})
+
+// Pagination text function
+const paginationShowTotal = (total, range) => {
+  return `${range[0]}-${range[1]} ${t('bookings.paginationTotal')} ${total} ${t('bookings.myBookingsClient').toLowerCase()}`
+}
 
 // Methods
 const formatDate = (dateString) => {
@@ -524,12 +778,11 @@ const getBookingProgress = (booking) => {
   return Math.round((elapsed / total) * 100)
 }
 
-const handleDateRangeChange = (dates) => {
-  dateRange.value = dates
-}
-
-const handleSortChange = (value) => {
-  sortBy.value = value
+const clearFilters = () => {
+  statusFilter.value = null
+  dateRange.value = []
+  sortBy.value = 'date-desc'
+  currentPage.value = 1
 }
 
 const refreshBookings = () => {
@@ -571,11 +824,11 @@ const closeRatingModal = () => {
 
 const getRatingText = (rating) => {
   if (rating === 0) return ''
-  if (rating <= 1) return 'Muito Ruim'
-  if (rating <= 2) return 'Ruim'
-  if (rating <= 3) return 'Regular'
-  if (rating <= 4) return 'Bom'
-  return 'Excelente'
+  if (rating <= 1) return t('bookings.ratingVeryBad')
+  if (rating <= 2) return t('bookings.ratingBad')
+  if (rating <= 3) return t('bookings.ratingRegular')
+  if (rating <= 4) return t('bookings.ratingGood')
+  return t('bookings.ratingExcellent')
 }
 
 const onIssuesChange = (e) => {
@@ -612,6 +865,8 @@ const submitRating = async () => {
     message.success('Avaliação enviada com sucesso!')
     
     closeRatingModal()
+
+    refreshBookings()
     
   } catch (error) {
     console.error('Erro ao enviar avaliação:', error)
@@ -624,14 +879,29 @@ const submitRating = async () => {
 
 // Navigation methods
 const navigateToSearch = () => {
-  router.push('/search')
+  router.push({ path: '/', hash: '#filtro' })
 }
 
 const navigateToVehicleDetails = (booking) => {
-  if (booking.id) {
-    window.open(`/vehicle/${booking.vehicle_info.id}`, '_blank');
-  }
+  selectedBookingDetails.value = booking
+  detailsModalVisible.value = true
 }
+
+const closeDetailsModal = () => {
+  detailsModalVisible.value = false
+  selectedBookingDetails.value = null
+}
+
+const hasServiceFees = (booking) => {
+  if (!booking || !booking.service_fees) return false
+  const { insurance_fee, security_deposit, commission_amount, late_return_fee, damage_fee } = booking.service_fees
+  return (insurance_fee > 0 || security_deposit > 0 || commission_amount > 0 || late_return_fee > 0 || damage_fee > 0)
+}
+
+// Load config on mount
+onMounted(() => {
+  loadSystemConfig()
+})
 
 /*const navigateToMessages = () => {
   router.push('/owner-dashboard?tab=messages')
@@ -789,6 +1059,29 @@ const navigateToVehicleDetails = (booking) => {
   font-size: 14px;
   font-weight: 500;
   color: #374151;
+}
+
+/* Filters Actions */
+.filters-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.clear-filters-btn {
+  border-radius: 8px;
+  font-weight: 500;
+  color: #dc2626;
+  border-color: #dc2626;
+  transition: all 0.3s ease;
+}
+
+.clear-filters-btn:hover {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
 }
 
 /* Bookings Section */
@@ -1420,6 +1713,273 @@ const navigateToVehicleDetails = (booking) => {
   
   .rating-text {
     font-size: 12px;
+  }
+}
+
+/* Details Modal Styles */
+.details-modal-content {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.details-section {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.details-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.details-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.details-section-title .anticon {
+  color: #667eea;
+  font-size: 18px;
+}
+
+.details-vehicle-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.details-vehicle-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 32px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.details-vehicle-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.details-vehicle-info h5 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.details-vehicle-info p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 4px 0;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.details-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.details-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.details-value {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.details-subtext {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.details-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.service-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #f0f4ff, #e0e7ff);
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #4338ca;
+  font-weight: 500;
+}
+
+.service-tag .anticon {
+  font-size: 16px;
+}
+
+.service-price {
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid #c7d2fe;
+  color: #059669;
+  font-weight: 600;
+}
+
+.service-fee-tag {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1px solid #fbbf24;
+  color: #92400e;
+}
+
+.service-fee-tag .anticon {
+  color: #d97706;
+}
+
+.service-fee-tag .service-price {
+  border-left-color: #fbbf24;
+  color: #d97706;
+}
+
+.details-payment {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.payment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.payment-row:not(:last-child) {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.payment-row.total {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 2px solid #d1d5db;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.payment-row.total span:last-child {
+  color: #059669;
+  font-size: 18px;
+}
+
+.details-notes {
+  padding: 12px 16px;
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #78350f;
+  line-height: 1.6;
+}
+
+.details-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.details-created {
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Responsive Details Modal */
+@media (max-width: 768px) {
+  .details-vehicle-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .details-services {
+    flex-direction: column;
+  }
+  
+  .service-tag {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .details-modal-content {
+    padding: 0;
+  }
+  
+  .details-section {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+  }
+  
+  .details-section-title {
+    font-size: 14px;
+  }
+  
+  .details-vehicle-card {
+    padding: 12px;
+  }
+  
+  .details-vehicle-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .payment-row {
+    font-size: 13px;
+  }
+  
+  .payment-row.total {
+    font-size: 14px;
   }
 }
 </style>

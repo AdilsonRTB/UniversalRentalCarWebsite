@@ -6,7 +6,7 @@
           <a-col :span="14" :md="24" :lg="14" :xs="24" class="image-column">
             <a-carousel :autoplay="true" class="modern-carousel">
               <div v-for="(image, index) in vehicleImages" :key="index" class="carousel-slide-modern">
-                <img :src="image.image" :alt="`${vehicle?.brand_name} ${vehicle?.model} - Imagem ${index + 1}`" class="vehicle-image-modern" />
+                <img :src="formatImageUrl(image.image)" :alt="`${vehicle?.brand_name} ${vehicle?.model} - Imagem ${index + 1}`" class="vehicle-image-modern" />
                 <h1 class="vehicle-title-modern">{{ vehicle?.brand_name }} {{ vehicle?.model }}</h1>
                 <div class="vehicle-meta-modern">
                     <div class="meta-item">
@@ -15,7 +15,7 @@
                     </div>
                     <div class="meta-item">
                       <EnvironmentOutlined class="meta-icon" />
-                      <span>Praia, Santiago</span>
+                      <span>{{ $t('search.gallery.defaultLocation') }}</span>
                     </div>
                 </div>
                 <div class="image-overlay-actions">
@@ -56,7 +56,7 @@
                     </div>
                     <div class="spec-content-modern">
                       <!--span class="spec-label-modern">Potencia</!--span-->
-                      <span class="spec-value-modern">{{ vehicle?.number_of_seats }} Lugares</span>
+                      <span class="spec-value-modern">{{ vehicle?.number_of_seats }} {{ $t('search.gallery.seats') }}</span>
                     </div>
                   </div>
 
@@ -70,17 +70,17 @@
 
             <div class="description-card-modern" >
               <div class="card-header-modern">
-                <h3 class="card-title-modern">Descrição</h3>
+                <h3 class="card-title-modern">{{ $t('search.gallery.description') }}</h3>
                 <!--p class="card-subtitle-modern">Informações sobre o veículo</!--p-->
               </div>
 
               <div class="description-container" :class="{ scrollable: expanded }" >
                 <a-typography-paragraph
                   :ellipsis="!expanded
-                    ? { rows: 6, expandable: true, symbol: 'ver mais' }
+                    ? { rows: 6, expandable: true, symbol: $t('search.gallery.seeMore') }
                     : false
                   "
-                  :content="vehicle?.description"
+                  :content="vehicleDescription"
                   @expand="onExpand"
                 />
               </div>
@@ -88,17 +88,41 @@
 
             <!-- Seção de Preço e Reserva -->
             <div class="pricing-section-modern">
+              <!-- Location Section -->
+              <div class="location-section">
+                <div class="location-selects">
+                  <div class="location-select-item">
+                    <label class="location-label">{{ $t('search.gallery.pickupLocation') }}</label>
+                    <a-select
+                      v-model:value="pickupLocation"
+                      :placeholder="$t('search.gallery.pickupLocation')"
+                      class="location-select"
+                      :options="locationsOptions"
+                    />
+                  </div>
+                  <div class="location-select-item">
+                    <label class="location-label">{{ $t('search.gallery.returnLocation') }}</label>
+                    <a-select
+                      v-model:value="returnLocation"
+                      :placeholder="$t('search.gallery.returnLocation')"
+                      class="location-select"
+                      :options="locationsOptions"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <!-- Extras Section -->
               <div class="extras-section">
                 <!--h4 class="extras-title">Extras Disponíveis</!--h4-->
                 <div class="extras-options">
                   <div class="extra-option">
-                    <a-checkbox v-model:checked="withDriver">Com motorista</a-checkbox>
-                    <span class="extra-price">+20%</span>
+                    <a-checkbox v-model:checked="withDriver">{{ $t('search.gallery.withDriver') }}</a-checkbox>
+                    <span class="extra-price">{{ driverDailyRate }} {{ currencySymbol }}</span>
                   </div>
                   <div class="extra-option">
-                    <a-checkbox v-model:checked="carSeat">Assento Criança</a-checkbox>
-                    <span class="extra-price">Gratuito</span>
+                    <a-checkbox v-model:checked="carSeat">{{ $t('search.gallery.carSeat') }}</a-checkbox>
+                    <span class="extra-price">{{ carSeatDailyRate }} {{ currencySymbol }}</span>
                   </div>
                 </div>
               </div>
@@ -107,24 +131,24 @@
               <div class="price-display">
                 <div class="price-breakdown">
                   <div class="price-line">
-                    <span class="price-label">Preço diário</span>
-                    <span class="price-value">{{ vehicle?.daily_rate }} CVE</span>
+                    <span class="price-label">{{ $t('search.gallery.dailyPrice') }}</span>
+                    <span class="price-value">{{ dailyRate }} {{ currencySymbol }}</span>
                   </div>
                   <div class="price-line">
-                    <span class="price-label">{{ days }} dias</span>
-                    <span class="price-value">{{ days * vehicle?.daily_rate }} CVE</span>
-                  </div>
-                  <div class="price-line">
-                    <span class="price-label">Taxa de serviço</span>
-                    <span class="price-value">1000 CVE</span>
+                    <span class="price-label">{{ days }} {{ $t('search.gallery.days') }}</span>
+                    <span class="price-value">{{ (days * dailyRate) }} {{ currencySymbol }}</span>
                   </div>
                   <div v-if="withDriver" class="price-line">
-                    <span class="price-label">Com motorista (+20%)</span>
-                    <span class="price-value">{{ Math.round((days * vehicle?.daily_rate) * 0.20) }} CVE</span>
+                    <span class="price-label">{{ $t('search.gallery.withDriverDays', { days }) }}</span>
+                    <span class="price-value">{{ (days * driverDailyRate) }} {{ currencySymbol }}</span>
                   </div>
                   <div v-if="carSeat" class="price-line">
-                    <span class="price-label">Assento Criança</span>
-                    <span class="price-value">0 CVE</span>
+                    <span class="price-label">{{ $t('search.gallery.carSeatDays', { days }) }}</span>
+                    <span class="price-value">{{ (days * carSeatDailyRate) }} {{ currencySymbol }}</span>
+                  </div>
+                  <div class="price-line">
+                    <span class="price-label">{{ $t('search.gallery.serviceFee') }}</span>
+                    <span class="price-value">{{ serviceFeeAmount }} {{ currencySymbol }}</span>
                   </div>
                 </div>
               </div>
@@ -132,13 +156,14 @@
               <!-- Reserve Button -->
               <a-button
                 type="primary"
-                size="large" 
+                size="large"
                 class="next-btn-modern"
                 @click="handleReservation"
+                :disabled="!availability"
               >
                 <div class="button-content">
-                  <span class="button-text">Reservar Agora</span>
-                  <span class="button-total">{{ calculateTotal }} CVE</span>
+                  <span class="button-text">{{ $t('search.gallery.reserveNow') }}</span>
+                  <span class="button-total">{{ calculateTotal }} {{ currencySymbol }}</span>
                 </div>
               </a-button>
 
@@ -163,8 +188,16 @@
       :calculate-total="calculateTotal"
       :with-driver="withDriver"
       :car-seat="carSeat"
-      :with-driver-value="Math.round((days * vehicle?.daily_rate) * 0.20)"
+      :with-driver-value="days * driverDailyRate"
+      :car-seat-value="days * carSeatDailyRate"
+      :pickupLocation="pickupLocation"
+      :returnLocation="returnLocation"
+      :locations="locations"
       @reservation-confirmed="handleReservationConfirmed"
+      :serviceFeeAmount="serviceFeeAmount"
+      :currencySymbol="currencySymbol"
+      :dailyRate="dailyRate * days"
+      :serviceFeeType="config?.service_fee_type"
     />
   </section>
   <div style="display: none">
@@ -178,14 +211,20 @@
 </template>
 
 <script setup>
-import { defineProps, computed, ref } from 'vue'
+import { defineProps, computed, ref, watch } from 'vue'
 import { CarOutlined, ShareAltOutlined, CalendarOutlined, EnvironmentOutlined, SettingOutlined, UserOutlined, ExpandOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
+import { useI18n } from 'vue-i18n'
+import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency.js'
 import dayjs from 'dayjs'
 import ReservationModal from '../components/ReservationModal.vue'
 import { useRouter } from 'vue-router'
+import { useUtilities } from '../composables/utilits.js'
 
+const { t, locale } = useI18n()
+const { currentCurrency } = useLanguageAndCurrency()
 const router = useRouter()
+const { formatImageUrl } = useUtilities()
 
 const props = defineProps({
   vehicle: {
@@ -203,6 +242,18 @@ const props = defineProps({
   endDate: {
     type: String,
     default: null
+  },
+  availability: {
+    type: Boolean,
+    default: false
+  },
+  locations: {
+    type: Array,
+    default: () => []
+  },
+  config: {
+    type: Object,
+    default: () => ({})
   }
 })
 
@@ -214,9 +265,34 @@ const visible = ref(false);
 const withDriver = ref(false);
 const carSeat = ref(false);
 
+// Location state
+const pickupLocation = ref(null);
+const returnLocation = ref(null);
+
 const onExpand = (isExpanded) => {
   expanded.value = isExpanded;
 };
+
+const locationsOptions = computed(() => {
+  return props.locations.map(loc => ({ label: loc.name, value: loc.id }))
+})
+
+// Watch for changes in locations to set default values
+watch(() => props.locations, (newLocations) => {
+  if (newLocations && newLocations.length > 0) {
+    // Find default pickup location
+    const defaultPickup = newLocations.find(loc => loc.default_pickup === true)
+    if (defaultPickup && !pickupLocation.value) {
+      pickupLocation.value = defaultPickup
+    }
+    
+    // Find default return location
+    const defaultReturn = newLocations.find(loc => loc.default_return === true)
+    if (defaultReturn && !returnLocation.value) {
+      returnLocation.value = defaultReturn
+    }
+  }
+}, { immediate: true })
 
 const shareLink = () => {
   const linkToShare = window.location.href + `vehicle/${props.vehicle.id}`
@@ -225,9 +301,9 @@ const shareLink = () => {
     navigator.share({
       title: document.title,
       url: linkToShare
-    }).catch(err => console.error('Erro ao compartilhar', err))
+    }).catch(err => console.error(t('search.gallery.shareError'), err))
   } else {
-    alert('Compartilhamento não suportado nesse navegador.')
+    alert(t('search.gallery.shareNotSupported'))
   }
 }
 
@@ -244,26 +320,32 @@ const days = computed(() => {
 })
 
 const calculateTotal = computed(() => {
-  let baseTotal = days.value * props.vehicle?.daily_rate;
-  
-  // Add driver cost (20% extra)
+  let baseTotal = days.value * dailyRate.value;
+  let extras = 0;
+
+  // Add driver cost per day based on config
   if (withDriver.value) {
-    baseTotal *= 1.20;
+    extras += days.value * driverDailyRate.value;
   }
   
-  // Add service fee
-  baseTotal += 1000;
-  
-  return Math.round(baseTotal);
+  // Add car seat cost per day based on config
+  if (carSeat.value) {
+    extras += days.value * carSeatDailyRate.value;
+  }
+
+  // Add service fee based on config
+  const serviceFee = serviceFeeAmount.value;
+
+  return Math.round(baseTotal + extras + serviceFee);
 })
 
 // Função de reserva
 const handleReservation = () => {
   if (!props.startDate || !props.endDate) {
-    message.warning('Por favor, selecione as datas de recolha e devolução')
+    message.warning(t('search.gallery.selectDatesWarning'))
     return
   }
-  
+
   // Abrir modal de reserva
   showReservationModal.value = true
 }
@@ -271,7 +353,7 @@ const handleReservation = () => {
 // Função chamada quando reserva é confirmada
 const handleReservationConfirmed = (reservationData) => {
   console.log('Reserva confirmada:', reservationData)
-  message.success('Reserva efetuada com sucesso!')
+  message.success(t('search.gallery.reservationSuccess'))
   // Aqui você pode adicionar navegação ou outras ações
   // router.push('/reservation-success', { query: { id: reservationData.id } })
 }
@@ -289,16 +371,100 @@ const calculateDays = computed(() => {
   return days.value
 })
 
+// Computed property para descrição do veículo na linguagem selecionada
+const vehicleDescription = computed(() => {
+  switch (locale.value) {
+    case 'en':
+      return props.vehicle?.description_en || props.vehicle?.description || t('vehicles.defaultDescription')
+    case 'fr':
+      return props.vehicle?.description_fr || props.vehicle?.description || t('vehicles.defaultDescription')
+    case 'pt':
+    default:
+      return props.vehicle?.description || t('vehicles.defaultDescription')
+  }
+})
+
+// Computed properties para valores da configuração baseados na moeda selecionada
+const driverDailyRate = computed(() => {
+  switch (currentCurrency.value) {
+    case 'USD':
+      return parseFloat(props.config?.driver_rate_usd || 30)
+    case 'EUR':
+      return parseFloat(props.config?.driver_rate_eur || 30)
+    case 'CVE':
+    default:
+      return parseFloat(props.config?.driver_daily_rate || 3000)
+  }
+})
+
+const dailyRate = computed(() => {
+  const baseRate = Number(props.vehicle?.daily_rate) || 0
+
+  const usdRate = Number(props.config?.usd_exchange_rate) || 1
+  const eurRate = Number(props.config?.euro_exchange_rate) || 1
+
+  switch (currentCurrency.value) {
+    case 'USD':
+      return usdRate ? baseRate / usdRate : 0
+
+    case 'EUR':
+      return eurRate ? baseRate / eurRate : 0
+
+    case 'CVE':
+    default:
+      return baseRate
+  }
+})
+
+const carSeatDailyRate = computed(() => {
+  switch (currentCurrency.value) {
+    case 'USD':
+      return parseFloat(props.config?.car_seat_rate_usd || 5)
+    case 'EUR':
+      return parseFloat(props.config?.car_seat_rate_eur || 5)
+    case 'CVE':
+    default:
+      return parseFloat(props.config?.car_seat_daily_rate || 500)
+  }
+})
+
+const serviceFeeAmount = computed(() => {
+  switch (currentCurrency.value) {
+    case 'USD':
+      return parseFloat(props.config?.service_fee_usd || 10)
+    case 'EUR':
+      return parseFloat(props.config?.service_fee_eur || 10)
+    case 'CVE':
+    default:
+      return parseFloat(props.config?.service_fee_amount || 1000)
+  }
+})
+
+const currencySymbol = computed(() => {
+  switch (currentCurrency.value) {
+    case 'USD':
+      return 'USD'
+    case 'EUR':
+      return 'EUR'
+    case 'CVE':
+    default:
+      return 'CVE'
+  }
+})
+
+
 const fuelTypeMap = (type) => {
   switch (type) {
-    case 'gasoline':
-      return 'Gasolina'
+    case 'gas':
+      return t('vehicles.fuelTypes.gas')
     case 'diesel':
-      return 'Diesel'
+      return t('vehicles.fuelTypes.diesel')
     case 'electric':
-      return 'Elétrico'
+      return t('vehicles.fuelTypes.electric')
     case 'hybrid':
-      return 'Híbrido'
+      return t('vehicles.fuelTypes.hybrid')
+    case 'petrol':
+      return t('vehicles.fuelTypes.petrol')
     default:
       return type
   }
@@ -307,17 +473,19 @@ const fuelTypeMap = (type) => {
 const gearboxTypeMap = (type) => {
   switch (type) {
     case 'manual':
-      return 'Manual'
+      return t('vehicles.transmissionTypes.manual')
     case 'automatic':
-      return 'Automático'
+      return t('vehicles.transmissionTypes.automatic')
     default:
       return type
   }
 }
 
 const viewVehicle = (vehicleId) => {
-  router.push(`/vehicle/${vehicleId}`)
+  router.push(`/vehicle/${vehicleId}`, { query: { startDate: props.startDate, endDate: props.endDate } })
 }
+
+
 </script>
 
 <style scoped>
@@ -386,7 +554,7 @@ const viewVehicle = (vehicleId) => {
 
 .pricing-section-modern {
   flex-shrink: 0;
-  margin-top: -70px;
+  margin-top: -120px;
 }
 
 /* Responsive adjustments */
@@ -410,6 +578,53 @@ const viewVehicle = (vehicleId) => {
   
   .pricing-section-modern {
     margin-top: 20px;
+  }
+  
+  .location-selects {
+    flex-direction: column !important;
+    gap: 12px;
+  }
+  
+  .extras-options {
+    flex-direction: column !important;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .location-selects {
+    flex-direction: column !important;
+    gap: 10px;
+  }
+  
+  .extras-options {
+    flex-direction: column !important;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .location-section {
+    margin-bottom: 16px;
+  }
+  
+  .location-selects {
+    flex-direction: column !important;
+    gap: 10px;
+  }
+  
+  .extras-options {
+    flex-direction: column !important;
+    gap: 10px;
+  }
+  
+  .location-label {
+    font-size: 12px;
+  }
+  
+  .location-select .ant-select-selector {
+    padding: 6px 10px;
+    min-height: 36px;
   }
 }
 
@@ -679,7 +894,61 @@ const viewVehicle = (vehicleId) => {
   color: #374151;
   margin: 0 0 12px 0;
 }
+/* Location Section */
+.location-section {
+  margin-bottom: 20px;
+}
 
+.location-selects {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.location-select-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.location-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0px;
+}
+
+.location-select {
+  width: 100%;
+  max-width: 100%;
+}
+
+.location-select .ant-select-selector {
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 8px 12px;
+  min-height: 40px;
+  transition: all 0.2s ease;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.location-select .ant-select-selection-item {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: calc(100% - 24px);
+}
+
+.location-select .ant-select-selector:hover {
+  border-color: #FE7743;
+}
+
+.location-select.ant-select-focused .ant-select-selector {
+  border-color: #FE7743;
+  box-shadow: 0 0 0 2px rgba(254, 119, 67, 0.1);
+}
 .extras-options {
   display: flex;
   flex-direction: row;
@@ -695,6 +964,7 @@ const viewVehicle = (vehicleId) => {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   transition: all 0.2s ease;
+  flex: 1;
 }
 
 .extra-option:hover {

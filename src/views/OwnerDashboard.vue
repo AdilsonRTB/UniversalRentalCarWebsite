@@ -16,8 +16,8 @@
                   <div class="status-indicator"></div>
                 </div>
                 <div class="welcome-text">
-                  <h1 class="welcome-title">Bem-vindo, {{ customer?.first_name }} {{customer?.last_name}}!</h1>
-                  <p class="welcome-subtitle">Gerencie suas reservas</p>
+                  <h1 class="welcome-title">{{ t('dashboard.welcomeTitle', { name: `${customer?.first_name} ${customer?.last_name}` }) }}</h1>
+                  <!--p class="welcome-subtitle">{{ t('dashboard.manageReservations') }}</!--p-->
                 </div>
               </div>
               
@@ -28,7 +28,7 @@
                   </div>
                   <div class="stat-info">
                     <span class="stat-number">{{ customer?.rental_count }}</span>
-                    <span class="stat-label">Total Reservas</span>
+                    <span class="stat-label">{{ t('dashboard.totalReservationsLabel') }}</span>
                   </div>
                 </div>
                 <div class="stat-card-hero">
@@ -37,7 +37,7 @@
                   </div>
                   <div class="stat-info">
                     <span class="stat-number">{{ customer?.active_rentals }}</span>
-                    <span class="stat-label">Reservas Ativos</span>
+                    <span class="stat-label">{{ t('dashboard.activeReservationsLabel') }}</span>
                   </div>
                 </div>
                 <!--div class="stat-card-hero">
@@ -55,7 +55,7 @@
                   </div>
                   <div class="stat-info">
                     <span class="stat-number">{{ getClientClassification() }}</span>
-                    <span class="stat-label">Classificação</span>
+                    <span class="stat-label">{{ t('dashboard.classificationLabel') }}</span>
                   </div>
                 </div-->
                 
@@ -147,29 +147,29 @@
     <!-- Modals with Modern Design -->
     <a-modal
       v-model:open="vehicleDetailsVisible"
-      title="Detalhes do Veículo"
+      :title="t('dashboard.vehicleDetails')"
       :footer="null"
       width="900px"
       class="modern-modal"
     >
       <div v-if="selectedVehicle" class="modal-content-modern">
         <a-descriptions :column="2" bordered class="modern-descriptions">
-          <a-descriptions-item label="Marca">{{ selectedVehicle.brand }}</a-descriptions-item>
-          <a-descriptions-item label="Modelo">{{ selectedVehicle.model }}</a-descriptions-item>
-          <a-descriptions-item label="Ano">{{ selectedVehicle.year }}</a-descriptions-item>
-          <a-descriptions-item label="Placa">{{ selectedVehicle.licensePlate }}</a-descriptions-item>
-          <a-descriptions-item label="Tipo">{{ getVehicleTypeLabel(selectedVehicle.type) }}</a-descriptions-item>
-          <a-descriptions-item label="Valor/Dia">R$ {{ selectedVehicle.dailyRate?.toFixed(2) }}</a-descriptions-item>
-          <a-descriptions-item label="Localização">{{ selectedVehicle.location }}</a-descriptions-item>
-          <a-descriptions-item label="Status">
+          <a-descriptions-item :label="t('dashboard.brand')">{{ selectedVehicle.brand }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.model')">{{ selectedVehicle.model }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.year')">{{ selectedVehicle.year }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.plate')">{{ selectedVehicle.licensePlate }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.type')">{{ getVehicleTypeLabel(selectedVehicle.type) }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.dailyRate')">R$ {{ selectedVehicle.dailyRate?.toFixed(2) }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.location')">{{ selectedVehicle.location }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.status')">
             <a-tag :color="selectedVehicle.available ? 'green' : 'red'" class="modern-tag">
-              {{ selectedVehicle.available ? 'Disponível' : 'Indisponível' }}
+              {{ selectedVehicle.available ? t('dashboard.available') : t('dashboard.unavailable') }}
             </a-tag>
           </a-descriptions-item>
-          <a-descriptions-item label="Descrição" :span="2">
-            {{ selectedVehicle.description || 'Nenhuma descrição fornecida.' }}
+          <a-descriptions-item :label="t('dashboard.description')" :span="2">
+            {{ selectedVehicle.description || t('dashboard.noDescriptionProvided') }}
           </a-descriptions-item>
-          <a-descriptions-item label="Características" :span="2">
+          <a-descriptions-item :label="t('dashboard.features')" :span="2">
             <a-tag v-for="feature in selectedVehicle.features" :key="feature" color="blue" class="modern-tag">
               {{ getFeatureLabel(feature) }}
             </a-tag>
@@ -178,26 +178,26 @@
         
         <div class="modal-divider"></div>
         
-        <h4 class="modal-section-title">Estatísticas</h4>
+        <h4 class="modal-section-title">{{ t('dashboard.statistics') }}</h4>
         <a-row :gutter="16" class="stats-grid-modern">
           <a-col :span="6">
             <div class="stat-card-modern">
-              <a-statistic title="Total de Reservas" :value="selectedVehicle.totalBookings || 0" />
+              <a-statistic :title="t('dashboard.totalBookingsStats')" :value="selectedVehicle.totalBookings || 0" />
             </div>
           </a-col>
           <a-col :span="6">
             <div class="stat-card-modern">
-              <a-statistic title="Receita Total" :value="selectedVehicle.totalRevenue || 0" prefix="R$" :precision="2" />
+              <a-statistic :title="t('dashboard.totalRevenue')" :value="selectedVehicle.totalRevenue || 0" prefix="R$" :precision="2" />
             </div>
           </a-col>
           <a-col :span="6">
             <div class="stat-card-modern">
-              <a-statistic title="Avaliação Média" :value="selectedVehicle.rating || 0" suffix="/5" :precision="1" />
+              <a-statistic :title="t('dashboard.averageRating')" :value="selectedVehicle.rating || 0" suffix="/5" :precision="1" />
             </div>
           </a-col>
           <a-col :span="6">
             <div class="stat-card-modern">
-              <a-statistic title="Taxa de Ocupação" :value="selectedVehicle.occupancyRate || 0" suffix="%" />
+              <a-statistic :title="t('dashboard.occupancyRate')" :value="selectedVehicle.occupancyRate || 0" suffix="%" />
             </div>
           </a-col>
         </a-row>
@@ -207,29 +207,29 @@
     <!-- Reservation Details Modal -->
     <a-modal
       v-model:open="reservationDetailsVisible"
-      title="Detalhes da Reserva"
+      :title="t('dashboard.reservationDetails')"
       :footer="null"
       width="800px"
       class="modern-modal"
     >
       <div v-if="selectedReservation" class="modal-content-modern">
         <a-descriptions :column="2" bordered class="modern-descriptions">
-          <a-descriptions-item label="ID da Reserva">{{ selectedReservation.id }}</a-descriptions-item>
-          <a-descriptions-item label="Status">
+          <a-descriptions-item :label="t('dashboard.reservationId')">{{ selectedReservation.id }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.status')">
             <a-tag :color="getStatusColor(selectedReservation.status)" class="modern-tag">
               {{ getStatusLabel(selectedReservation.status) }}
             </a-tag>
           </a-descriptions-item>
-          <a-descriptions-item label="Cliente">{{ selectedReservation.clientName }}</a-descriptions-item>
-          <a-descriptions-item label="Contato">{{ selectedReservation.clientPhone }}</a-descriptions-item>
-          <a-descriptions-item label="Veículo">{{ selectedReservation.vehicleBrand }} {{ selectedReservation.vehicleModel }}</a-descriptions-item>
-          <a-descriptions-item label="Placa">{{ selectedReservation.vehiclePlate }}</a-descriptions-item>
-          <a-descriptions-item label="Data de Retirada">{{ formatDate(selectedReservation.startDate) }}</a-descriptions-item>
-          <a-descriptions-item label="Data de Devolução">{{ formatDate(selectedReservation.endDate) }}</a-descriptions-item>
-          <a-descriptions-item label="Dias">{{ selectedReservation.totalDays }}</a-descriptions-item>
-          <a-descriptions-item label="Valor Total">R$ {{ selectedReservation.totalPrice?.toFixed(2) }}</a-descriptions-item>
-          <a-descriptions-item label="Criada em">{{ formatDateTime(selectedReservation.createdAt) }}</a-descriptions-item>
-          <a-descriptions-item label="Última Atualização">{{ formatDateTime(selectedReservation.updatedAt) }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.client')">{{ selectedReservation.clientName }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.contact')">{{ selectedReservation.clientPhone }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.vehicle')">{{ selectedReservation.vehicleBrand }} {{ selectedReservation.vehicleModel }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.plate')">{{ selectedReservation.vehiclePlate }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.pickupDate')">{{ formatDate(selectedReservation.startDate) }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.returnDate')">{{ formatDate(selectedReservation.endDate) }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.days')">{{ selectedReservation.totalDays }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.totalValue')">R$ {{ selectedReservation.totalPrice?.toFixed(2) }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.createdAt')">{{ formatDateTime(selectedReservation.createdAt) }}</a-descriptions-item>
+          <a-descriptions-item :label="t('dashboard.lastUpdate')">{{ formatDateTime(selectedReservation.updatedAt) }}</a-descriptions-item>
         </a-descriptions>
         
         <div class="modal-divider"></div>
@@ -242,7 +242,7 @@
               class="action-btn-modern"
               @click="confirmReservation(selectedReservation)"
             >
-              Confirmar Reserva
+              {{ t('dashboard.confirmReservation') }}
             </a-button>
             <a-button 
               v-if="['PENDING', 'CONFIRMED'].includes(selectedReservation.status)" 
@@ -250,14 +250,14 @@
               class="action-btn-modern"
               @click="cancelReservation(selectedReservation)"
             >
-              Cancelar Reserva
+              {{ t('dashboard.cancelReservation') }}
             </a-button>
             <a-button 
               class="action-btn-modern"
               @click="contactClient(selectedReservation)"
             >
               <MessageOutlined />
-              Contatar Cliente
+              {{ t('dashboard.contactClient') }}
             </a-button>
           </a-space>
         </div>
@@ -267,14 +267,14 @@
     <!-- Buy Points Modal -->
     <a-modal
       v-model:open="buyPointsModalVisible"
-      title="Comprar Pontos"
+      :title="t('dashboard.buyPoints')"
       :footer="null"
       width="600px"
       class="modern-modal"
     >
       <div class="modal-content-modern">
         <a-form layout="vertical" @submit.prevent="buyPoints" class="modern-form">
-          <a-form-item label="Quantidade de Pontos">
+          <a-form-item :label="t('dashboard.pointsQuantity')">
             <a-select v-model:value="buyPointsForm.amount" size="large" class="modern-select">
               <a-select-option :value="25">25 Pontos - R$ 12,50</a-select-option>
               <a-select-option :value="50">50 Pontos - R$ 25,00</a-select-option>
@@ -283,23 +283,23 @@
             </a-select>
           </a-form-item>
           
-          <a-form-item label="Método de Pagamento">
+          <a-form-item :label="t('dashboard.paymentMethod')">
             <a-radio-group v-model:value="buyPointsForm.paymentMethod" class="modern-radio-group">
-              <a-radio value="credit_card">Cartão de Crédito</a-radio>
-              <a-radio value="debit_card">Cartão de Débito</a-radio>
-              <a-radio value="pix">PIX</a-radio>
+              <a-radio value="credit_card">{{ t('dashboard.creditCard') }}</a-radio>
+              <a-radio value="debit_card">{{ t('dashboard.debitCard') }}</a-radio>
+              <a-radio value="pix">{{ t('dashboard.pix') }}</a-radio>
             </a-radio-group>
           </a-form-item>
           
           <div class="points-pricing-modern">
             <a-alert 
-              message="1 Ponto = R$ 0,50" 
+              :message="t('dashboard.pointsEquivalent')" 
               type="info" 
               show-icon 
               class="modern-alert"
             />
             <div class="total-price-modern">
-              <strong>Total: R$ {{ (buyPointsForm.amount * 0.5).toFixed(2) }}</strong>
+              <strong>{{ t('dashboard.total') }}: R$ {{ (buyPointsForm.amount * 0.5).toFixed(2) }}</strong>
             </div>
           </div>
           
@@ -307,10 +307,10 @@
             <a-space size="large">
               <a-button type="primary" html-type="submit" size="large" class="action-btn-modern">
                 <CreditCardOutlined />
-                Comprar Pontos
+                {{ t('dashboard.buyPointsButton') }}
               </a-button>
               <a-button @click="buyPointsModalVisible = false" size="large" class="action-btn-modern">
-                Cancelar
+                {{ t('dashboard.cancel') }}
               </a-button>
             </a-space>
           </a-form-item>
@@ -333,6 +333,7 @@ import {
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 // Import child components
 import HeaderPage from '@/components/HeaderPage.vue'
@@ -348,6 +349,9 @@ import { authService, bookingService } from '../services/api'
 
 const router = useRouter()
 const route = useRoute()
+
+// Internationalization
+const { t } = useI18n()
 
 const loading = ref(false)
 
@@ -375,7 +379,7 @@ const getCustomerData = async () => {
     console.log('[OwnerDashboard] Fetched customer data:', customer.value)
   } catch (error) {
     console.error('[OwnerDashboard] Error fetching customer data:', error)
-    message.error('Erro ao carregar dados do cliente.')
+    message.error(t('dashboard.errorLoadingClientData'))
   } finally {
     loading.value = false
   }
@@ -417,7 +421,7 @@ const getRentalCustomers = async () => {
     console.log('[OwnerDashboard] Fetched rental customers data:', myBookings.value)
   } catch (error) {
     console.error('[OwnerDashboard] Error fetching rental customers data:', error)
-    message.error('Erro ao carregar dados dos clientes de aluguel.')
+    message.error(t('dashboard.errorLoadingRentalData'))
   } finally {
     loading.value = false
   }
@@ -531,7 +535,7 @@ const handleQuickAction = (action) => {
       break
     case 'buy-points':
       router.push('/owner-dashboard?tab=digital-wallet')
-      message.info('Redirecionando para compra de pontos...')
+      message.info(t('dashboard.redirectingToBuyPoints'))
       break
     case 'set-goals':
       message.info('Funcionalidade de definir metas em desenvolvimento')
@@ -547,7 +551,7 @@ const handleQuickAction = (action) => {
       break
     case 'renew-documents':
       router.push('/owner-dashboard?tab=profile')
-      message.info('Redirecionando para renovação de documentos...')
+      message.info(t('dashboard.redirectingToDocumentRenewal'))
       break
     case 'messages':
       router.push('/owner-dashboard?tab=messages')

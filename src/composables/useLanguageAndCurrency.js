@@ -1,13 +1,14 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const currentCurrency = ref(localStorage.getItem('currency') || 'USD')
+const currentCurrency = ref(localStorage.getItem('currency') || 'CVE')
 const currentLanguage = ref(localStorage.getItem('language') || 'pt') // Correção: usar 'pt' minúsculo
 
 const currencies = {
+  CVE: { symbol: 'CVE', code: 'CVE', name: 'Escudos' },
   USD: { symbol: '$', code: 'USD', name: 'Dollar' },
   EUR: { symbol: '€', code: 'EUR', name: 'Euro' },
-  CVE: { symbol: 'CVE', code: 'CVE', name: 'Escudos' }
+
 }
 
 const exchangeRates = {
@@ -28,9 +29,9 @@ export function useLanguageAndCurrency() {
   }, { immediate: true })
 
   const languages = [
-    { code: 'pt', name: 'Português', flag: '🇵🇹' }/*,
+    { code: 'pt', name: 'Português', flag: '🇵🇹' },
     { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷' }*/
+    { code: 'fr', name: 'Français', flag: '🇫🇷' }
   ]
 
   const changeLanguage = (lang) => {
@@ -68,12 +69,12 @@ export function useLanguageAndCurrency() {
     return currencies[currency]?.symbol || '$'
   }
 
-  const getCurrencies = () => {
+  /*const getCurrencies = () => {
     return Object.keys(currencies).map(code => ({
       code,
       ...currencies[code]
     }))
-  }
+  }*/
 
 
   const getLanguageByCode = (code) => {
@@ -86,13 +87,11 @@ export function useLanguageAndCurrency() {
     languages,
     changeLanguage,
     t,
-
-    // Currency
     currentCurrency,
     changeCurrency,
     formatCurrency,
     getCurrencySymbol,
-    getCurrencies,
+    currencies,
     // Utils
     getLanguageByCode
   }

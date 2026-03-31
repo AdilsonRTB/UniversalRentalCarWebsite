@@ -1,9 +1,10 @@
 <template>
   <div class="notifications-content">
     <div class="breadcrumb-modern">
-      <span class="breadcrumb-current">Area Pessoal</span>
-      <span class="breadcrumb-separator">›</span>
       <router-link to="/owner-dashboard?tab=overview" class="breadcrumb-link">Dashboard</router-link>
+      <span class="breadcrumb-separator">›</span>
+      <span class="breadcrumb-current">Notificações</span>
+
     </div>
     <!-- Header Section -->
     <section class="header-section">
@@ -122,7 +123,13 @@
         </div>
       </div>
 
-      <div class="notifications-list" v-if="paginatedNotifications.length > 0">
+      <!-- Loading State -->
+      <div v-if="isLoading" class="loading-state">
+        <a-spin size="large" />
+        <p>Carregando notificações...</p>
+      </div>
+
+      <div class="notifications-list" v-else-if="paginatedNotifications.length > 0">
         <div 
           v-for="notification in paginatedNotifications"
           :key="notification.id" 
@@ -134,7 +141,7 @@
               'urgent': notification.priority === 'high'
             }
           ]"
-          @click="markAsRead(notification)"
+          @click="openNotificationDetails(notification)"
         >
           <!-- Notification Icon -->
           <div class="notification-icon">
@@ -171,19 +178,6 @@
               <a-tag :color="getCategoryColor(notification.type)" size="small">
                 {{ getCategoryLabel(notification.type) }}
               </a-tag>
-              
-              <!-- Actions -->
-              <div v-if="notification.actions && notification.actions.length > 0" class="notification-actions">
-                <a-button
-                  v-for="action in notification.actions"
-                  :key="action.text"
-                  :type="action.type === 'primary' ? 'primary' : 'text'"
-                  size="small"
-                  @click.stop="handleNotificationAction(action, notification)"
-                >
-                  {{ action.text }}
-                </a-button>
-              </div>
             </div>
           </div>
 
@@ -231,6 +225,41 @@
         show-less-items
       />
     </div>
+
+    <!-- Notification Details Modal -->
+    <a-modal
+      v-model:open="detailsModalVisible"
+      :title="selectedNotification?.title"
+      :width="800"
+      centered
+      :footer="null"
+      class="notification-details-modal"
+    >
+      <div v-if="selectedNotification" class="notification-details">
+        <!-- Notification Info -->
+        <div class="details-header">
+          <a-tag :color="getCategoryColor(selectedNotification.type)" size="large">
+            {{ getCategoryLabel(selectedNotification.type) }}
+          </a-tag>
+          <a-tag 
+            v-if="selectedNotification.priority === 'high'" 
+            color="red"
+            size="large"
+          >
+            URGENTE
+          </a-tag>
+          <span class="details-date">{{ formatDetailDate(selectedNotification.createdAt) }}</span>
+        </div>
+
+        <!-- HTML Content -->
+        <div class="details-content">
+          <div v-if="selectedNotification.apiData?.html_content" class="html-content" v-html="selectedNotification.apiData.html_content"></div>
+          <div v-else class="text-content">
+            <p>{{ selectedNotification.message }}</p>
+          </div>
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -248,6 +277,7 @@ import {
 } from '@ant-design/icons-vue'
 
 import { ref, computed, onMounted } from 'vue'
+import { vehicleService, authService } from '../../services/api'
 
 // Reactive data
 const notifications = ref([])
@@ -256,53 +286,77 @@ const selectedStatus = ref('')
 const sortBy = ref('date-desc')
 const currentPage = ref(1)
 const pageSize = ref(6)
+const isLoading = ref(false)
+const customer = ref(null)
+const detailsModalVisible = ref(false)
+const selectedNotification = ref(null)
 
-// Mock data
-const mockNotifications = [
-  {
-    id: 1,
-    type: 'booking',
-    title: 'Nova Reserva Recebida',
-    message: 'João Silva fez uma reserva do seu BMW X3 para o período de 15-20 de Janeiro.',
-    priority: 'high',
-    read: false,
-    createdAt: new Date('2024-01-10T10:30:00'),
-    actions: [
-      { text: 'Aceitar', type: 'primary', action: 'accept' },
-      { text: 'Recusar', type: 'default', action: 'reject' }
-    ]
-  },
-  {
-    id: 2,
-    type: 'payment',
-    title: 'Pagamento Confirmado',
-    message: 'O pagamento de R$ 850,00 referente à reserva #1234 foi confirmado.',
-    priority: 'normal',
-    read: false,
-    createdAt: new Date('2024-01-10T09:15:00'),
-    actions: [
-      { text: 'Ver Comprovante', type: 'primary', action: 'receipt' }
-    ]
-  },
-  {
-    id: 3,
-    type: 'review',
-    title: 'Nova Avaliação Recebida',
-    message: 'Maria Santos deixou uma avaliação de 5 estrelas para o seu Toyota Corolla.',
-    priority: 'normal',
-    read: true,
-    createdAt: new Date('2024-01-09T16:45:00')
-  },
-  {
-    id: 4,
-    type: 'system',
-    title: 'Atualização do Sistema',
-    message: 'Nova versão do sistema disponível com melhorias de segurança.',
-    priority: 'low',
-    read: true,
-    createdAt: new Date('2024-01-08T14:20:00')
+// LocalStorage key for read notifications
+const READ_NOTIFICATIONS_KEY = 'read_notifications'
+
+// Load customer data
+const loadCustomerData = async () => {
+  try {
+    const response = await authService.me()
+    customer.value = response.data
+  } catch (error) {
+    console.error('Error loading customer data:', error)
   }
-]
+}
+
+// Get read notifications from localStorage
+const getReadNotifications = () => {
+  try {
+    const stored = localStorage.getItem(READ_NOTIFICATIONS_KEY)
+    return stored ? JSON.parse(stored) : []
+  } catch (error) {
+    return []
+  }
+}
+
+// Save read notifications to localStorage
+const saveReadNotifications = (readIds) => {
+  try {
+    localStorage.setItem(READ_NOTIFICATIONS_KEY, JSON.stringify(readIds))
+  } catch (error) {
+    console.error('Error saving read notifications:', error)
+  }
+}
+
+// Map notification type from API to component type
+const mapNotificationType = (apiType) => {
+  if (apiType.includes('rental') || apiType.includes('booking')) return 'booking'
+  if (apiType.includes('payment')) return 'payment'
+  if (apiType.includes('review') || apiType.includes('evaluation')) return 'review'
+  return 'system'
+}
+
+// Load notifications from API
+const loadNotifications = async () => {
+  if (!customer.value) return
+  
+  isLoading.value = true
+  try {
+    const response = await vehicleService.getNotifications(customer.value.id)
+    const readIds = getReadNotifications()
+    
+    // Map API data to component format
+    notifications.value = response.data.notifications.map(notif => ({
+      id: notif.id,
+      type: mapNotificationType(notif.notification_type),
+      title: notif.subject,
+      message: notif.content,
+      priority: notif.notification_type === 'rental_booking' ? 'high' : 'normal',
+      read: readIds.includes(notif.id),
+      createdAt: new Date(notif.created_at),
+      apiData: notif // Store original data
+    }))
+  } catch (error) {
+    console.error('Error loading notifications:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 // Computed properties
 const totalCount = computed(() => notifications.value.length)
@@ -366,6 +420,12 @@ const paginatedNotifications = computed(() => {
 })
 
 // Methods
+const openNotificationDetails = (notification) => {
+  selectedNotification.value = notification
+  detailsModalVisible.value = true
+  markAsRead(notification)
+}
+
 const formatTime = (date) => {
   const now = new Date()
   const notifDate = new Date(date)
@@ -383,8 +443,23 @@ const formatTime = (date) => {
   return notifDate.toLocaleDateString('pt-BR')
 }
 
+const formatDetailDate = (date) => {
+  const notifDate = new Date(date)
+  return notifDate.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
 const markAllAsRead = () => {
   notifications.value.forEach(n => n.read = true)
+  
+  // Update localStorage
+  const allIds = notifications.value.map(n => n.id)
+  saveReadNotifications(allIds)
 }
 
 const clearRead = () => {
@@ -394,11 +469,33 @@ const clearRead = () => {
 const markAsRead = (notification) => {
   if (!notification.read) {
     notification.read = true
+    
+    // Update localStorage
+    const readIds = getReadNotifications()
+    if (!readIds.includes(notification.id)) {
+      readIds.push(notification.id)
+      saveReadNotifications(readIds)
+    }
   }
 }
 
 const toggleReadStatus = (notification) => {
   notification.read = !notification.read
+  
+  // Update localStorage
+  const readIds = getReadNotifications()
+  if (notification.read) {
+    if (!readIds.includes(notification.id)) {
+      readIds.push(notification.id)
+      saveReadNotifications(readIds)
+    }
+  } else {
+    const index = readIds.indexOf(notification.id)
+    if (index > -1) {
+      readIds.splice(index, 1)
+      saveReadNotifications(readIds)
+    }
+  }
 }
 
 const deleteNotification = (id) => {
@@ -425,14 +522,10 @@ const getCategoryLabel = (type) => {
   return labels[type] || 'Notificação'
 }
 
-const handleNotificationAction = (action, notification) => {
-  console.log('Action:', action.action, 'Notification:', notification.id)
-  // Here you would implement the specific action logic
-}
-
 // Initialize notifications
-onMounted(() => {
-  notifications.value = [...mockNotifications]
+onMounted(async () => {
+  await loadCustomerData()
+  await loadNotifications()
 })
 </script>
 
@@ -748,14 +841,8 @@ onMounted(() => {
 
 .notification-footer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 12px;
-}
-
-.notification-actions {
-  display: flex;
-  gap: 8px;
 }
 
 /* Notification Menu */
@@ -801,6 +888,21 @@ onMounted(() => {
   font-size: 14px;
   color: #6b7280;
   margin: 0;
+}
+
+/* Loading State */
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.loading-state p {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #6b7280;
 }
 
 /* Pagination */
@@ -971,5 +1073,80 @@ onMounted(() => {
 .breadcrumb-current {
   color: black;
   font-weight: 500;
+}
+
+/* Notification Details Modal */
+.notification-details-modal :deep(.ant-modal-header) {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-bottom: none;
+  padding: 20px 24px;
+}
+
+.notification-details-modal :deep(.ant-modal-title) {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.notification-details-modal :deep(.ant-modal-close) {
+  color: white;
+}
+
+.notification-details-modal :deep(.ant-modal-close:hover) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.notification-details {
+  padding: 0;
+}
+
+.details-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+}
+
+.details-date {
+  margin-left: auto;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.details-content {
+  margin-bottom: 24px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.html-content {
+  line-height: 1.6;
+}
+
+/* Reset styles for email HTML */
+.html-content table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.html-content p {
+  margin: 0 0 10px 0;
+}
+
+.text-content {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 20px;
+  border-left: 4px solid #3b82f6;
+}
+
+.text-content p {
+  font-size: 15px;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
 }
 </style>
