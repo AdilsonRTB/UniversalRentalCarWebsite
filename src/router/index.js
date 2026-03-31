@@ -1,11 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../auth/LoginPage.vue'
+//import Login from '../auth/LoginPage.vue'
 import Register from '../auth/RegisterPage2.vue'
 import ForgotPassword from '../auth/ForgotPasswordPage.vue'
 import VehicleSearch from '../views/VehicleSearch.vue'
 import VehicleDetails from '../views/VehicleDetails.vue'
 import OwnerDashboard from '../views/OwnerDashboard.vue'
 import BookingStatus from '@/components/BookingStatus.vue'
+import ForgotPasswordRecovery from '../auth/ForgotPasswordRecoveryPage.vue'
+import TermsAndConditions from '../views/TermsAndConditions.vue'
+import PrivacyPolicy from '../views/PrivacyPolicy.vue'
 
 const routes = [
   {
@@ -13,11 +16,11 @@ const routes = [
     name: 'Home',
     component: VehicleSearch
   },
-  {
+  /*{
     path: '/login',
     name: 'Login',
     component: Login
-  },
+  },*/
   {
     path: '/register',
     name: 'Register',
@@ -27,6 +30,11 @@ const routes = [
     path: '/forgot-password',
     name: 'ForgotPassword',
     component: ForgotPassword
+  },
+  {
+    path: '/forgot-password-recovery',
+    name: 'ForgotPasswordRecovery',
+    component: ForgotPasswordRecovery
   },
   {
     path: '/vehicle/:id',
@@ -45,19 +53,35 @@ const routes = [
     name: 'BookingStatus',
     component: BookingStatus,
   },
+  {
+    path: '/terms',
+    name: 'TermsAndConditions',
+    component: TermsAndConditions,
+  },
+  {
+    path: '/privacy',
+    name: 'PrivacyPolicy',
+    component: PrivacyPolicy,
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory('/universal-rent-a-car/'),
-  routes
+  routes,
+  scrollBehavior(to) {
+    if (to.hash) {
+      return { el: to.hash, behavior: 'smooth' }
+    }
+    return { top: 0 }
+  }
 })
 
 // Navigation guard for authentication
 router.beforeEach(async (to, from, next) => {
   // Routes that don't require authentication
-  const publicRoutes = ['Home', 'Login', 'Register', 'ForgotPassword', 'VehicleSearch', 'VehicleDetails', 'BookingStatus']
+  const publicRoutes = ['Home', 'Login', 'Register', 'ForgotPassword', 'VehicleSearch', 'VehicleDetails', 'BookingStatus', 'ForgotPasswordRecovery', 'TermsAndConditions', 'PrivacyPolicy']
 
-  console.log(`[Router] Navigating to: ${to.name} (${to.path}) from: ${from.name || 'initial'} (${from.path || 'initial'})`)
+  //console.log(`[Router] Navigating to: ${to.name} (${to.path}) from: ${from.name || 'initial'} (${from.path || 'initial'})`)
 
   try {
     // Check if user is authenticated with local storage token
@@ -77,7 +101,7 @@ router.beforeEach(async (to, from, next) => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
       if (!isAuthenticated) {
         //console.log('[Router] Unauthenticated user trying to access protected route, redirecting to login')
-        next('/login')
+        next('/')
         return
       }
       
@@ -96,7 +120,7 @@ router.beforeEach(async (to, from, next) => {
     // If there's an error and it's a protected route, redirect to login
     if (to.matched.some(record => record.meta.requiresAuth)) {
       //console.log('[Router] Error on protected route, redirecting to login')
-      next('/login')
+      next('/')
     } else {
       //console.log('[Router] Error on public route, allowing access')
       next()

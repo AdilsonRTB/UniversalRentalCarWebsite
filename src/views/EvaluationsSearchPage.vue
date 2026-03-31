@@ -2,8 +2,8 @@
     <!-- Success Stories -->
         <div class="success-stories">
           <div class="stories-header">
-            <h3>Avaliação dos nossos clientes</h3>
-            <p>Veja como nossa plataforma transforma experiências</p>
+            <h3>{{ $t('evaluations.title') }}</h3>
+            <p>{{ $t('evaluations.subtitle') }}</p>
           </div>
           
           <a-carousel
@@ -30,7 +30,7 @@
                   <template #content>
 
                     <a-typography-paragraph
-                      :ellipsis="{ rows: 4, expandable: true, symbol: 'mais' }"
+                      :ellipsis="{ rows: 4, expandable: true, symbol: $t('common.readMore') }"
                       :content="evaluation.comments"
 
                     />
@@ -40,7 +40,22 @@
                       <span>{{ dayjs(evaluation.created_at).fromNow() }}</span>
                     </a-tooltip>
                   </template>
-                  <a-rate v-model:value="evaluation.overall_rating" disabled />
+                  <div>
+                    <a-space>
+                      <span>{{ $t('bookings.overallRating') }}: </span>
+                      <a-rate :value="evaluation.overall_rating" disabled />
+                    </a-space>
+                  </div>
+                  <div>
+                    <a-space>
+                      <span>{{ $t('bookings.vehicleCondition') }}: </span>
+                      <a-rate :value="evaluation.vehicle_condition_rating" disabled />
+                    </a-space>
+                  </div>
+                  <a-space>
+                    <span>{{ $t('bookings.serviceQuality') }}: </span>
+                    <a-rate :value="evaluation.service_quality_rating" disabled />
+                  </a-space>
                 </a-comment>
               </div>
             </div>
@@ -52,11 +67,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { vehicleService } from '@/services/api';
+import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
 import "dayjs/locale/pt";
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 dayjs.locale('pt');
+
+const { t } = useI18n();
 
 const evaluations = ref([]);
 
@@ -109,10 +127,10 @@ const carouselResponsive = computed(() => {
 const getEvaluationsStats = async () => {
   try {
     const response = await vehicleService.getAllEvaluations();
-    evaluations.value = response.data;
+    evaluations.value = response.data.filter(evaluation => evaluation.overall_rating > 3);
     return response.data;
   } catch (error) {
-    console.error('Erro ao buscar estatísticas de avaliações:', error);
+    console.error(t('evaluations.errors.fetchStatistics'), error);
     return null;
   }
 };
@@ -154,7 +172,8 @@ onMounted(async () => {
   border: 2px solid #e2e8f0;
   transition: all 0.3s ease;
   height: 100%;
-  min-height: 250px;
+  min-height: 200px;
+  width: 100%;
 }
 
 .story-card:hover {
@@ -213,7 +232,7 @@ onMounted(async () => {
 }
 
 .carousel-slide {
-  padding: 0px;
+  padding: 10px;
 }
 
 :deep(.ant-carousel .slick-slide) {

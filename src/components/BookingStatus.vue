@@ -10,9 +10,9 @@
     <!-- Header Section -->
     <section class="header-section">
       <div class="header-content">
-        <h1 class="page-title">Estado do Aluguel</h1>
+        <h1 class="page-title">{{ t('bookingStatus.pageTitle') }}</h1>
         <p class="page-subtitle">
-          Insira o número do seu aluguel e email para consultar o estado da sua reserva
+          {{ t('bookingStatus.pageSubtitle') }}
         </p>
       </div>
     </section>
@@ -22,7 +22,7 @@
       <div class="search-card">
         <div class="search-header">
           <SearchOutlined class="search-icon" />
-          <h3>Consultar Reserva</h3>
+          <h3>{{ t('bookingStatus.searchBooking') }}</h3>
         </div>
         
         <a-form
@@ -36,13 +36,13 @@
           <div class="form-row">
             <a-form-item
               name="bookingNumber"
-              label="Número do Aluguel"
+              :label="t('bookingStatus.bookingNumber')"
               class="form-item"
             >
               <a-input
                 v-model:value="searchForm.bookingNumber"
                 size="large"
-                placeholder="Ex: #12345"
+                :placeholder="t('bookingStatus.bookingNumberPlaceholder')"
                 :prefix="() => h(NumberOutlined, { style: { color: '#8b5cf6' } })"
                 class="form-input"
               />
@@ -50,13 +50,13 @@
             
             <a-form-item
               name="email"
-              label="Email"
+              :label="t('bookingStatus.email')"
               class="form-item"
             >
               <a-input
                 v-model:value="searchForm.email"
                 size="large"
-                placeholder="seu.email@exemplo.com"
+                :placeholder="t('bookingStatus.emailPlaceholder')"
                 :prefix="() => h(MailOutlined, { style: { color: '#8b5cf6' } })"
                 class="form-input"
               />
@@ -72,11 +72,11 @@
               class="search-btn"
             >
               <SearchOutlined v-if="!isLoading" />
-              {{ isLoading ? 'Consultando...' : 'Consultar Reserva' }}
+              {{ isLoading ? t('bookingStatus.searching') : t('bookingStatus.searchBooking') }}
             </a-button>
 
             <div class="or-divider">
-              <span>ou</span>
+              <span>{{ t('bookingStatus.or') }}</span>
             </div>
             
             <a-button
@@ -85,7 +85,7 @@
               class="qr-btn"
             >
               <QrcodeOutlined />
-              Escanear QR Code
+              {{ t('bookingStatus.scanQRCode') }}
             </a-button>
           </div>
         </a-form>
@@ -93,11 +93,11 @@
     </section>
 
     <!-- Results Section -->
-    <section v-if="searchResult" class="results-section">
+    <section v-if="searchResult" class="results-section" id="resultsSection">
       <div class="results-header">
-        <h3>Resultado da Consulta</h3>
+        <h3>{{ t('bookingStatus.searchResult') }}</h3>
         <a-button @click="clearSearch" type="text">
-          <CloseOutlined /> Limpar
+          <CloseOutlined /> {{ t('bookingStatus.clear') }}
         </a-button>
       </div>
       
@@ -142,7 +142,7 @@
             <div class="period-item">
               <CalendarOutlined />
               <div class="period-info">
-                <span class="period-label">Período</span>
+                <span class="period-label">{{ t('bookingStatus.period') }}</span>
                 <span class="period-dates">{{ formatDate(searchResult.start_date) }} - {{ formatDate(searchResult.end_date) }}</span>
               </div>
             </div>
@@ -153,15 +153,61 @@
             <div class="summary-item">
               <DollarOutlined />
               <div class="summary-info">
-                <span class="summary-label">Valor Total</span>
-                <span class="summary-value price">{{ searchResult.total_amount }} CVE</span>
+                <span class="summary-label">{{ t('bookingStatus.dailyRate') }}</span>
+                <span class="summary-value price">{{ searchResult.daily_rate }} {{ searchResult.currency }}</span>
               </div>
             </div>
             <div class="summary-item">
               <ClockCircleOutlined />
               <div class="summary-info">
-                <span class="summary-label">Duração</span>
-                <span class="summary-value">{{ searchResult.days_duration || calculateDuration(searchResult.start_date, searchResult.end_date) }} dia(s)</span>
+                <span class="summary-label">{{ t('bookingStatus.numberOfDays') }}</span>
+                <span class="summary-value">{{ searchResult.number_of_days || calculateDuration(searchResult.start_date, searchResult.end_date) }} {{ t('bookingStatus.days') }}</span>
+              </div>
+            </div>
+            <div class="summary-item">
+              <DollarOutlined />
+              <div class="summary-info">
+                <span class="summary-label">{{ t('bookingStatus.subtotal') }}</span>
+                <span class="summary-value">{{ searchResult.subtotal }} {{ searchResult.currency }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Extras Section -->
+          <div class="extras-status-section">
+            <h6 class="extras-title">{{ t('bookingStatus.extras') }}</h6>
+            <div class="extras-grid">
+              <div class="extra-status-item" :class="{ active: searchResult.driver }">
+                <div class="extra-status-icon">
+                  <CheckCircleOutlined v-if="searchResult.driver" class="extra-check" />
+                  <CloseCircleOutlined v-else class="extra-uncheck" />
+                </div>
+                <div class="extra-status-info">
+                  <span class="extra-status-label">{{ t('bookingStatus.withDriver') }}</span>
+                  <span class="extra-status-value" v-if="searchResult.driver">{{ searchResult.driver_fee }} {{ searchResult.currency }}</span>
+                  <span class="extra-status-value muted" v-else>{{ t('bookingStatus.notIncluded') }}</span>
+                </div>
+              </div>
+              <div class="extra-status-item" :class="{ active: searchResult.car_seat }">
+                <div class="extra-status-icon">
+                  <CheckCircleOutlined v-if="searchResult.car_seat" class="extra-check" />
+                  <CloseCircleOutlined v-else class="extra-uncheck" />
+                </div>
+                <div class="extra-status-info">
+                  <span class="extra-status-label">{{ t('bookingStatus.carSeat') }}</span>
+                  <span class="extra-status-value" v-if="searchResult.car_seat">{{ searchResult.car_seat_fee }} {{ searchResult.currency }}</span>
+                  <span class="extra-status-value muted" v-else>{{ t('bookingStatus.notIncluded') }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="extras-total">
+              <div class="extras-total-line">
+                <span>{{ t('bookingStatus.commission') }}</span>
+                <span>{{ searchResult.commission_amount }} {{ searchResult.currency }}</span>
+              </div>
+              <div class="extras-total-line total">
+                <span>{{ t('bookingStatus.totalAmount') }}</span>
+                <span class="total-value">{{ searchResult.total_amount }} {{ searchResult.currency }}</span>
               </div>
             </div>
           </div>
@@ -169,7 +215,7 @@
           <!-- Progress Bar -->
           <div class="progress-section">
             <div class="progress-info">
-              <span>Progresso da viagem</span>
+              <span>{{ t('bookingStatus.tripProgress') }}</span>
               <span>{{ getBookingProgress(searchResult) }}%</span>
             </div>
             <div class="progress-bar">
@@ -182,85 +228,36 @@
             <div class="customer-item">
               <UserOutlined />
               <div class="customer-info">
-                <span class="customer-label">Cliente</span>
+                <span class="customer-label">{{ t('bookingStatus.customer') }}</span>
                 <span class="customer-value">{{ searchResult.customer_name }} </span>
               </div>
             </div>
             <div class="customer-item">
               <PhoneOutlined />
               <div class="customer-info">
-                <span class="customer-label">Telefone</span>
-                <span class="customer-value">{{ searchResult.customer_info?.phone_number || 'Não informado' }}</span>
+                <span class="customer-label">{{ t('bookingStatus.phone') }}</span>
+                <span class="customer-value">{{ searchResult.customer?.phone_number || t('bookingStatus.notProvided') }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Quick Actions -->
-          <!--div class="card-actions">
-            <a-button @click="printBooking" class="action-btn">
-              <PrinterOutlined /> Imprimir
-            </a-button>
-            <a-button @click="downloadBooking" class="action-btn">
-              <DownloadOutlined /> Download
-            </a-button>
-            <a-button 
-              v-if="searchResult.status === 'CONFIRMED'"
-              type="primary" 
-              class="action-btn"
-            >
-              <MessageOutlined /> Contatar
-            </a-button>
-          </!--div-->
-          <div class="card-actions">
-            <a-button @click="navigateToVehicleDetails(searchResult)" class="action-btn">
-              <EyeOutlined /> Detalhes
-            </a-button>
-            <!--a-button @click="navigateToMessages" class="action-btn">
-              <MessageOutlined /> Contato
-            </!--a-button-->
-            <!--a-button
-              v-if="['pending', 'confirmed'].includes(searchResult.status)"
-              danger
-              @click="$emit('cancel-booking', searchResult)"
-              class="action-btn"
-            >
-              <DeleteOutlined /> Cancelar
-            </!--a-button-->
-            <!--a-button
-              v-if="['cancelled', 'completed'].includes(searchResult.status)"
-              type="primary"
-              @click="$emit('cancel-booking', searchResult)"
-              class="action-btn"
-            >
-              <CalendarOutlined /> Reservar
-            </!--a-button-->
 
-            <!--a-button
-              v-if="['confirmed', 'completed'].includes(searchResult.status) && !searchResult.evaluation"
-              type="primary"
-              @click="rateRental(searchResult)"
-              class="action-btn"
-            >
-              <StarOutlined /> Avaliar
-            </!--a-button-->
-          </div>
         </div>
       </div>
     </section>
 
     <!-- Empty State -->
-    <section v-if="showEmptyState" class="empty-state-section">
+    <section v-if="showEmptyState" class="empty-state-section" id="emptyStateSection">
       <div class="empty-state">
         <div class="empty-icon">
           <InboxOutlined />
         </div>
-        <h4>Nenhuma reserva encontrada</h4>
+        <h4>{{ t('bookingStatus.noBookingFound') }}</h4>
         <p>
-          Não foi possível encontrar uma reserva com os dados fornecidos. 
-          Verifique se o número do aluguel e o email estão corretos.
+          {{ t('bookingStatus.noBookingFoundDesc') }}
         </p>
         <a-button @click="clearSearch" type="primary">
-          <SearchOutlined /> Nova Consulta
+          <SearchOutlined /> {{ t('bookingStatus.newSearch') }}
         </a-button>
       </div>
     </section>
@@ -268,7 +265,7 @@
     <!-- Loading State -->
     <div v-if="isLoading" class="loading-overlay">
       <a-spin size="large" />
-      <p>Consultando reserva...</p>
+      <p>{{ t('bookingStatus.loadingBooking') }}</p>
     </div>
     
     <!-- QR Code Scanner Component -->
@@ -292,6 +289,8 @@ import {
   PhoneOutlined,
   CloseOutlined,
   InboxOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   /*PrinterOutlined,
   DownloadOutlined,
   MessageOutlined,*/
@@ -301,10 +300,13 @@ import {
 import dayjs from 'dayjs'
 import { ref, reactive, computed, h } from 'vue'
 import { message } from 'ant-design-vue'
+import { useI18n } from 'vue-i18n'
 import QRCodeScanner from './QRCodeScanner.vue'
 import { baseURL } from '../services/api'
 import HeaderPage from './HeaderPage.vue'
 import {bookingService} from '../services/api'
+
+const { t } = useI18n()
 
 
 const url = computed(() => baseURL)
@@ -320,24 +322,36 @@ const searchForm = reactive({
   email: ''
 })
 
-// Form validation rules
-const formRules = {
-  bookingNumber: [
-    { required: true, message: 'Por favor, insira o número do aluguel' },
-    { min: 1, message: 'O número do aluguel deve ter pelo menos 3 caracteres' }
-  ],
-  email: [
-    { required: true, message: 'Por favor, insira o seu email' },
-    { type: 'email', message: 'Por favor, insira um email válido' }
-  ]
+function scrollToSection(sectionId) {
+  const section = document.getElementById(sectionId);
+
+  if (section) {
+    section.scrollIntoView({
+      behavior: "smooth"
+    });
+  } else {
+    console.warn("Seção não encontrada:", sectionId);
+  }
 }
 
+// Form validation rules
+const formRules = computed(() => ({
+  bookingNumber: [
+    { required: true, message: t('bookingStatus.validation.bookingNumberRequired') },
+    { min: 1, message: t('bookingStatus.validation.bookingNumberMin') }
+  ],
+  email: [
+    { required: true, message: t('bookingStatus.validation.emailRequired') },
+    { type: 'email', message: t('bookingStatus.validation.emailInvalid') }
+  ]
+}))
 
-const navigateToVehicleDetails = (booking) => {
+
+/*const navigateToVehicleDetails = (booking) => {
   if (booking.id) {
     window.open(`/vehicle/${searchResult.value.vehicle_info.id}`, '_blank');
   }
-}
+}*/
 
 // Methods
 const handleSearch = async (values) => {
@@ -352,12 +366,20 @@ const handleSearch = async (values) => {
     )
 
     searchResult.value = result.data
-    message.success('Reserva encontrada com sucesso!')
+    message.success(t('bookingStatus.bookingFound'))
+    // Scroll to results section after a short delay to ensure it has rendered
+    setTimeout(() => {
+      scrollToSection('resultsSection')
+    }, 300)
     
   } catch (error) {
     console.error('Search error:', error)
     showEmptyState.value = true
-    message.error('Reserva não encontrada. Verifique os dados e tente novamente.')
+    message.error(t('bookingStatus.bookingNotFound'))
+    // Scroll to empty state section after a short delay to ensure it has rendered
+    setTimeout(() => {
+      scrollToSection('emptyStateSection')
+    }, 300)
   } finally {
     isLoading.value = false
   }
@@ -395,11 +417,11 @@ const getBookingProgress = (booking) => {
 
 const getStatusDisplay = (status) => {
   const statusMap = {
-    'PENDING': 'Pendente',
-    'CONFIRMED': 'Confirmada',
-    'ACTIVE': 'Ativa',
-    'COMPLETED': 'Concluída',
-    'CANCELLED': 'Cancelada'
+    'PENDING': t('bookingStatus.status.pending'),
+    'CONFIRMED': t('bookingStatus.status.confirmed'),
+    'ACTIVE': t('bookingStatus.status.active'),
+    'COMPLETED': t('bookingStatus.status.completed'),
+    'CANCELLED': t('bookingStatus.status.cancelled')
   }
   return statusMap[status] || status
 }
@@ -432,10 +454,10 @@ const handleQRCodeDetected = (qrData) => {
   
   // Se ambos os campos estão preenchidos, fazer a busca automaticamente
   if (searchForm.bookingNumber && searchForm.email) {
-    message.success('Dados do QR Code carregados! Realizando consulta...')
+    message.success(t('bookingStatus.qrDataLoadedSearching'))
     handleSearch()
   } else {
-    message.success('Dados do QR Code carregados!')
+    message.success(t('bookingStatus.qrDataLoaded'))
   }
 }
 </script>
@@ -1365,7 +1387,7 @@ const handleQRCodeDetected = (qrData) => {
 /* Summary Section */
 .summary-section {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
   padding: 16px 24px;
   border-bottom: 1px solid #f3f4f6;
@@ -1406,6 +1428,108 @@ const handleQRCodeDetected = (qrData) => {
 .summary-value.price {
   color: #059669;
   font-size: 14px;
+}
+
+/* Extras Status Section */
+.extras-status-section {
+  padding: 16px 24px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.extras-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+}
+
+.extras-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.extra-status-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.extra-status-item.active {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.extra-status-icon {
+  display: flex;
+  align-items: center;
+}
+
+.extra-check {
+  color: #10b981;
+  font-size: 18px;
+}
+
+.extra-uncheck {
+  color: #d1d5db;
+  font-size: 18px;
+}
+
+.extra-status-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.extra-status-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.extra-status-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #059669;
+}
+
+.extra-status-value.muted {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.extras-total {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+.extras-total-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.extras-total-line.total {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  padding-top: 8px;
+  border-top: 1px dashed #e5e7eb;
+  margin-top: 4px;
+}
+
+.extras-total-line .total-value {
+  color: #059669;
 }
 
 /* Progress Section */
@@ -1583,6 +1707,10 @@ const handleQRCodeDetected = (qrData) => {
   
   .summary-section,
   .customer-section {
+    grid-template-columns: 1fr;
+  }
+
+  .extras-grid {
     grid-template-columns: 1fr;
   }
   

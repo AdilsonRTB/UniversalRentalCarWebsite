@@ -16,19 +16,19 @@
           <div class="hero-auth-buttons" v-if="isAuthenticated">
             <a-button class="hero-auth-btn primary" type="link" @click="navigateTo('/owner-dashboard?tab=my-bookings')">
                 <CarOutlined />
-                Minhas Reservas
+                {{ t('nav.myReservations') }}
               </a-button>
           </div>
           <div class="hero-auth-buttons" v-if="!isAuthenticated">
             <a-button class="hero-auth-btn primary" type="link" @click="navigateTo('/booking-status')">
                 <CarOutlined />
-                Minhas Reservas
+                {{ t('nav.myReservations') }}
               </a-button>
           </div>
           <div v-if="!isAuthenticated" class="hero-auth-buttons">
             <a-button class="hero-auth-btn primary" @click="login" :loading="loading" type="link">
               <UserOutlined />
-              Login | Registar
+              {{ t('nav.loginRegister') }}
             </a-button>
           </div>
 
@@ -72,9 +72,9 @@
           <div class="mobile-menu-content">
             <!-- Language Selector Mobile -->
             <div class="mobile-section">
-              <h4>Idioma</h4>
+              <h4>{{ t('header.selectLanguage') }}</h4>
               <a-select  size="large"
-                v-model:value="currentLanguage" 
+                v-model:value="currentLanguage"
                 @change="handleMobileLanguageChange"
                 class="mobile-language-select"
               >
@@ -84,40 +84,53 @@
               </a-select>
             </div>
 
+            <div class="mobile-section">
+              <h4>{{ t('header.selectCurrency') }}</h4>
+              <a-select  size="large"
+                v-model:value="currentCurrency"
+                @change="handleMobileCurrencyChange"
+                class="mobile-language-select"
+              >
+                <a-select-option v-for="lang in currencies" :key="lang.code" :value="lang.code">
+                  {{ lang.symbol }} {{ lang.name }}
+                </a-select-option>
+              </a-select>
+            </div>
+
             <!-- Auth Section Mobile -->
             <div class="mobile-section">
               <div v-if="!isAuthenticated" class="mobile-menu-items">
                 <a-button block class="mobile-menu-item" @click="navigateTo('/booking-status')">
                     <CalendarOutlined />
-                    Minhas Reservas
+                    {{ t('nav.myReservations') }}
                   </a-button>
                 <a-button  class="mobile-menu-item" @click="handleMobileLogin" :loading="loading">
                   <UserOutlined />
-                  Login | Registar
+                  {{ t('nav.loginRegister') }}
                 </a-button>
               </div>
               <div v-else class="mobile-user-menu">
-                <h4>Minha Conta</h4>
+                <h4>{{ t('nav.myAccount') }}</h4>
                 <div class="mobile-menu-items">
-                  <a-button block class="mobile-menu-item" @click="navigateTo('/owner-dashboard?tab=overview')">
+                  <!--a-button block class="mobile-menu-item" @click="navigateTo('/owner-dashboard?tab=overview')">
                     <DashboardOutlined />
                     {{ t('nav.dashboard') }}
-                  </a-button>
-                  <!--a-button block class="mobile-menu-item" @click="navigateTo('/owner-dashboard?tab=notifications')">
+                  </!--a-button-->
+                  <a-button block class="mobile-menu-item" @click="navigateTo('/owner-dashboard?tab=notifications')">
                     <BellOutlined />
                     Notificações
-                  </!--a-button>
-                  <a-button-- block class="mobile-menu-item" @click="navigateTo('/owner-dashboard?tab=messages')">
+                  </a-button>
+                  <!--a-button-- block class="mobile-menu-item" @click="navigateTo('/owner-dashboard?tab=messages')">
                     <MessageOutlined />
                     Mensagens
-                  </a-button-->
+                  </!--a-button-->
                   <a-button block class="mobile-menu-item" @click="navigateTo('/owner-dashboard?tab=my-bookings')">
                     <CalendarOutlined />
-                    Minhas Reservas
+                    {{ t('nav.myReservations') }}
                   </a-button>
                   <a-button block class="mobile-menu-item" @click="navigateTo('/owner-dashboard?tab=profile')">
                     <UserOutlined />
-                    Perfil
+                    {{ t('nav.profile') }}
                   </a-button>
                   <a-button block class="mobile-menu-item logout" @click="handleMobileLogout" danger>
                     <LogoutOutlined />
@@ -132,11 +145,12 @@
     </div>
 
     <!-- Login Modal -->
-    <LoginPageModal 
-      :visible="showLoginModal" 
+    <LoginPageModal
+      :visible="showLoginModal"
       @close="showLoginModal = false"
       @success="handleLoginSuccess"
       @register="handleRegister"
+      @openModal="login"
     />
 
   </div>
@@ -149,7 +163,7 @@ import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency'
 import { 
   CarOutlined,
   UserOutlined,
-  DashboardOutlined,
+  //DashboardOutlined,
   LogoutOutlined,
   //BellOutlined,
   //MessageOutlined,
@@ -168,7 +182,9 @@ const {
   languages,
   changeLanguage,
   t,
-  //getLanguageByCode
+  currencies,
+  currentCurrency,
+  changeCurrency,
 } = useLanguageAndCurrency()
 
 const router = useRouter()
@@ -182,10 +198,10 @@ const getCustomerData = async () => {
   try {
     const response = await authService.me()
     customer.value = response.data
-    console.log('[OwnerDashboard] Fetched customer data:', customer.value)
+    //console.log('[OwnerDashboard] Fetched customer data:', customer.value)
   } catch (error) {
-    console.error('[OwnerDashboard] Error fetching customer data:', error)
-    message.error('Erro ao carregar dados do cliente.')
+    //console.error('[OwnerDashboard] Error fetching customer data:', error)
+    //message.error(t('auth.loadCustomerDataError'))
   } finally {
     loading.value = false
   }
@@ -209,7 +225,7 @@ const logout = () => {
   localStorage.removeItem('authToken')
   localStorage.removeItem('userRole')
   isAuthenticated.value = false
-  message.success('Logout realizado com sucesso!')
+  message.success(t('auth.logoutSuccess'))
   router.push('/')
 }
 
@@ -218,14 +234,6 @@ const mobileMenuVisible = ref(false)
 const loading = ref(false)
 const showLoginModal = ref(false)
 
-/*const handleLanguageChange = ({ key }) => {
-  changeLanguage(key)
-}
-
-const handleLogout = async () => {
-  await logout()
-  mobileMenuVisible.value = false
-}*/
 
 // Mobile menu functions
 const toggleMobileMenu = () => {
@@ -236,6 +244,10 @@ const handleMobileLanguageChange = (value) => {
   changeLanguage(value)
 }
 
+const handleMobileCurrencyChange = (value) => {
+  changeCurrency(value)
+}
+
 const handleMobileLogin = () => {
   mobileMenuVisible.value = false
   showLoginModal.value = true
@@ -244,7 +256,7 @@ const handleMobileLogin = () => {
 const handleLoginSuccess = () => {
   isAuthenticated.value = true
   getCustomerData()
-  message.success('Login realizado com sucesso!')
+  message.success(t('auth.loginSuccess'))
 }
 
 const handleRegister = () => {

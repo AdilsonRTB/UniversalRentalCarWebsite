@@ -17,7 +17,7 @@
           </div>
           <h2 class="form-title">Recuperar Palavra-passe</h2>
           <p class="form-subtitle">
-            Insira o seu e-mail para receber as instruções de recuperação
+            Insira o código OTP enviado para o seu email e defina uma nova senha
           </p>
         </div>
 
@@ -28,7 +28,7 @@
             :model="formData"
             :rules="formRules"
             layout="vertical"
-            @finish="handleForgotPassword"
+            @finish="handlePasswordReset"
           >
             <!-- Email Field -->
             <a-form-item
@@ -41,6 +41,56 @@
                 size="large"
                 placeholder="Insira o seu e-mail"
                 :prefix="() => h(MailOutlined, { style: { color: '#667eea' } })"
+                :disabled="emailFromUrl"
+                class="form-input"
+              />
+            </a-form-item>
+
+            <!-- OTP Field -->
+            <a-form-item
+              name="otp"
+              label="Código OTP"
+              class="form-item"
+            >
+              <a-input
+                v-model:value="formData.otp"
+                size="large"
+                placeholder="Insira o código de 6 dígitos"
+                maxlength="6"
+                :prefix="() => h(SafetyOutlined, { style: { color: '#667eea' } })"
+                :disabled="otpFromUrl"
+                class="form-input"
+              />
+            </a-form-item>
+
+            <!-- New Password Field -->
+            <a-form-item
+              name="newPassword"
+              label="Nova Senha"
+              class="form-item"
+            >
+              <a-input-password
+                v-model:value="formData.newPassword"
+                size="large"
+                placeholder="Insira a nova senha"
+                :prefix="() => h(LockOutlined, { style: { color: '#667eea' } })"
+                :iconRender="(visible) => (visible ? h(EyeTwoTone) : h(EyeInvisibleOutlined))"
+                class="form-input"
+              />
+            </a-form-item>
+
+            <!-- Confirm Password Field -->
+            <a-form-item
+              name="confirmPassword"
+              label="Confirmar Nova Senha"
+              class="form-item"
+            >
+              <a-input-password
+                v-model:value="formData.confirmPassword"
+                size="large"
+                placeholder="Confirme a nova senha"
+                :prefix="() => h(LockOutlined, { style: { color: '#667eea' } })"
+                :iconRender="(visible) => (visible ? h(EyeTwoTone) : h(EyeInvisibleOutlined))"
                 class="form-input"
               />
             </a-form-item>
@@ -55,8 +105,8 @@
                 :loading="isLoading"
                 class="submit-btn"
               >
-                <SendOutlined v-if="!isLoading" />
-                Enviar Instruções
+                <CheckCircleOutlined v-if="!isLoading" />
+                Redefinir Senha
               </a-button>
             </a-form-item>
           </a-form>
@@ -67,23 +117,20 @@
           <div class="success-icon">
             <CheckCircleOutlined />
           </div>
-          <h3>E-mail Enviado!</h3>
+          <h3>Senha Redefinida com Sucesso!</h3>
           <p>
-            Enviámos as instruções de recuperação para
-            <strong>{{ formData.email }}</strong>
+            Sua senha foi alterada com sucesso.
           </p>
           <p class="hint">
-            Verifique a sua caixa de entrada e spam. 
-            O link expira em 15 minutos.
+            Agora você pode fazer login com sua nova senha.
           </p>
           
           <a-button
-            type="link"
-            @click="resendEmail"
-            :loading="isResending"
-            class="resend-btn"
+            @click="goToLogin"
+            type="primary"
+            class="login-btn"
           >
-            Reenviar E-mail
+            Ir para Login
           </a-button>
         </div>
 
@@ -108,24 +155,37 @@
 import {
   CarOutlined,
   MailOutlined,
-  SendOutlined,
+  //SendOutlined,
   CheckCircleOutlined,
-  ArrowLeftOutlined
+  ArrowLeftOutlined,
+  LockOutlined,
+  SafetyOutlined,
+  EyeInvisibleOutlined,
+  EyeTwoTone
 } from '@ant-design/icons-vue'
-import { ref, reactive, h } from 'vue'
+import { ref, reactive, h, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
+import { useRouter, useRoute } from 'vue-router'
 import {authService} from '../services/api'
+
+// Router
+const router = useRouter()
+const route = useRoute()
 
 // Form references
 const formRef = ref(null)
 
 // Reactive data
 const isLoading = ref(false)
-const isResending = ref(false)
 const emailSent = ref(false)
+const emailFromUrl = ref(false)
+const otpFromUrl = ref(false)
 
 const formData = reactive({
-  email: ''
+  email: '',
+  otp: '',
+  newPassword: '',
+  confirmPassword: ''
 })
 
 // Form validation rules
@@ -133,41 +193,74 @@ const formRules = {
   email: [
     { required: true, message: 'Por favor, insira o seu e-mail' },
     { type: 'email', message: 'Por favor, insira um e-mail válido' }
+  ],
+  otp: [
+    { required: true, message: 'Por favor, insira o código OTP' },
+    { len: 6, message: 'O código OTP deve ter 6 dígitos' }
+  ],
+  newPassword: [
+    { required: true, message: 'Por favor, insira a nova senha' },
+    { min: 8, message: 'A senha deve ter pelo menos 8 caracteres' },
+    { 
+      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
+      message: 'Deve conter pelo menos uma minúscula, maiúscula e um número' 
+    }
+  ],
+  confirmPassword: [
+    { required: true, message: 'Por favor, confirme a senha' },
+    {
+      validator: (rule, value) => {
+        if (value && value !== formData.newPassword) {
+          return Promise.reject('As senhas não coincidem')
+        }
+        return Promise.resolve()
+      }
+    }
   ]
 }
 
 // Methods
-const handleForgotPassword = async (values) => {
+const handlePasswordReset = async (values) => {
   try {
     isLoading.value = true
     
-    await authService.forgotPassword(values.email)
+    await authService.resetPassword(
+      values.email,
+      values.otp,
+      values.newPassword,
+      values.confirmPassword
+    )
     
     emailSent.value = true
-    message.success('Instruções enviadas com sucesso!')
+    message.success('Senha redefinida com sucesso!')
     
   } catch (error) {
-    console.error('Forgot password error:', error)
-    message.error(error.message || 'Erro ao enviar instruções. Tente novamente.')
+    console.error('Password reset error:', error)
+    message.error(error.message || 'Erro ao redefinir senha. Verifique os dados e tente novamente.')
   } finally {
     isLoading.value = false
   }
 }
 
-const resendEmail = async () => {
-  try {
-    isResending.value = true
-    
-    await authService.forgotPassword(formData.email)
-    message.success('E-mail reenviado com sucesso!')
-    
-  } catch (error) {
-    console.error('Resend email error:', error)
-    message.error('Erro ao reenviar e-mail. Tente novamente.')
-  } finally {
-    isResending.value = false
-  }
+const goToLogin = () => {
+  router.push('/login')
 }
+
+// Load email and OTP from URL on mount
+onMounted(() => {
+  const { email, otp, code } = route.query
+  
+  if (email) {
+    formData.email = email
+    emailFromUrl.value = true
+  }
+  
+  // Support both 'otp' and 'code' query params
+  if (otp || code) {
+    formData.otp = otp || code
+    otpFromUrl.value = true
+  }
+})
 </script>
 
 <style scoped>
@@ -239,9 +332,9 @@ const resendEmail = async () => {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   overflow: hidden;
-  max-width: 450px;
+  max-width: 500px;
   width: 100%;
-  padding: 60px 40px;
+  padding: 50px 40px;
   position: relative;
   z-index: 10;
   text-align: center;
@@ -291,7 +384,7 @@ const resendEmail = async () => {
 }
 
 .form-item {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .form-item :deep(.ant-form-item-label > label) {
@@ -383,6 +476,23 @@ const resendEmail = async () => {
 
 .resend-btn:hover {
   color: #3A1C71;
+}
+
+.login-btn {
+  background: linear-gradient(90deg,#3A1C71 0%,#FDBB2D 100%) !important;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  height: 50px;
+  padding: 0 32px;
+  margin-top: 16px;
+}
+
+.login-btn:hover {
+  background: linear-gradient(90deg,#3A1C71 0%,#FDBB2D 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 /* Back Link */

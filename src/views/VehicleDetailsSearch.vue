@@ -2,27 +2,6 @@
   <div class="vehicle-details-modern">
     <a-spin :spinning="loading" size="large">
 
-      <!--section class="hero-details-section" >
-        <div class="hero-details-container">
-          <div class="hero-details-content">
-            <div class="hero-title-section">
-              <h1 class="vehicle-title-modern">{{ vehicle?.brand_name }} {{ vehicle?.model }}</h1>
-              <div class="vehicle-meta-modern">
-                <div class="meta-item">
-                  <CalendarOutlined class="meta-icon" />
-                  <span>{{ vehicle?.year }}</span>
-                </div>
-                <div class="meta-item">
-                  <EnvironmentOutlined class="meta-icon" />
-                  <span>Praia, Santiago</span>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-      </!--section-->
-
       <!-- Main Content -->
       <div class="vehicle-details-container">
         <div class="main-content-modern">
@@ -31,8 +10,11 @@
             :vehicle="vehicle"
             :vehicle-images="vehicleImages"
             :startDate="startDate" :endDate="endDate"
+            :availability="availability"
+            :locations="locations"
+            :config="config"
           />
-          
+
 
         </div>
       </div>
@@ -64,15 +46,32 @@ const props = defineProps({
   endDate: {
     type: String,
     default: null
+  },
+  availability: {
+    type: Boolean,
+    default: false
+  },
+  config: {
+    type: Object,
+    default: () => ({})
   }
 })
 
 // Mock vehicle images
 const vehicleImages = ref([])
 
+const locations = ref([])
 
 
 
+const loadLocations = async () => {
+  try {
+    const response = await vehicleService.getAllLocations()
+    locations.value = response.data
+  } catch (error) {
+    console.error('Erro ao carregar locais de entrega:', error)
+  }
+}
 
 // Methods
 const loadVehicleDetails = async () => {
@@ -84,14 +83,18 @@ const loadVehicleDetails = async () => {
     vehicleImages.value = response.data.additional_photos || []
   } catch (error) {
     console.error('Erro ao carregar detalhes do veículo:', error)
-
+    //loadMockVehicles()
   } finally {
     loading.value = false
   }
 }
 
+
+
 onMounted(() => {
   loadVehicleDetails()
+  loadLocations()
+
 })
 </script>
 
