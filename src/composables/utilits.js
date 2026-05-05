@@ -15,6 +15,10 @@ const formatImageUrl = (url) => {
     return url.replace('http://www.universalrental.cv/', 'https://admin.universalrental.cv/');
   }
 
+  if (url.includes('http://www.universalrental.cv/')) {
+
+    return url.replace('http://admin.universalrental.cv/', 'https://admin.universalrental.cv/');
+  }
   // Se a URL já contiver os domínios especificados, retorna a URL sem alterações
   if (url.includes('https://admin.universalrental.cv/')) return url;
 

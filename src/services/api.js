@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 
-const AUTH_API_BASE_URL = '/api/vehicle-rental/api'
-//const AUTH_API_BASE_URL = 'http://127.0.0.1:8000/'
+const AUTH_API_BASE_URL = 'https://admin.universalrental.cv/vehicle-rental/api'
+//const AUTH_API_BASE_URL = 'http://127.0.0.1:8000/vehicle-rental/api'
 /*
 const api = axios.create({
   baseURL: AUTH_API_BASE_URL + 'vehicle-rental/api',
@@ -13,7 +13,7 @@ const api = axios.create({
 })*/
 
 const api = axios.create({
-  baseURL: '/api/vehicle-rental/api',
+  baseURL: AUTH_API_BASE_URL,
   headers: {
     'Accept': 'application/json',
     //'X-CSRFTOKEN': '3HjHcN6PspN8XYqcMFXiq6SF3C7FeJztlWyXP2RL0hfgVfZ6SZz3mHn61aZBk9N4'
@@ -113,7 +113,7 @@ export const bookingService = {
   //deleteBooking: (id) => api.delete(`/bookings/${id}`)
 }
 
-export const baseURL = AUTH_API_BASE_URL || '/api/vehicle-rental/api'
+export const baseURL = AUTH_API_BASE_URL || '/api'
 
 export default api
 

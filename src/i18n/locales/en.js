@@ -11,6 +11,13 @@ export default {
     selectCurrency: 'Currency'
   },
 
+  // Languages
+  languages: {
+    portuguese: 'Portuguese',
+    english: 'English',
+    french: 'French'
+  },
+
   // Navigation
   nav: {
     home: 'Home',
@@ -906,6 +913,25 @@ export default {
     or: 'or',
     createAccount: 'Create account',
     loginErrorCredentials: 'Login error. Please check your credentials.',
+
+    // Forgot Password Page
+    forgotPasswordTitle: 'Recover Password',
+    forgotPasswordSubtitle: 'Enter your email to receive recovery instructions',
+    emailLabel: 'Email',
+    emailPlaceholderForgot: 'Enter your email',
+    sendInstructions: 'Send Instructions',
+    emailSentTitle: 'Email Sent!',
+    emailSentMessage: 'We have sent recovery instructions to',
+    emailSentHint: 'Check your inbox and spam folder. The link expires in 15 minutes.',
+    resendEmail: 'Resend Email',
+    backToLogin: 'Back to Homepage',
+    emailRequiredValidation: 'Please enter your email',
+    emailValidValidation: 'Please enter a valid email',
+    instructionsSentSuccess: 'Instructions sent successfully!',
+    sendInstructionsError: 'Error sending instructions. Please try again.',
+    emailResentSuccess: 'Email resent successfully!',
+    resendEmailError: 'Error resending email. Please try again.',
+    
     // Register Page
     createAccountTitle: 'Create Account',
     fillDataToStart: 'Fill in your details to get started',
@@ -957,10 +983,11 @@ export default {
     birthDate: 'Date of Birth',
     birthDatePlaceholder: 'Select date of birth',
     birthDateRequired: 'Please select your date of birth',
-    birthDateMinAge: 'You must be at least 18 years old',
+    birthDateMinAge: 'You must be at least 25 years old',
     licenseIssueDate: 'License Issue Date',
     licenseIssueDatePlaceholder: 'Select issue date',
     licenseIssueDateRequired: 'Please select the license issue date',
+    licenseIssueMinYears: 'Driving license must have been issued at least 2 years ago',
     // Password strength
     pwChars: '8+ characters',
     pwLowercase: 'lowercase',
@@ -981,13 +1008,13 @@ export default {
     thousandsOfVehicles: 'Thousands of vehicles available nationwide',
     
     // Hero floating elements
-    chooseComfort: 'Choose comfort.',
+    chooseComfort: 'Choose comfort',
     safetyFirst: 'Safety first',
     driveWithConfidence: 'Drive with confidence',
     
     // Hero titles
     findBestCarToRent: 'Find the best car to rent',
-    unforgettableExperiences: 'We provide unforgettable experiences on wheels.',
+    unforgettableExperiences: 'We provide unforgettable experiences on wheels',
     
     // Filters
     filters: 'Filters',
@@ -1020,7 +1047,7 @@ export default {
     
     // CTA Section
     simpleAsThis: 'Simple as this!',
-    fewStepsDriving: 'In just a few steps you’re already driving',
+    fewStepsDriving: 'Your destination deserves a car to match.',
     searchVehiclesCTA: 'Search Vehicles',
     
     // Advanced Filters
@@ -1168,6 +1195,8 @@ export default {
     },
     messages: {
       reservationSuccess: 'Reservation created successfully!',
+      reservationPendingPayment: 'Reservation Awaiting Payment Confirmation',
+      paymentInstructions: 'Bank account information for payment has been sent to your email. Please check your inbox.',
       reservationError: 'Error creating reservation. Please try again.',
       customerError: 'Error creating customer. Please try again.',
       qrCodeText: 'Reservation #: {id}\nCustomer: {name}\nVehicle: {vehicle}\nPeriod: {dates}\nTotal: {total} CVE'

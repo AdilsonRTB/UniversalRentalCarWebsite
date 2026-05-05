@@ -6225,6 +6225,11 @@ vue@*, "vue@^2 || ^3.2.13", vue@^3.0.0, vue@^3.2.0, vue@^3.2.13, vue@>=3.0.3, vu
     "@vue/server-renderer" "3.5.17"
     "@vue/shared" "3.5.17"
 
+vue3-recaptcha2@^1.8.0:
+  version "1.8.0"
+  resolved "https://registry.npmjs.org/vue3-recaptcha2/-/vue3-recaptcha2-1.8.0.tgz"
+  integrity sha512-lICGpLGv9wsdVjgWZ0usbZ+Ki52YX5kOzjt8l/ADun9GxdjJ5/AkGpxE7dZ+mG3VcE4ASZG2B/nYWB4wWFadvQ==
+
 warning@^4.0.0:
   version "4.0.3"
   resolved "https://registry.npmjs.org/warning/-/warning-4.0.3.tgz"

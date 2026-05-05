@@ -119,6 +119,7 @@
                     :placeholder="$t('reservation.form.firstNamePlaceholder')"
                     :prefix="() => h(UserOutlined, { style: { color: '#8b5cf6' } })"
                     class="form-input"
+                    :disabled="isLoggedIn"
                   />
                 </a-form-item>
 
@@ -132,6 +133,7 @@
                     :placeholder="$t('reservation.form.lastNamePlaceholder')"
                     :prefix="() => h(UserOutlined, { style: { color: '#8b5cf6' } })"
                     class="form-input"
+                    :disabled="isLoggedIn"
                   />
                 </a-form-item>
               </div>
@@ -151,6 +153,11 @@
                     :disabled-date="disabledBirthDate"
                     format="DD/MM/YYYY"
                     value-format="YYYY-MM-DD"
+                    :disabled="isLoggedIn"
+                    :key="'birth-date-' + currentLanguage"
+                    :locale="datePickerLocale"
+                    :show-today="false"
+                    :default-picker-value="dayjs().subtract(25, 'year')"
                   />
                 </a-form-item>
               </div>
@@ -167,6 +174,7 @@
                     :placeholder="emailPlaceholder"
                     :prefix="() => h(MailOutlined, { style: { color: '#8b5cf6' } })"
                     class="form-input"
+                    :disabled="isLoggedIn"
                   />
                 </a-form-item>
 
@@ -181,6 +189,7 @@
                     :placeholder="$t('reservation.form.phonePlaceholder')"
                     :prefix="() => h(PhoneOutlined, { style: { color: '#8b5cf6' } })"
                     class="form-input"
+                    :disabled="isLoggedIn"
                   />
                 </a-form-item>
               </div>
@@ -196,6 +205,7 @@
                       :placeholder="$t('reservation.form.drivingLicensePlaceholder')"
                       :prefix="() => h(IdcardOutlined, { style: { color: '#8b5cf6' } })"
                       class="form-input"
+                      :disabled="isLoggedIn"
                     />
                   </a-form-item>
                   <!-- License Expiry Date Field -->
@@ -212,6 +222,11 @@
                       format="DD/MM/YYYY"
                       value-format="YYYY-MM-DD"
                       :disabled-date="disabledLicenseDate"
+                      :disabled="isLoggedIn"
+                      :key="'license-date-' + currentLanguage"
+                      :locale="datePickerLocale"
+                      :show-today="false"
+                      :default-picker-value="dayjs().subtract(2, 'year')"
                     />
                   </a-form-item>
                </div>
@@ -226,6 +241,16 @@
                   </a-checkbox>
                 </a-form-item>
               </div>
+
+              <!-- reCAPTCHA v2 - DESATIVADO -->
+              <!-- <div v-if="!qrcode" class="recaptcha-container" style="margin-bottom: 20px; display: flex; justify-content: center;">
+                <VueRecaptcha
+                  :sitekey="recaptchaSiteKey"
+                  @verify="onRecaptchaVerified"
+                  @expired="onRecaptchaExpired"
+                  @error="onRecaptchaError"
+                />
+              </div> -->
 
               <!-- Submit Button -->
               <a-form-item class="submit-item">
@@ -259,7 +284,7 @@
 
 <script setup>
 import { ref, reactive, defineProps, defineEmits, watch, computed, h } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import {
@@ -274,6 +299,11 @@ import {
 } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt'
+import 'dayjs/locale/en'
+import 'dayjs/locale/fr'
+import antLocale_pt_BR from 'ant-design-vue/es/locale/pt_BR'
+import antLocale_en_US from 'ant-design-vue/es/locale/en_US'
+import antLocale_fr_FR from 'ant-design-vue/es/locale/fr_FR'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import localeData from 'dayjs/plugin/localeData'
 import weekday from 'dayjs/plugin/weekday'
@@ -293,10 +323,24 @@ dayjs.locale('pt')
 //import logo from '../assets/logo.png'
 import {authService, bookingService, vehicleService} from '../services/api'
 import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency'
+// import { useRecaptcha } from '../composables/useRecaptcha' // DESATIVADO
 
 const { t } = useI18n()
 const router = useRouter()
-const { currentCurrency } = useLanguageAndCurrency()
+const { currentCurrency, currentLanguage } = useLanguageAndCurrency()
+
+// reCAPTCHA - DESATIVADO
+// const { 
+//   recaptchaToken,
+//   recaptchaVerified,
+//   onRecaptchaVerified,
+//   onRecaptchaExpired,
+//   onRecaptchaError,
+//   resetRecaptcha
+// } = useRecaptcha()
+
+// reCAPTCHA Site Key - DESATIVADO
+// const recaptchaSiteKey = process.env.VUE_APP_RECAPTCHA_SITE_KEY
 
 // Props
 const props = defineProps({
@@ -433,7 +477,7 @@ const emit = defineEmits(['update:visible', 'reservation-confirmed'])
 const formData = reactive({
   firstName: '',
   lastName: '',
-  birthDate: dayjs(), // Data atual como padrão
+  birthDate: '', // Data atual como padrão
   email: '',
   drivingLicense: '',
   license_expiry_date: null,
@@ -541,6 +585,12 @@ const isFormValid = computed(() => {
   )
 })
 
+// Computed property to check if user is logged in
+const isLoggedIn = computed(() => {
+  const token = localStorage.getItem('authToken')
+  return token !== null && token !== '' && token !== undefined
+})
+
 // Methods
 const handleCancel = () => {
   const reservationConfirmed = qrcode.value
@@ -548,7 +598,7 @@ const handleCancel = () => {
     // Reset form data
     formData.firstName = ''
     formData.lastName = ''
-    formData.birthDate = dayjs() // Reset para data atual
+    formData.birthDate = '' // Reset para data atual
     formData.email = ''
     formData.drivingLicense = ''
     formData.phone = ''
@@ -580,6 +630,21 @@ const disabledBirthDate = (current) => {
   const hundredYearsAgo = today.subtract(100, 'year')
   return current && (current.isAfter(today, 'day') || current.isBefore(hundredYearsAgo, 'day'))
 }
+
+// Date picker locale support
+const datePickerLocale = computed(() => {
+  if (currentLanguage.value === 'pt') return antLocale_pt_BR.DatePicker
+  if (currentLanguage.value === 'en') return antLocale_en_US.DatePicker
+  if (currentLanguage.value === 'fr') return antLocale_fr_FR.DatePicker
+  return antLocale_pt_BR.DatePicker
+})
+
+// Watch for language changes to update dayjs locale
+watch(currentLanguage, (newLang) => {
+  if (newLang === 'pt') dayjs.locale('pt')
+  else if (newLang === 'en') dayjs.locale('en')
+  else if (newLang === 'fr') dayjs.locale('fr')
+}, { immediate: true })
 
 // Disable future dates for license issue date
 const disabledLicenseDate = (current) => {
@@ -640,7 +705,7 @@ const getCustomerData = async () => {
         formData.email = customer.value.email
         formData.phone = customer.value.phone_number || ''
         formData.drivingLicense = customer.value.driving_license_number || ''
-        formData.acceptTerms = true
+        formData.acceptTerms = false
         formData.country = customer.value.country || ''
         formData.address_line_1 = customer.value.address_line_1 || ''
         formData.address_line_2 = customer.value.address_line_2 || ''
@@ -711,27 +776,36 @@ isLoading.value = true
     try {
       await formRef.value.validate()
 
+      // Verifica se o reCAPTCHA foi completado - DESATIVADO
+      // if (!recaptchaVerified.value || !recaptchaToken.value) {
+      //   message.error(t('reservation.messages.recaptchaRequired') || 'Por favor, complete a verificação reCAPTCHA')
+      //   isLoading.value = false
+      //   return
+      // }
+
       if (token === '' || token === null) {
         const customerId = verificationEmail(formData.email)
         if (customerId) {
             await authService.updateCustomer(customerId, requestCreateUser)
-            await createBookingServices(customerId)
+            await createBookingServices(customerId, null)
         } else {
           // Create new customer logic can be added here
           const response = await authService.createCustomer(requestCreateUser)
           if (response && response.data && response.data.id) {
-            await createBookingServices(response.data.id)
+            await createBookingServices(response.data.id, null)
           } else {
             message.error(t('reservation.messages.customerError'))
           }
         }
       } else {
-        await createBookingServices(customer.value.id)
+        await createBookingServices(customer.value.id, null)
         await authService.updateCustomer(customer.value.id, requestCreateUser)
     }
       //await createBookingServices()
     } catch (error) {
       console.error('Form validation failed:', error)
+      // Reseta o reCAPTCHA em caso de erro - DESATIVADO
+      // resetRecaptcha()
     }
     finally {
       isLoading.value = false
@@ -770,6 +844,7 @@ const createBookingServices = async (custumerId) => {
     driver: props.withDriver,
     pickup_location: typeof props.pickupLocation === 'object' ? props.pickupLocation?.id : props.pickupLocation,
     return_location: typeof props.returnLocation === 'object' ? props.returnLocation?.id : props.returnLocation
+    // recaptchaToken // DESATIVADO - Envia o token para o backend validar
   }
 
   try {
@@ -777,19 +852,23 @@ const createBookingServices = async (custumerId) => {
 
     if (response && response.data) {
       if (response.data.id > 0) {
-        // Notification of success can be added here with time to close
-        message.success(t('reservation.messages.reservationSuccess'))
-
-        textQrCode.value = t('reservation.messages.qrCodeText', {
-          id: response.data.id,
-          name: `${formData.firstName} ${formData.lastName}`,
-          vehicle: `${props.vehicle.brand_name} ${props.vehicle.model}`,
-          dates: `${formatDate(props.pickupDate)} a ${formatDate(props.returnDate)}`,
-          total: props.calculateTotal
+        // Show payment pending modal
+        Modal.info({
+          title: t('reservation.messages.reservationPendingPayment'),
+          content: t('reservation.messages.paymentInstructions'),
+          okText: 'OK',
+          onOk() {
+            // Generate QR code after modal closes
+            textQrCode.value = t('reservation.messages.qrCodeText', {
+              id: response.data.id,
+              name: `${formData.firstName} ${formData.lastName}`,
+              vehicle: `${props.vehicle.brand_name} ${props.vehicle.model}`,
+              dates: `${formatDate(props.pickupDate)} a ${formatDate(props.returnDate)}`,
+              total: props.calculateTotal
+            })
+            qrcode.value = true
+          }
         })
-        qrcode.value = true;
-
-
       }
       else {
         message.error(t('reservation.messages.reservationError'))

@@ -11,6 +11,13 @@ export default {
     selectCurrency: 'Moeda'
   },
 
+  // Languages
+  languages: {
+    portuguese: 'Português',
+    english: 'Inglês',
+    french: 'Francês'
+  },
+
   // Navigation
   nav: {
     home: 'Início',
@@ -18,7 +25,7 @@ export default {
     bookVehicles: 'Reservar Veículos',
     login: 'Login',
     register: 'Cadastrar',
-    loginRegister: 'Login | Registar',
+    loginRegister: 'Entrar | Registar',
     dashboard: 'Dashboard',
     adminPanel: 'Painel Admin',
     ownerPanel: 'Painel Proprietário',
@@ -906,6 +913,25 @@ export default {
     or: 'ou',
     createAccount: 'Criar conta',
     loginErrorCredentials: 'Erro ao fazer login. Verifique as suas credenciais.',
+    
+    // Forgot Password Page
+    forgotPasswordTitle: 'Recuperar Palavra-passe',
+    forgotPasswordSubtitle: 'Insira o seu e-mail para receber as instruções de recuperação',
+    emailLabel: 'E-mail',
+    emailPlaceholderForgot: 'Insira o seu e-mail',
+    sendInstructions: 'Enviar Instruções',
+    emailSentTitle: 'E-mail Enviado!',
+    emailSentMessage: 'Enviámos as instruções de recuperação para',
+    emailSentHint: 'Verifique a sua caixa de entrada e spam. O link expira em 15 minutos.',
+    resendEmail: 'Reenviar E-mail',
+    backToLogin: 'Voltar a pagina inicial',
+    emailRequiredValidation: 'Por favor, insira o seu e-mail',
+    emailValidValidation: 'Por favor, insira um e-mail válido',
+    instructionsSentSuccess: 'Instruções enviadas com sucesso!',
+    sendInstructionsError: 'Erro ao enviar instruções. Tente novamente.',
+    emailResentSuccess: 'E-mail reenviado com sucesso!',
+    resendEmailError: 'Erro ao reenviar e-mail. Tente novamente.',
+    
     // Register Page
     createAccountTitle: 'Criar Conta',
     fillDataToStart: 'Preencha os seus dados para começar',
@@ -957,10 +983,11 @@ export default {
     birthDate: 'Data de Nascimento',
     birthDatePlaceholder: 'Selecione a data de nascimento',
     birthDateRequired: 'Por favor, selecione a sua data de nascimento',
-    birthDateMinAge: 'Deve ter pelo menos 18 anos de idade',
+    birthDateMinAge: 'Deve ter pelo menos 25 anos de idade',
     licenseIssueDate: 'Data de Emissão do Cartão',
     licenseIssueDatePlaceholder: 'Selecione a data de emissão',
     licenseIssueDateRequired: 'Por favor, selecione a data de emissão do cartão',
+    licenseIssueMinYears: 'O cartão de condução deve ter sido emitido há pelo menos 2 anos',
     // Password strength
     pwChars: '8+ caracteres',
     pwLowercase: 'minúscula',
@@ -981,13 +1008,13 @@ export default {
     thousandsOfVehicles: 'Veículos disponíveis em todo o país',
     
     // Hero floating elements
-    chooseComfort: 'Escolha conforto.',
+    chooseComfort: 'Escolha conforto',
     safetyFirst: 'Segurança em primeiro lugar',
     driveWithConfidence: 'Conduza com confiança',
     
     // Hero titles
     findBestCarToRent: 'Encontre o melhor carro para alugar',
-    unforgettableExperiences: 'Proporcionamos experiências inesquecíveis sobre rodas.',
+    unforgettableExperiences: 'Proporcionamos experiências inesquecíveis sobre rodas',
     
     // Filters
     filters: 'Filtros',
@@ -1020,7 +1047,7 @@ export default {
     
     // CTA Section
     simpleAsThis: 'Simples assim!',
-    fewStepsDriving: 'Em apenas alguns passos você já está dirigindo',
+    fewStepsDriving: 'O teu destino merece um carro à altura',
     searchVehiclesCTA: 'Procurar Veículos',
     
     // Advanced Filters
@@ -1169,6 +1196,8 @@ export default {
     },
     messages: {
       reservationSuccess: 'Reserva criada com sucesso!',
+      reservationPendingPayment: 'Reserva Aguarda Confirmação de Pagamento',
+      paymentInstructions: 'As informações da conta bancária para pagamento foram enviadas para o seu email. Por favor, verifique a sua caixa de entrada.',
       reservationError: 'Erro ao criar reserva. Tente novamente.',
       customerError: 'Erro ao criar cliente. Tente novamente.',
       qrCodeText: 'Reserva Nº: {id}\nCliente: {name}\nVeículo: {vehicle}\nPeríodo: {dates}\nTotal: {total} CVE'

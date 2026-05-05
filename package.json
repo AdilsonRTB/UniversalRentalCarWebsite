@@ -15,7 +15,8 @@
     "keycloak-js": "^26.2.0",
     "vue": "^3.2.13",
     "vue-i18n": "^9.14.5",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vue3-recaptcha2": "^1.8.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

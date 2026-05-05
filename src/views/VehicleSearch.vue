@@ -5,7 +5,13 @@
 
       <!-- Hero Search Section -->
       <section class="hero-search-section">
+        <!-- Map Decoration -->
+        <div class="map-decoration">
+          <img src="@/assets/mapa_santiago_br.png" alt="Santiago Map" />
+        </div>
+        
         <div class="hero-visual-ultra-modern">
+
           <!-- Floating Elements -->
           <div class="floating-element element-1">
             <div class="element-icon">
@@ -79,28 +85,64 @@
               
               <div class="filter-group">
                 <label class="filter-label">{{ t('search.pickupDate') }}</label>
-                <a-date-picker
-                  v-model:value="filters.startDate"
-                  size="large"
-                  :placeholder="t('search.selectDate')"
-                  class="modern-date-picker"
-                  show-time
-                  :disabled-date="disabledDate"
-                  :allowClear="false"
-                />
+                <div class="date-time-group">
+                  <a-date-picker
+                    :key="'pickup-date-' + currentLanguage"
+                    v-model:value="filters.startDate"
+                    size="large"
+                    :placeholder="t('search.selectDate')"
+                    class="modern-date-picker date-only"
+                    format="YYYY-MM-DD"
+                    :disabled-date="disabledDate"
+                    :allowClear="false"
+                    :locale="datePickerLocale"
+                    :show-today="false"
+                  />
+                  <a-time-picker
+                    :key="'pickup-time-' + currentLanguage"
+                    v-model:value="filters.startDate"
+                    size="large"
+                    placeholder="08:00"
+                    class="modern-time-picker"
+                    format="HH:mm"
+                    :minute-step="15"
+                    :disabled-hours="disabledHours"
+                    :allowClear="false"
+                    :locale="datePickerLocale"
+                    :show-now="false"
+                  />
+                </div>
               </div>
               
               <div class="filter-group">
                 <label class="filter-label">{{ t('search.returnDate') }}</label>
-                <a-date-picker
-                  v-model:value="filters.endDate"
-                  size="large"
-                  :placeholder="t('search.selectDate')"
-                  class="modern-date-picker"
-                  show-time
-                  :disabled-date="disabledEndDate"
-                  :allowClear="false"
-                />
+                <div class="date-time-group">
+                  <a-date-picker
+                    :key="'return-date-' + currentLanguage"
+                    v-model:value="filters.endDate"
+                    size="large"
+                    :placeholder="t('search.selectDate')"
+                    class="modern-date-picker date-only"
+                    format="YYYY-MM-DD"
+                    :disabled-date="disabledEndDate"
+                    :allowClear="false"
+                    :locale="datePickerLocale"
+                    :show-today="false"
+                  />
+                  <a-time-picker
+                    :key="'return-time-' + currentLanguage"
+                    v-model:value="filters.endDate"
+                    size="large"
+                    placeholder="08:00"
+                    class="modern-time-picker"
+                    format="HH:mm"
+                    :minute-step="15"
+                    :disabled-hours="disabledHours"
+                    :allowClear="false"
+                    :locale="datePickerLocale"
+                    :show-now="false"
+                  />
+                </div>
               </div>
               <div class="filter-group">
                 <div class="search-action">
@@ -167,14 +209,15 @@
                     <!--div class="vehicle-card-modern" @click="viewVehicle(vehicle.id)"-->
                     <div class="vehicle-card-modern" @click="openDetailsRendels(vehicle.id, vehicle.is_available)">
                     <div class="vehicle-image-modern">
-                      <img v-if="vehicle.primary_photo" :src="formatImageUrl(vehicle.primary_photo.image)" :alt="`${vehicle?.brand_name} ${vehicle?.model}`" class="vehicle-photo-modern"/>
-                      <img v-if="vehicle.photo && !vehicle.primary_photo" :src="formatImageUrl(vehicle.photo)" :alt="`${vehicle?.brand_name} ${vehicle?.model}`" class="vehicle-photo-modern"/>
+                      <img v-if="vehicle.primary_photo" :src="vehicle.primary_photo.image" :alt="`${vehicle?.brand_name} ${vehicle?.model}`" class="vehicle-photo-modern"/>
+                      <img v-if="vehicle.photo && !vehicle.primary_photo" :src="vehicle.photo" :alt="`${vehicle?.brand_name} ${vehicle?.model}`" class="vehicle-photo-modern"/>
                       <CarOutlined class="vehicle-icon" v-if="!vehicle.photo && !vehicle.primary_photo"/>
                     </div>
 
                     <div class="vehicle-content-modern">
                       <div class="vehicle-header">
-                        <h3 class="vehicle-title-modern">{{ vehicle.brand_name }} {{ vehicle.model }} - {{ vehicle.year }}</h3>
+                        <!--h3 class="vehicle-title-modern">{{ vehicle.brand_name }} {{ vehicle.model }} - {{ vehicle.year }}</h3-->
+                        <h3 class="vehicle-title-modern">{{ vehicle.brand_name }} {{ vehicle.model }}</h3>
                         <div class="vehicle-type-badge" :style="{ backgroundColor: getVehicleTypeColor(vehicle.type) }">
                           {{ getVehicleTypeLabel(vehicle.type) }}
                         </div>
@@ -185,10 +228,10 @@
                           <CalendarOutlined class="detail-icon" />
                           <span>{{ vehicle.year }}</span>
                         </!div-->
-                        <div class="detail-item">
+                        <!--div class="detail-item">
                           <EnvironmentOutlined class="detail-icon" />
                           <span>{{ vehicle.location || 'Achada Santo António, Santiago' }}</span>
-                        </div>
+                        </div-->
                         <div v-if="vehicle.owner" class="detail-item">
                           <UserOutlined class="detail-icon" />
                           <span>{{ vehicle.owner }}</span>
@@ -234,8 +277,8 @@
                   <a-col  :span="24" id="details">
                     <div v-if="rentaldetails">
                       <VehicleDetails :vehicleId="vehicleId" :key="vehicleId" :availability="availability"
-                        :startDate="filters.startDate.format('YYYY-MM-DD HH:mm:ss')"
-                        :endDate="filters.endDate.format('YYYY-MM-DD HH:mm:ss')"
+                        :startDate="filters.startDate.format('YYYY-MM-DD HH:mm') + ':00'"
+                        :endDate="filters.endDate.format('YYYY-MM-DD HH:mm') + ':00'"
                         :config="config"
                       />
                     </div>
@@ -291,7 +334,7 @@ import HeaderPage from '../components/HeaderPage.vue'
 import EvaluationsSearchPage from './EvaluationsSearchPage.vue'
 import { 
   SearchOutlined, 
-  EnvironmentOutlined,
+  //EnvironmentOutlined,
   CarOutlined, 
   //CalendarOutlined,
   StarFilled, 
@@ -313,19 +356,64 @@ import { useI18n } from 'vue-i18n'
 import { message } from 'ant-design-vue'
 import VehicleDetails from './VehicleDetailsSearch.vue'
 import dayjs from 'dayjs'
+import 'dayjs/locale/pt'
+import 'dayjs/locale/en'
+import 'dayjs/locale/fr'
 import { useRoute } from 'vue-router'
 import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency.js'
-import { useUtilities } from '../composables/utilits.js'
+import antLocale_pt_BR from 'ant-design-vue/es/locale/pt_BR'
+import antLocale_en_US from 'ant-design-vue/es/locale/en_US'
+import antLocale_fr_FR from 'ant-design-vue/es/locale/fr_FR'
+//import { useUtilities } from '../composables/utilits.js'
 
-const { formatImageUrl } = useUtilities()
+//const { formatImageUrl } = useUtilities()
 
-const { currentCurrency } = useLanguageAndCurrency()
+const { currentCurrency, currentLanguage } = useLanguageAndCurrency()
 
 const route = useRoute()
 
 const openLoginModal = ref(false);
 // Use i18n and language/currency functionality
 const { t } = useI18n()
+
+// Date picker locale based on current language
+const datePickerLocale = computed(() => {
+  const lang = currentLanguage.value
+  console.log('Date picker locale computed for language:', lang)
+  let locale
+  switch (lang) {
+    case 'pt':
+      locale = antLocale_pt_BR.DatePicker
+      break
+    case 'en':
+      locale = antLocale_en_US.DatePicker
+      break
+    case 'fr':
+      locale = antLocale_fr_FR.DatePicker
+      break
+    default:
+      locale = antLocale_pt_BR.DatePicker
+  }
+  console.log('Using locale:', locale)
+  return locale
+})
+
+// Update dayjs locale when language changes
+watch(currentLanguage, (newLang) => {
+  console.log('Language changed to:', newLang)
+  const dayjsLocale = newLang === 'pt' ? 'pt' : newLang
+  dayjs.locale(dayjsLocale)
+  console.log('Dayjs locale set to:', dayjsLocale)
+}, { immediate: true })
+
+// Disable hours outside 8-23 range
+/*const disabledHours = () => {
+  const hours = []
+  for (let i = 0; i < 8; i++) {
+    hours.push(i)
+  }
+  return hours
+}*/
 
 /*function scrollToTop() {
   window.scrollTo({
@@ -752,6 +840,26 @@ onMounted(() => {
   height: 500px;
 }
 
+/* Map Decoration */
+.map-decoration {
+  position: absolute;
+  top: 55%;
+  right: 30px;
+  transform: translateY(-50%);
+  width: 400px;
+  height: 400px;
+  opacity: 0.5;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.map-decoration img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(1.2);
+}
+
 /* Floating Elements */
 .floating-element {
   position: absolute;
@@ -841,6 +949,7 @@ onMounted(() => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  padding: 5px 0px;
 }
 
 .hero-search-subtitle {
@@ -872,6 +981,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
 }
 
 .search-label {
@@ -896,6 +1006,33 @@ onMounted(() => {
   box-shadow: 0 0 0 3px rgba(254, 119, 67, 0.1) !important;
 }
 
+.date-time-group {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.date-only {
+  flex: 1;
+  min-width: 0;
+}
+
+.modern-time-picker {
+  flex: 0 0 120px;
+  border-radius: 12px !important;
+  border: 2px solid #e5e7eb !important;
+  transition: all 0.3s ease !important;
+}
+
+.modern-time-picker:hover {
+  border-color: #FE7743 !important;
+}
+
+.modern-time-picker:focus {
+  border-color: #FE7743 !important;
+  box-shadow: 0 0 0 3px rgba(254, 119, 67, 0.1) !important;
+}
+
 .modern-input :deep(.ant-select-selector) {
   border: none !important;
   background: transparent !important;
@@ -908,7 +1045,12 @@ onMounted(() => {
 
 .input-icon {
   color: #9ca3af !important;
-  font-size: 16px !important;
+  font-size: 17px !important;
+}
+
+
+.clickable-icon:hover {
+  color: #FE7743 !important;
 }
 
 .search-btn-modern {
@@ -919,6 +1061,8 @@ onMounted(() => {
   font-weight: 600 !important;
   box-shadow: 0 4px 16px rgba(254, 119, 67, 0.4) !important;
   transition: all 0.3s ease !important;
+  width: 100%;
+  max-width: 250px;
 }
 
 .search-btn-modern:hover {
@@ -929,7 +1073,9 @@ onMounted(() => {
 .search-action {
   display: flex;
   align-items: end;
+  justify-content: center;
   margin-top: 25px;
+  width: 100%;
 }
 
 /* Main Content */
@@ -980,12 +1126,17 @@ onMounted(() => {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 24px;
   align-items: center;
+  justify-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  max-width: 300px;
 }
 
 .filter-label {
@@ -1556,6 +1707,10 @@ onMounted(() => {
   .content-wrapper {
     padding: 0 16px;
   }
+
+  .map-decoration {
+    display: none;
+  }
   
   .hero-search-title {
     font-size: 2rem;
@@ -1618,6 +1773,15 @@ onMounted(() => {
   
   .filters-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .date-time-group {
+    flex-direction: column;
+  }
+  
+  .modern-time-picker {
+    flex: 1;
+    width: 100%;
   }
   
   .promo-card-modern {

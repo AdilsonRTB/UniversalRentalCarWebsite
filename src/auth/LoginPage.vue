@@ -71,6 +71,16 @@
                 </a>
               </div>
 
+              <!-- reCAPTCHA v2 - DESATIVADO -->
+              <!-- <div class="recaptcha-container" style="margin-bottom: 20px; display: flex; justify-content: center;">
+                <VueRecaptcha
+                  :sitekey="recaptchaSiteKey"
+                  @verify="onRecaptchaVerified"
+                  @expired="onRecaptchaExpired"
+                  @error="onRecaptchaError"
+                />
+              </div> -->
+
               <!-- Submit Button -->
               <a-form-item class="submit-item">
                 <a-button
@@ -122,8 +132,22 @@ import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import {authService} from '../services/api'
 import logo from '../assets/logo2.png'
+// import { useRecaptcha } from '../composables/useRecaptcha' // DESATIVADO
 
 const router = useRouter()
+
+// reCAPTCHA - DESATIVADO
+// const { 
+//   recaptchaToken,
+//   recaptchaVerified,
+//   onRecaptchaVerified,
+//   onRecaptchaExpired,
+//   onRecaptchaError,
+//   resetRecaptcha
+// } = useRecaptcha()
+
+// reCAPTCHA Site Key - DESATIVADO
+// const recaptchaSiteKey = process.env.VUE_APP_RECAPTCHA_SITE_KEY
 
 // Form references
 const formRef = ref(null)
@@ -137,8 +161,6 @@ const formData = reactive({
   rememberMe: false
 })
 
-
-
 // Form validation rules
 const formRules = {
   email: [
@@ -146,19 +168,25 @@ const formRules = {
     { type: 'email', message: 'Por favor, insira um e-mail válido' }
   ],
   password: [
-    { required: true, message: 'Por favor, insira a sua palavra-passe' },
-    { min: 6, message: 'A palavra-passe deve ter pelo menos 6 caracteres' }
+    { required: true, message: 'Por favor, insira a sua palavra-passe' }
   ]
 }
 
-// Methods
+// Login handler
 const handleLogin = async (values) => {
+  isLoading.value = true
   try {
-    isLoading.value = true
+    // Verifica se o reCAPTCHA foi completado - DESATIVADO
+    // if (!recaptchaVerified.value || !recaptchaToken.value) {
+    //   message.error('Por favor, complete a verificação reCAPTCHA')
+    //   isLoading.value = false
+    //   return
+    // }
 
     const request = {
       email: values.email,
       password: values.password
+      // recaptchaToken: recaptchaToken.value // DESATIVADO
     }
     
     // Use our custom auth service
@@ -168,21 +196,19 @@ const handleLogin = async (values) => {
     
     // Store authentication data
     localStorage.setItem('authToken', result.data.token)
-    //localStorage.setItem('userData', JSON.stringify(result.user))
-
 
     if (formData.rememberMe) {
       localStorage.setItem('rememberMe', 'true')
     }
-    
-    //message.success(`Bem-vindo, ${result.customer?.first_name || result.user.username}!`)
-    
+
     // Redirect to dashboard
     router.push('/')
     
   } catch (error) {
     console.error('Login error:', error)
     message.error(error.message || 'Erro ao fazer login. Verifique as suas credenciais.')
+    // Reseta o reCAPTCHA em caso de erro - DESATIVADO
+    // resetRecaptcha()
   } finally {
     isLoading.value = false
   }

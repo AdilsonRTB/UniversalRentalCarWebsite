@@ -69,6 +69,13 @@
                     <PhoneOutlined /> (+238) 347 6581
                   </a>
                 </li>
+
+                <!-- Localização -->
+                <li>
+                  <a href="https://share.google/YQe0oo9bARsLcKA1X" target="_blank" rel="noopener noreferrer">
+                    <EnvironmentOutlined /> Achada Santo António, Praia
+                  </a>
+                </li>
               </ul>
 
               </div>
@@ -155,7 +162,8 @@ import {
   WhatsAppOutlined,
   MailOutlined,
   BankOutlined,
-  PhoneOutlined
+  PhoneOutlined,
+  EnvironmentOutlined
 } from '@ant-design/icons-vue'
 import { ref, onMounted, watch, computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'

@@ -90,10 +90,11 @@ router.beforeEach(async (to, from, next) => {
     
     //console.log(`[Router] User authenticated: ${isAuthenticated}`)
 
-    // If user is authenticated and trying to access login/register, redirect to dashboard
-    if (isAuthenticated && (to.name === 'Login' || to.name === 'Register')) {
-      //console.log('[Router] Redirecting authenticated user from login/register to dashboard')
-      next('/dashboard')
+    // If user is authenticated and trying to access auth pages, redirect to dashboard
+    const authPages = ['Login', 'Register', 'ForgotPassword', 'ForgotPasswordRecovery']
+    if (isAuthenticated && authPages.includes(to.name)) {
+      //console.log('[Router] Redirecting authenticated user from auth pages to dashboard')
+      next('/')
       return
     }
     
