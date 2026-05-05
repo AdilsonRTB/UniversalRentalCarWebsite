@@ -79,7 +79,7 @@
                 class="mobile-language-select"
               >
                 <a-select-option v-for="lang in languages" :key="lang.code" :value="lang.code">
-                  {{ lang.flag }} {{ lang.name }}
+                  <img :src="lang.flag" :alt="lang.name" class="flag-icon" /> {{ lang.name }}
                 </a-select-option>
               </a-select>
             </div>
@@ -302,6 +302,23 @@ watch(route, (newRoute) => {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.flag-emoji {
+  font-size: 18px;
+  margin-right: 6px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.flag-icon {
+  width: 20px;
+  height: 15px;
+  margin-right: 6px;
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
 .hero-nav-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -491,7 +508,6 @@ watch(route, (newRoute) => {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 15px;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 

@@ -11,6 +11,13 @@ export default {
     selectCurrency: 'Devise'
   },
 
+  // Languages
+  languages: {
+    portuguese: 'Portugais',
+    english: 'Anglais',
+    french: 'Français'
+  },
+
   // Navigation
   nav: {
     home: 'Accueil',
@@ -906,6 +913,25 @@ export default {
     or: 'ou',
     createAccount: 'Créer un compte',
     loginErrorCredentials: 'Erreur de connexion. Vérifiez vos identifiants.',
+
+    // Forgot Password Page
+    forgotPasswordTitle: 'Récupérer le Mot de passe',
+    forgotPasswordSubtitle: 'Entrez votre e-mail pour recevoir les instructions de récupération',
+    emailLabel: 'E-mail',
+    emailPlaceholderForgot: 'Entrez votre e-mail',
+    sendInstructions: 'Envoyer les Instructions',
+    emailSentTitle: 'E-mail Envoyé!',
+    emailSentMessage: 'Nous avons envoyé les instructions de récupération à',
+    emailSentHint: 'Vérifiez votre boîte de réception et votre dossier spam. Le lien expire dans 15 minutes.',
+    resendEmail: 'Renvoyer l\'E-mail',
+    backToLogin: 'Retour à la page d\'accueil',
+    emailRequiredValidation: 'Veuillez entrer votre e-mail',
+    emailValidValidation: 'Veuillez entrer un e-mail valide',
+    instructionsSentSuccess: 'Instructions envoyées avec succès!',
+    sendInstructionsError: 'Erreur lors de l\'envoi des instructions. Veuillez réessayer.',
+    emailResentSuccess: 'E-mail renvoyé avec succès!',
+    resendEmailError: 'Erreur lors du renvoi de l\'e-mail. Veuillez réessayer.',
+    
     // Register Page
     createAccountTitle: 'Créer un Compte',
     fillDataToStart: 'Remplissez vos informations pour commencer',
@@ -957,10 +983,11 @@ export default {
     birthDate: 'Date de Naissance',
     birthDatePlaceholder: 'Sélectionnez la date de naissance',
     birthDateRequired: 'Veuillez sélectionner votre date de naissance',
-    birthDateMinAge: 'Vous devez avoir au moins 18 ans',
+    birthDateMinAge: 'Vous devez avoir au moins 25 ans',
     licenseIssueDate: 'Date d\'Émission du Permis',
     licenseIssueDatePlaceholder: 'Sélectionnez la date d\'émission',
     licenseIssueDateRequired: 'Veuillez sélectionner la date d\'émission du permis',
+    licenseIssueMinYears: 'Le permis de conduire doit avoir été délivré il y a au moins 2 ans',
     // Password strength
     pwChars: '8+ caractères',
     pwLowercase: 'minuscule',
@@ -981,13 +1008,13 @@ export default {
     thousandsOfVehicles: 'Des milliers de véhicules disponibles dans tout le pays',
     
     // Hero floating elements
-    chooseComfort: 'Choisissez le confort.',
+    chooseComfort: 'Choisissez le confort',
     safetyFirst: 'Sécurité d\'abord',
     driveWithConfidence: 'Conduisez en toute confiance',
     
     // Hero titles
     findBestCarToRent: 'Trouvez la meilleure voiture à louer',
-    unforgettableExperiences: 'Nous offrons des expériences inoubliables sur roues.',
+    unforgettableExperiences: 'Nous offrons des expériences inoubliables sur roues',
     
     // Filters
     filters: 'Filtres',
@@ -1006,7 +1033,7 @@ export default {
     
     // CTA Section
     simpleAsThis: 'Simple comme ça!',
-    fewStepsDriving: 'En quelques étapes, vous conduisez déjà',
+    fewStepsDriving: 'Votre destination mérite une voiture à la hauteur.',
     searchVehiclesCTA: 'Rechercher des Véhicules',
     
     // Search Form
@@ -1170,6 +1197,8 @@ export default {
     },
     messages: {
       reservationSuccess: 'Réservation créée avec succès !',
+      reservationPendingPayment: 'Réservation en Attente de Confirmation de Paiement',
+      paymentInstructions: 'Les informations du compte bancaire pour le paiement ont été envoyées à votre email. Veuillez vérifier votre boîte de réception.',
       reservationError: 'Erreur lors de la création de la réservation. Veuillez réessayer.',
       customerError: 'Erreur lors de la création du client. Veuillez réessayer.',
       qrCodeText: 'Réservation N°: {id}\nClient: {name}\nVéhicule: {vehicle}\nPériode: {dates}\nTotal: {total} CVE'

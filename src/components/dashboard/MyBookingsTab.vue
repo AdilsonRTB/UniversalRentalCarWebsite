@@ -102,7 +102,7 @@
           <div class="vehicle-cover">
             <div class="vehicle-icon-wrapper">
               <CarOutlined class="vehicle-icon-similar" v-if="!booking.vehicle_info.primary_photo && !booking.vehicle_info.photo"/>
-              <img :src="url + (booking.vehicle_info.primary_photo || booking.vehicle_info.photo)" :alt="`${booking.vehicle_info?.brand} ${booking.vehicle_info?.model}`" class="vehicle-photo-modern" v-else/>
+              <img :src="booking.vehicle_info.primary_photo" :alt="`${booking.vehicle_info?.brand} ${booking.vehicle_info?.model}`" class="vehicle-photo-modern" v-else/>
             </div>
             <div class="status-badge" :class="booking.status.toLowerCase()">
               {{ booking.status_display }}
@@ -256,12 +256,12 @@
           <div class="details-vehicle-card">
             <div class="details-vehicle-image">
               <CarOutlined v-if="!selectedBookingDetails.vehicle_info?.primary_photo && !selectedBookingDetails.vehicle_info?.photo" />
-              <img :src="url + (selectedBookingDetails.vehicle_info?.primary_photo || selectedBookingDetails.vehicle_info?.photo)" :alt="selectedBookingDetails.vehicle_info?.brand" v-else />
+              <img :src="selectedBookingDetails.vehicle_info?.primary_photo" :alt="selectedBookingDetails.vehicle_info?.brand" v-else />
             </div>
             <div class="details-vehicle-info">
               <h5>{{ selectedBookingDetails.vehicle_info?.brand }} {{ selectedBookingDetails.vehicle_info?.model }}</h5>
               <p><strong>{{ $t('bookings.year') }}:</strong> {{ selectedBookingDetails.vehicle_info?.year }}</p>
-              <p><strong>{{ $t('bookings.plate') }}:</strong> {{ selectedBookingDetails.vehicle_info?.registration_number }}</p>
+
             </div>
           </div>
         </div>

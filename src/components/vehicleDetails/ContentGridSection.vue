@@ -7,7 +7,7 @@
     </div>
 
     <div class="description-content-modern">
-      <p>{{ vehicle?.description || t('vehicles.defaultDescription') }}</p>
+      <p v-html="vehicleDescription"></p>
     </div>
   </div>
 
@@ -112,27 +112,59 @@
           <div class="date-grid-modern">
             <div class="date-item-modern">
               <label>{{ t('vehicles.pickupDate') }}</label>
-              <a-date-picker
-                size="large"
-                show-time
-                v-model:value="filters.startDate"
-                @change="(date) => $emit('update:startDate', date)"
-                :disabled-date="disabledStartDate"
-                class="modern-date-picker"
-                :placeholder="t('vehicles.selectStartDate')"
-              />
+              <div class="date-time-group">
+                <a-date-picker
+                  size="large"
+                  v-model:value="filters.startDate"
+                  @change="(date) => $emit('update:startDate', date)"
+                  :disabled-date="disabledStartDate"
+                  class="modern-date-picker date-only"
+                  :placeholder="t('vehicles.selectStartDate')"
+                  format="YYYY-MM-DD"
+                  :key="'start-date-' + currentLanguage"
+                  :locale="datePickerLocale"
+                  :show-today="false"
+                />
+                <a-time-picker
+                  size="large"
+                  v-model:value="filters.startTime"
+                  class="modern-time-picker"
+                  format="HH:mm"
+                  :minute-step="15"
+                  :disabled-hours="disabledHours"
+                  :show-now="false"
+                  placeholder="08:00"
+                  :key="'start-time-' + currentLanguage"
+                />
+              </div>
             </div>
             <div class="date-item-modern">
               <label>{{ t('vehicles.returnDate') }}</label>
-              <a-date-picker
-                size="large"
-                show-time
-                v-model:value="filters.endDate"
-                @change="(date) => $emit('update:endDate', date)"
-                :disabled-date="disabledEndDate"
-                class="modern-date-picker"
-                :placeholder="t('vehicles.selectEndDate')"
-              />
+              <div class="date-time-group">
+                <a-date-picker
+                  size="large"
+                  v-model:value="filters.endDate"
+                  @change="(date) => $emit('update:endDate', date)"
+                  :disabled-date="disabledEndDate"
+                  class="modern-date-picker date-only"
+                  :placeholder="t('vehicles.selectEndDate')"
+                  format="YYYY-MM-DD"
+                  :key="'end-date-' + currentLanguage"
+                  :locale="datePickerLocale"
+                  :show-today="false"
+                />
+                <a-time-picker
+                  size="large"
+                  v-model:value="filters.endTime"
+                  class="modern-time-picker"
+                  format="HH:mm"
+                  :minute-step="15"
+                  :disabled-hours="disabledHours"
+                  :show-now="false"
+                  placeholder="08:00"
+                  :key="'end-time-' + currentLanguage"
+                />
+              </div>
             </div>
           </div>
           <div v-if="vehicle?.hasPromotion" class="promotion-savings">
@@ -259,12 +291,18 @@ import {
 } from '@ant-design/icons-vue'
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
+import 'dayjs/locale/pt'
+import 'dayjs/locale/en'
+import 'dayjs/locale/fr'
+import antLocale_pt_BR from 'ant-design-vue/es/locale/pt_BR'
+import antLocale_en_US from 'ant-design-vue/es/locale/en_US'
+import antLocale_fr_FR from 'ant-design-vue/es/locale/fr_FR'
 import { message } from 'ant-design-vue'
 import ReservationModal from '../ReservationModal.vue'
 import { useLanguageAndCurrency } from '../../composables/useLanguageAndCurrency.js'
 
-const { t } = useI18n()
-const { formatCurrency, currentCurrency } = useLanguageAndCurrency()
+const { t, locale } = useI18n()
+const { formatCurrency, currentCurrency, currentLanguage } = useLanguageAndCurrency()
 
 const disableBooking = ref(false)
 
@@ -330,8 +368,30 @@ const loadDateFromStorage = (key) => {
 
 const filters = ref({
   startDate: loadDateFromStorage(STORAGE_KEYS.START_DATE) || dayjs().add(1, 'day'),
-  endDate: loadDateFromStorage(STORAGE_KEYS.END_DATE) || dayjs().add(3, 'day')
+  endDate: loadDateFromStorage(STORAGE_KEYS.END_DATE) || dayjs().add(3, 'day'),
+  startTime: loadDateFromStorage(STORAGE_KEYS.START_DATE) || dayjs().hour(8).minute(0),
+  endTime: loadDateFromStorage(STORAGE_KEYS.END_DATE) || dayjs().hour(8).minute(0)
 })
+
+// Date picker locale support
+const datePickerLocale = computed(() => {
+  if (currentLanguage.value === 'pt') return antLocale_pt_BR.DatePicker
+  if (currentLanguage.value === 'en') return antLocale_en_US.DatePicker
+  if (currentLanguage.value === 'fr') return antLocale_fr_FR.DatePicker
+  return antLocale_pt_BR.DatePicker
+})
+
+// Disable hours outside 8-23 range
+const disabledHours = () => {
+  return [0, 1, 2, 3, 4, 5, 6, 7]
+}
+
+// Watch for language changes to update dayjs locale
+watch(currentLanguage, (newLang) => {
+  if (newLang === 'pt') dayjs.locale('pt')
+  else if (newLang === 'en') dayjs.locale('en')
+  else if (newLang === 'fr') dayjs.locale('fr')
+}, { immediate: true })
 
 const showReservationModal = ref(false)
 
@@ -422,17 +482,22 @@ const disabledEndDate = (current) => {
 }
 
 // Computed property para descrição do veículo na linguagem selecionada
-/*const vehicleDescription = computed(() => {
+const vehicleDescription = computed(() => {
+  let description = ''
   switch (locale.value) {
     case 'en':
-      return props.vehicle?.description_en || props.vehicle?.description || t('vehicles.defaultDescription')
+      description = props.vehicle?.description_en || props.vehicle?.description || t('vehicles.defaultDescription')
+      break
     case 'fr':
-      return props.vehicle?.description_fr || props.vehicle?.description || t('vehicles.defaultDescription')
+      description = props.vehicle?.description_fr || props.vehicle?.description || t('vehicles.defaultDescription')
+      break
     case 'pt':
     default:
-      return props.vehicle?.description || t('vehicles.defaultDescription')
+      description = props.vehicle?.description || t('vehicles.defaultDescription')
   }
-})*/
+  // Substituir ponto e vírgula por quebra de linha
+  return description.replace(/;/g, ';<br>')
+})
 
 // Computed properties para valores da configuração baseados na moeda selecionada
 const driverDailyRate = computed(() => {
@@ -564,6 +629,26 @@ watch(() => filters.value.endDate, (newDate) => {
   }
   checkVehicleAvailable()
   emit('updateSection')
+}, { deep: true })
+
+// Watch for startTime changes and combine with startDate
+watch(() => filters.value.startTime, (newTime) => {
+  if (newTime && filters.value.startDate) {
+    const combinedDateTime = dayjs(filters.value.startDate)
+      .hour(dayjs(newTime).hour())
+      .minute(dayjs(newTime).minute())
+    localStorage.setItem(STORAGE_KEYS.START_DATE, combinedDateTime.toISOString())
+  }
+}, { deep: true })
+
+// Watch for endTime changes and combine with endDate
+watch(() => filters.value.endTime, (newTime) => {
+  if (newTime && filters.value.endDate) {
+    const combinedDateTime = dayjs(filters.value.endDate)
+      .hour(dayjs(newTime).hour())
+      .minute(dayjs(newTime).minute())
+    localStorage.setItem(STORAGE_KEYS.END_DATE, combinedDateTime.toISOString())
+  }
 }, { deep: true })
 
 const checkVehicleAvailable = async () => {
@@ -786,8 +871,22 @@ const checkVehicleAvailable = async () => {
   flex-direction: column;
 }
 
-.modern-date-picker {
+.date-time-group {
+  display: flex;
+  gap: 8px;
   margin-top: 8px;
+}
+
+.date-only {
+  flex: 1;
+}
+
+.modern-time-picker {
+  flex: 0 0 120px;
+}
+
+.modern-date-picker {
+  width: 100%;
 }
 
 /* Location Section */
@@ -1001,6 +1100,16 @@ const checkVehicleAvailable = async () => {
   
   .date-grid-modern {
     grid-template-columns: 1fr;
+  }
+
+  .date-time-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modern-time-picker {
+    flex: 1;
+    width: 100%;
   }
 
   .location-selects {

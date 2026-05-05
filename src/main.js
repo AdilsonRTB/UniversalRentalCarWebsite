@@ -6,6 +6,7 @@ import 'ant-design-vue/dist/reset.css'
 import './styles/theme.css'
 import i18n from './i18n'
 import { useAuth } from './composables/useAuth'
+import { VueRecaptcha } from 'vue3-recaptcha2'
 
 // Initialize the app
 async function initApp() {
@@ -15,10 +16,13 @@ async function initApp() {
   app.use(Antd)
   app.use(i18n)
   
+  // Register reCAPTCHA v2 component globally
+  app.component('VueRecaptcha', VueRecaptcha)
+  
   // Initialize authentication
   const { initAuth } = useAuth()
   await initAuth()
-  
+
   app.mount('#app')
 }
 

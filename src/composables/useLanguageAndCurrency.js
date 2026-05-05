@@ -1,11 +1,11 @@
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const currentCurrency = ref(localStorage.getItem('currency') || 'CVE')
 const currentLanguage = ref(localStorage.getItem('language') || 'pt') // Correção: usar 'pt' minúsculo
 
 const currencies = {
-  CVE: { symbol: 'CVE', code: 'CVE', name: 'Escudos' },
+  CVE: { symbol: '$', code: 'CVE', name: 'Escudos' },
   USD: { symbol: '$', code: 'USD', name: 'Dollar' },
   EUR: { symbol: '€', code: 'EUR', name: 'Euro' },
 
@@ -22,17 +22,17 @@ export function useLanguageAndCurrency() {
 
   // Sync locale with currentLanguage
   watch(currentLanguage, (newLang) => {
-    console.log('Changing language to:', newLang) // Debug
+    //console.log('Changing language to:', newLang) // Debug
     locale.value = newLang
     localStorage.setItem('language', newLang)
     document.documentElement.lang = newLang
   }, { immediate: true })
 
-  const languages = [
-    { code: 'pt', name: 'Português', flag: '🇵🇹' },
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷' }
-  ]
+  const languages = computed(() => [
+    { code: 'pt', name: t('languages.portuguese'), flag: require('@/assets/icons/portugal.png') },
+    { code: 'en', name: t('languages.english'), flag: require('@/assets/icons/united-kingdom.png') },
+    { code: 'fr', name: t('languages.french'), flag: require('@/assets/icons/france.png') }
+  ])
 
   const changeLanguage = (lang) => {
     currentLanguage.value = lang
@@ -78,7 +78,7 @@ export function useLanguageAndCurrency() {
 
 
   const getLanguageByCode = (code) => {
-    return languages.find(lang => lang.code === code).name
+    return languages.value.find(lang => lang.code === code).name
   }
 
   return {

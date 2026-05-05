@@ -81,6 +81,9 @@ const loadVehicleDetails = async () => {
     const response = await vehicleService.getVehicleById(props.vehicleId)
     vehicle.value = response.data
     vehicleImages.value = response.data.additional_photos || []
+    if (vehicleImages.value.length === 0) {
+      vehicleImages.value.push({ image: vehicle.value.primary_photo?.image || vehicle.value.photo || '', id: 1 })
+    }
   } catch (error) {
     console.error('Erro ao carregar detalhes do veículo:', error)
     //loadMockVehicles()

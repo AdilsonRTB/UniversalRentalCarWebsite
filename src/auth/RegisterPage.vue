@@ -189,12 +189,15 @@
                   class="form-item"
                 >
                   <a-date-picker
+                    :key="'license-expiry-' + currentLanguage"
                     v-model:value="formData.licenseExpiryDate"
                     size="large"
                     placeholder="Selecione a data de validade"
                     style="width: 100%"
                     :prefix="() => h(CalendarOutlined, { style: { color: '#8b5cf6' } })"
                     class="form-input"
+                    :locale="datePickerLocale"
+                    :show-today="false"
                   />
                 </a-form-item>
               </div>
@@ -294,6 +297,16 @@
                     <a href="#" @click.prevent="showPrivacy" class="terms-link">Política de Privacidade</a>
                   </a-checkbox>
                 </a-form-item>
+
+                <!-- reCAPTCHA v2 - DESATIVADO -->
+                <!-- <div class="recaptcha-container" style="margin-bottom: 20px; display: flex; justify-content: center;">
+                  <VueRecaptcha
+                    :sitekey="recaptchaSiteKey"
+                    @verify="onRecaptchaVerified"
+                    @expired="onRecaptchaExpired"
+                    @error="onRecaptchaError"
+                  />
+                </div> -->
               </div>
 
               <!-- Navigation Buttons -->
@@ -376,9 +389,32 @@ import { ref, reactive, computed, h, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { authService } from '../services/api'
+import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency'
+import dayjs from 'dayjs'
+import 'dayjs/locale/pt'
+import 'dayjs/locale/en'
+import 'dayjs/locale/fr'
+import antLocale_pt_BR from 'ant-design-vue/es/locale/pt_BR'
+import antLocale_en_US from 'ant-design-vue/es/locale/en_US'
+import antLocale_fr_FR from 'ant-design-vue/es/locale/fr_FR'
+// import { useRecaptcha } from '../composables/useRecaptcha' // DESATIVADO
 //import keycloakService from '../services/keycloak'
 
 const router = useRouter()
+const { currentLanguage } = useLanguageAndCurrency()
+
+// reCAPTCHA - DESATIVADO
+// const { 
+//   recaptchaToken,
+//   recaptchaVerified,
+//   onRecaptchaVerified,
+//   onRecaptchaExpired,
+//   onRecaptchaError,
+//   resetRecaptcha
+// } = useRecaptcha()
+
+// reCAPTCHA Site Key - DESATIVADO
+// const recaptchaSiteKey = process.env.VUE_APP_RECAPTCHA_SITE_KEY
 
 // Form references
 const formRef = ref(null)
@@ -447,6 +483,25 @@ const passwordStrength = computed(() => {
   
   return strengthLevels[strength - 1] || strengthLevels[0]
 })
+
+// Date picker locale based on current language
+const datePickerLocale = computed(() => {
+  switch(currentLanguage.value) {
+    case 'pt':
+      return antLocale_pt_BR.DatePicker
+    case 'en':
+      return antLocale_en_US.DatePicker
+    case 'fr':
+      return antLocale_fr_FR.DatePicker
+    default:
+      return antLocale_pt_BR.DatePicker
+  }
+})
+
+// Watch language changes to update dayjs locale
+watch(currentLanguage, (newLang) => {
+  dayjs.locale(newLang)
+}, { immediate: true })
 
 // Form validation rules
 const formRules = {
@@ -558,6 +613,13 @@ const handleRegister = async () => {
   try {
     isLoading.value = true
     
+    // Verifica se o reCAPTCHA foi completado - DESATIVADO
+    // if (!recaptchaVerified.value || !recaptchaToken.value) {
+    //   message.error('Por favor, complete a verificação reCAPTCHA')
+    //   isLoading.value = false
+    //   return
+    // }
+    
     // Prepare registration data according to the API payload
     const registrationData = {
       first_name: formData.firstName,
@@ -574,6 +636,7 @@ const handleRegister = async () => {
       license_expiry_date: formData.licenseExpiryDate?.format('YYYY-MM-DD'),
       password: formData.password,
       password_confirm: formData.confirmPassword
+      // recaptchaToken: recaptchaToken.value // DESATIVADO
     }
     
     // Call registration service
@@ -592,6 +655,8 @@ const handleRegister = async () => {
       message.error('E-mail já está em uso. Por favor, utilize outro e-mail.')
     } else
     message.error(error.response?.data?.message || 'Erro ao criar conta. Tente novamente.')
+    // Reseta o reCAPTCHA em caso de erro - DESATIVADO
+    // resetRecaptcha()
   } finally {
     isLoading.value = false
   }

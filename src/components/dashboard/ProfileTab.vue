@@ -126,7 +126,7 @@
         </div>
 
         <!-- Address Section -->
-        <div class="form-section">
+        <!--<div class="form-section">
           <div class="section-header">
             <HomeOutlined class="section-icon" />
             <h3 class="section-title">{{ $t('profile.address') }}</h3>
@@ -197,7 +197,7 @@
             
 
           </a-row>
-        </div>
+        </div> -->
 
         <!-- License Section -->
         <div class="form-section">
@@ -328,7 +328,7 @@ import dayjs from 'dayjs'
 import { authService } from '../../services/api'
 import {
   UserOutlined,
-  HomeOutlined,
+  //HomeOutlined,
   CarOutlined,
   SaveOutlined,
   LockOutlined

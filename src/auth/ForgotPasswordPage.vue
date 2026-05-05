@@ -15,9 +15,9 @@
           <div class="brand-logo">
             <CarOutlined />
           </div>
-          <h2 class="form-title">Recuperar Palavra-passe</h2>
+          <h2 class="form-title">{{ t('auth.forgotPasswordTitle') }}</h2>
           <p class="form-subtitle">
-            Insira o seu e-mail para receber as instruções de recuperação
+            {{ t('auth.forgotPasswordSubtitle') }}
           </p>
         </div>
 
@@ -33,17 +33,21 @@
             <!-- Email Field -->
             <a-form-item
               name="email"
-              label="E-mail"
+              :label="t('auth.emailLabel')"
               class="form-item"
             >
               <a-input
                 v-model:value="formData.email"
                 size="large"
-                placeholder="Insira o seu e-mail"
+                :placeholder="t('auth.emailPlaceholderForgot')"
                 :prefix="() => h(MailOutlined, { style: { color: '#667eea' } })"
                 class="form-input"
               />
             </a-form-item>
+
+            <span v-if="errorMessage" class="error-message">
+              {{ errorMessage }}
+            </span>
 
             <!-- Submit Button -->
             <a-form-item class="submit-item">
@@ -56,7 +60,7 @@
                 class="submit-btn"
               >
                 <SendOutlined v-if="!isLoading" />
-                Enviar Instruções
+                {{ t('auth.sendInstructions') }}
               </a-button>
             </a-form-item>
           </a-form>
@@ -67,14 +71,16 @@
           <div class="success-icon">
             <CheckCircleOutlined />
           </div>
-          <h3>E-mail Enviado!</h3>
+          <h3>{{ t('auth.emailSentTitle') }}</h3>
           <p>
-            Enviámos as instruções de recuperação para
+            {{ t('auth.emailSentMessage') }}
             <strong>{{ formData.email }}</strong>
           </p>
+          <span v-if="errorMessage" class="error-message">
+            {{ errorMessage }}
+          </span>
           <p class="hint">
-            Verifique a sua caixa de entrada e spam. 
-            O link expira em 15 minutos.
+            {{ t('auth.emailSentHint') }}
           </p>
           
           <a-button
@@ -83,7 +89,7 @@
             :loading="isResending"
             class="resend-btn"
           >
-            Reenviar E-mail
+            {{ t('auth.resendEmail') }}
           </a-button>
         </div>
 
@@ -91,7 +97,7 @@
         <div class="back-link">
           <ArrowLeftOutlined />
           <router-link to="/login" class="back-text">
-            Voltar ao Login
+            {{ t('auth.backToLogin') }}
           </router-link>
         </div>
       </div>
@@ -115,6 +121,9 @@ import {
 import { ref, reactive, h } from 'vue'
 import { message } from 'ant-design-vue'
 import {authService} from '../services/api'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Form references
 const formRef = ref(null)
@@ -123,6 +132,7 @@ const formRef = ref(null)
 const isLoading = ref(false)
 const isResending = ref(false)
 const emailSent = ref(false)
+const errorMessage = ref('')
 
 const formData = reactive({
   email: ''
@@ -131,8 +141,8 @@ const formData = reactive({
 // Form validation rules
 const formRules = {
   email: [
-    { required: true, message: 'Por favor, insira o seu e-mail' },
-    { type: 'email', message: 'Por favor, insira um e-mail válido' }
+    { required: true, message: t('auth.emailRequiredValidation') },
+    { type: 'email', message: t('auth.emailValidValidation') }
   ]
 }
 
@@ -140,15 +150,16 @@ const formRules = {
 const handleForgotPassword = async (values) => {
   try {
     isLoading.value = true
+    errorMessage.value = ''
     
     await authService.forgotPassword(values.email)
     
     emailSent.value = true
-    message.success('Instruções enviadas com sucesso!')
+    message.success(t('auth.instructionsSentSuccess'))
     
   } catch (error) {
-    console.error('Forgot password error:', error)
-    message.error(error.message || 'Erro ao enviar instruções. Tente novamente.')
+    //console.error('Forgot password error:', error)
+    errorMessage.value = t('auth.sendInstructionsError')
   } finally {
     isLoading.value = false
   }
@@ -157,13 +168,14 @@ const handleForgotPassword = async (values) => {
 const resendEmail = async () => {
   try {
     isResending.value = true
+    errorMessage.value = ''
     
     await authService.forgotPassword(formData.email)
-    message.success('E-mail reenviado com sucesso!')
+    message.success(t('auth.emailResentSuccess'))
     
   } catch (error) {
-    console.error('Resend email error:', error)
-    message.error('Erro ao reenviar e-mail. Tente novamente.')
+    //console.error('Resend email error:', error)
+    errorMessage.value = t('auth.resendEmailError')
   } finally {
     isResending.value = false
   }
@@ -372,6 +384,18 @@ const resendEmail = async () => {
 .hint {
   font-size: 14px !important;
   color: #9ca3af !important;
+}
+
+.error-message {
+  display: block;
+  color: #ef4444;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  margin: 16px 0;
+  text-align: left;
 }
 
 .resend-btn {

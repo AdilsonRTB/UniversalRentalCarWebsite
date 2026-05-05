@@ -89,7 +89,11 @@
                         class="form-input"
                         style="width: 100%"
                         format="DD/MM/YYYY"
-                        :disabled-date="(current) => current && current > dayjs().subtract(18, 'year').endOf('day')"
+                        :disabled-date="(current) => current && current > dayjs().subtract(25, 'year').endOf('day')"
+                        :default-picker-value="dayjs().subtract(25, 'year')"
+                        :key="'birth-date-' + currentLanguage"
+                        :locale="datePickerLocale"
+                        :show-today="false"
                       />
                     </a-form-item>
 
@@ -139,6 +143,11 @@
                         class="form-input"
                         style="width: 100%"
                         format="DD/MM/YYYY"
+                        :disabled-date="(current) => current && current > dayjs().subtract(2, 'year').endOf('day')"
+                        :default-picker-value="dayjs().subtract(2, 'year')"
+                        :key="'license-issue-' + currentLanguage"
+                        :locale="datePickerLocale"
+                        :show-today="false"
                       />
                     </a-form-item>
                   </div>
@@ -271,16 +280,22 @@ import {
   ArrowLeftOutlined,
   ArrowRightOutlined
 } from '@ant-design/icons-vue'
-import { ref, reactive, computed, h } from 'vue'
+import { ref, reactive, computed, h, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
+import 'dayjs/locale/pt'
+import 'dayjs/locale/en'
+import 'dayjs/locale/fr'
+import antLocale_pt_BR from 'ant-design-vue/es/locale/pt_BR'
+import antLocale_en_US from 'ant-design-vue/es/locale/en_US'
+import antLocale_fr_FR from 'ant-design-vue/es/locale/fr_FR'
 import { authService } from '../services/api'
 import logo from '../assets/logo2.png'
 import HeaderPage from '../components/HeaderPage.vue'
 import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency'
 
-const { t } = useLanguageAndCurrency()
+const { t, currentLanguage } = useLanguageAndCurrency()
 const router = useRouter()
 
 // Form references
@@ -309,6 +324,21 @@ const formData = reactive({
   // Terms
   agreeTerms: false
 })
+
+// Date picker locale support
+const datePickerLocale = computed(() => {
+  if (currentLanguage.value === 'pt') return antLocale_pt_BR.DatePicker
+  if (currentLanguage.value === 'en') return antLocale_en_US.DatePicker
+  if (currentLanguage.value === 'fr') return antLocale_fr_FR.DatePicker
+  return antLocale_pt_BR.DatePicker
+})
+
+// Watch for language changes to update dayjs locale
+watch(currentLanguage, (newLang) => {
+  if (newLang === 'pt') dayjs.locale('pt')
+  else if (newLang === 'en') dayjs.locale('en')
+  else if (newLang === 'fr') dayjs.locale('fr')
+}, { immediate: true })
 
 // Password strength computation
 const passwordStrength = computed(() => {
@@ -368,7 +398,7 @@ const formRules = {
       validator: (_rule, value) => {
         if (!value) return Promise.resolve()
         const age = dayjs().diff(dayjs(value), 'year')
-        if (age < 18) {
+        if (age < 25) {
           return Promise.reject(t('auth.birthDateMinAge'))
         }
         return Promise.resolve()
@@ -377,7 +407,18 @@ const formRules = {
     }
   ],
   licenseIssueDate: [
-    { required: true, message: t('auth.licenseIssueDateRequired') }
+    { required: true, message: t('auth.licenseIssueDateRequired') },
+    {
+      validator: (_rule, value) => {
+        if (!value) return Promise.resolve()
+        const years = dayjs().diff(dayjs(value), 'year')
+        if (years < 2) {
+          return Promise.reject(t('auth.licenseIssueMinYears'))
+        }
+        return Promise.resolve()
+      },
+      trigger: 'change'
+    }
   ],
   idNumber: [
     { required: true, message: t('auth.idNumberRequired') }

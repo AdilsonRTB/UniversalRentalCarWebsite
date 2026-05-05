@@ -6,17 +6,17 @@
           <a-col :span="14" :md="24" :lg="14" :xs="24" class="image-column">
             <a-carousel :autoplay="true" class="modern-carousel">
               <div v-for="(image, index) in vehicleImages" :key="index" class="carousel-slide-modern">
-                <img :src="formatImageUrl(image.image)" :alt="`${vehicle?.brand_name} ${vehicle?.model} - Imagem ${index + 1}`" class="vehicle-image-modern" />
+                <img :src="image.image" :alt="`${vehicle?.brand_name} ${vehicle?.model} - Imagem ${index + 1}`" class="vehicle-image-modern" />
                 <h1 class="vehicle-title-modern">{{ vehicle?.brand_name }} {{ vehicle?.model }}</h1>
                 <div class="vehicle-meta-modern">
                     <div class="meta-item">
                       <CalendarOutlined class="meta-icon" />
                       <span>{{ vehicle?.year }}</span>
                     </div>
-                    <div class="meta-item">
+                    <!--div class="meta-item">
                       <EnvironmentOutlined class="meta-icon" />
                       <span>{{ $t('search.gallery.defaultLocation') }}</span>
-                    </div>
+                    </!--div-->
                 </div>
                 <div class="image-overlay-actions">
                   <a-button type="text" class="action-btn-modern" @click="viewVehicle(vehicle?.id)">
@@ -75,14 +75,17 @@
               </div>
 
               <div class="description-container" :class="{ scrollable: expanded }" >
-                <a-typography-paragraph
-                  :ellipsis="!expanded
-                    ? { rows: 6, expandable: true, symbol: $t('search.gallery.seeMore') }
-                    : false
-                  "
-                  :content="vehicleDescription"
-                  @expand="onExpand"
-                />
+                <div class="description-text" :class="{ collapsed: !expanded }">
+                  <div v-html="vehicleDescription"></div>
+                </div>
+                <a-button 
+                  v-if="!expanded" 
+                  type="link"
+                  @click="onExpand(true)"
+                  class="expand-btn"
+                >
+                  {{ $t('search.gallery.seeMore') }}
+                </a-button>
               </div>
             </div>
 
@@ -212,19 +215,19 @@
 
 <script setup>
 import { defineProps, computed, ref, watch } from 'vue'
-import { CarOutlined, ShareAltOutlined, CalendarOutlined, EnvironmentOutlined, SettingOutlined, UserOutlined, ExpandOutlined } from '@ant-design/icons-vue'
+import { CarOutlined, ShareAltOutlined, CalendarOutlined, SettingOutlined, UserOutlined, ExpandOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
 import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency.js'
 import dayjs from 'dayjs'
 import ReservationModal from '../components/ReservationModal.vue'
 import { useRouter } from 'vue-router'
-import { useUtilities } from '../composables/utilits.js'
+//import { useUtilities } from '../composables/utilits.js'
 
 const { t, locale } = useI18n()
 const { currentCurrency } = useLanguageAndCurrency()
 const router = useRouter()
-const { formatImageUrl } = useUtilities()
+//const { formatImageUrl } = useUtilities()
 
 const props = defineProps({
   vehicle: {
@@ -373,15 +376,20 @@ const calculateDays = computed(() => {
 
 // Computed property para descrição do veículo na linguagem selecionada
 const vehicleDescription = computed(() => {
+  let description = ''
   switch (locale.value) {
     case 'en':
-      return props.vehicle?.description_en || props.vehicle?.description || t('vehicles.defaultDescription')
+      description = props.vehicle?.description_en || props.vehicle?.description || t('vehicles.defaultDescription')
+      break
     case 'fr':
-      return props.vehicle?.description_fr || props.vehicle?.description || t('vehicles.defaultDescription')
+      description = props.vehicle?.description_fr || props.vehicle?.description || t('vehicles.defaultDescription')
+      break
     case 'pt':
     default:
-      return props.vehicle?.description || t('vehicles.defaultDescription')
+      description = props.vehicle?.description || t('vehicles.defaultDescription')
   }
+  // Substituir ponto e vírgula por quebra de linha
+  return description.replace(/;/g, ';<br>')
 })
 
 // Computed properties para valores da configuração baseados na moeda selecionada
@@ -539,8 +547,9 @@ const viewVehicle = (vehicleId) => {
 }
 
 .description-container {
-  height: 180px;
-  overflow-y: auto;
+  height: auto;
+  max-height: 180px;
+  overflow: visible;
   display: block;
 }
 
@@ -549,7 +558,33 @@ const viewVehicle = (vehicleId) => {
 }
 
 .description-container.scrollable {
+  max-height: none;
   overflow-y: auto; /* ativa scroll */
+}
+
+.description-text {
+  font-size: 12px;
+  line-height: 1.2;
+  color: #374151;
+}
+
+.description-text.collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.expand-btn {
+  padding: 0;
+  color: #1890ff;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.expand-btn:hover {
+  color: #40a9ff;
 }
 
 .pricing-section-modern {
@@ -654,6 +689,8 @@ const viewVehicle = (vehicleId) => {
   right: 20px;
   display: flex;
   gap: 12px;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .vehicle-title-modern {
@@ -700,6 +737,10 @@ const viewVehicle = (vehicleId) => {
   justify-content: center;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 11;
 }
 
 .action-btn-modern:hover {

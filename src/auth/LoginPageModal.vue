@@ -70,6 +70,10 @@
                 </a>
               </div>
 
+              <span v-if="errorMessage" class="error-message">
+                {{ errorMessage }}
+              </span>
+
               <!-- Submit Button -->
               <a-form-item class="submit-item">
                 <a-button
@@ -113,7 +117,6 @@ import {
 } from '@ant-design/icons-vue'
 import { ref, reactive, h, defineProps, defineEmits } from 'vue'
 import { useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
 import {authService} from '../services/api'
 import logo from '../assets/logo2.png'
 import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency'
@@ -135,6 +138,7 @@ const formRef = ref(null)
 
 // Reactive data
 const isLoading = ref(false)
+const errorMessage = ref('')
 
 const formData = reactive({
   email: '',
@@ -160,6 +164,7 @@ const formRules = {
 const handleLogin = async (values) => {
   try {
     isLoading.value = true
+    errorMessage.value = ''
 
     const request = {
       email: values.email,
@@ -179,7 +184,7 @@ const handleLogin = async (values) => {
     isLoading.value = false
   } catch (error) {
     isLoading.value = false
-    message.error(t('auth.loginErrorCredentials'))
+    errorMessage.value = t('auth.loginErrorCredentials')
   }
 }
 
@@ -307,6 +312,19 @@ const handleRegister = () => {
 
 .forgot-link:hover {
   color: #7c3aed;
+}
+
+/* Error Message */
+.error-message {
+  display: block;
+  color: #ef4444;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  margin-bottom: 24px;
+  text-align: left;
 }
 
 /* Submit Button */
