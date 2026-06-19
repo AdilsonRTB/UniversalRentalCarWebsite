@@ -33,11 +33,11 @@
           @finish="handleSearch"
           class="search-form"
         >
-          <div class="form-row">
+          <div class="search-inline-row">
             <a-form-item
               name="bookingNumber"
               :label="t('bookingStatus.bookingNumber')"
-              class="form-item"
+              class="form-item form-item-input"
             >
               <a-input
                 v-model:value="searchForm.bookingNumber"
@@ -47,46 +47,28 @@
                 class="form-input"
               />
             </a-form-item>
-            
-            <a-form-item
-              name="email"
-              :label="t('bookingStatus.email')"
-              class="form-item"
-            >
-              <a-input
-                v-model:value="searchForm.email"
-                size="large"
-                :placeholder="t('bookingStatus.emailPlaceholder')"
-                :prefix="() => h(MailOutlined, { style: { color: '#8b5cf6' } })"
-                class="form-input"
-              />
-            </a-form-item>
-          </div>
-          
-          <div class="form-actions">
-            <a-button
-              type="primary"
-              html-type="submit"
-              size="large"
-              :loading="isLoading"
-              class="search-btn"
-            >
-              <SearchOutlined v-if="!isLoading" />
-              {{ isLoading ? t('bookingStatus.searching') : t('bookingStatus.searchBooking') }}
-            </a-button>
 
-            <div class="or-divider">
-              <span>{{ t('bookingStatus.or') }}</span>
+            <div class="search-actions">
+              <a-button
+                type="primary"
+                html-type="submit"
+                size="medium"
+                :loading="isLoading"
+                class="search-btn"
+              >
+                <SearchOutlined v-if="!isLoading" />
+                {{ isLoading ? t('bookingStatus.searching') : t('bookingStatus.searchBooking') }}
+              </a-button>
+
+              <a-button
+                @click="openQRScanner"
+                size="medium"
+                class="qr-btn"
+              >
+                <QrcodeOutlined />
+                {{ t('bookingStatus.scanQRCode') }}
+              </a-button>
             </div>
-            
-            <a-button
-              @click="openQRScanner"
-              size="large"
-              class="qr-btn"
-            >
-              <QrcodeOutlined />
-              {{ t('bookingStatus.scanQRCode') }}
-            </a-button>
           </div>
         </a-form>
       </div>
@@ -116,11 +98,11 @@
           <!-- Vehicle Image/Icon -->
           <div class="vehicle-cover">
             <div class="vehicle-icon-wrapper">
-              <CarOutlined class="vehicle-icon-similar" v-if="!searchResult.vehicle_info?.photo"/>
+              <CarOutlined class="vehicle-icon-similar" v-if="!searchResult.vehicle_info?.primary_photo && !searchResult.vehicle_info?.photo"/>
               <img 
-                :src="url + searchResult.vehicle_info?.photo" 
+                :src="searchResult.vehicle_info?.primary_photo || searchResult.vehicle_info?.photo"
                 :alt="`${searchResult.vehicle_info?.brand} ${searchResult.vehicle_info?.model}`" 
-                class="vehicle-photo-modern" 
+                class="vehicle-photo-modern"
                 v-else
               />
             </div>
@@ -133,7 +115,7 @@
           <div class="booking-header">
             <div class="vehicle-title">
               <h5>{{ searchResult.vehicle_info?.brand }} {{ searchResult.vehicle_info?.model }}</h5>
-              <span class="booking-id">#{{ searchResult.id || searchResult.vehicle_info?.year }}</span>
+              <span class="booking-id">#{{ searchResult.rental_code || searchResult.vehicle_info?.year }}</span>
             </div>
           </div>
 
@@ -154,7 +136,7 @@
               <DollarOutlined />
               <div class="summary-info">
                 <span class="summary-label">{{ t('bookingStatus.dailyRate') }}</span>
-                <span class="summary-value price">{{ searchResult.daily_rate }} {{ searchResult.currency }}</span>
+                <span class="summary-value price">{{ dailyRate }} {{ currencySymbol }}</span>
               </div>
             </div>
             <div class="summary-item">
@@ -168,7 +150,7 @@
               <DollarOutlined />
               <div class="summary-info">
                 <span class="summary-label">{{ t('bookingStatus.subtotal') }}</span>
-                <span class="summary-value">{{ searchResult.subtotal }} {{ searchResult.currency }}</span>
+                <span class="summary-value">{{ subtotal }} {{ currencySymbol }}</span>
               </div>
             </div>
           </div>
@@ -184,7 +166,7 @@
                 </div>
                 <div class="extra-status-info">
                   <span class="extra-status-label">{{ t('bookingStatus.withDriver') }}</span>
-                  <span class="extra-status-value" v-if="searchResult.driver">{{ searchResult.driver_fee }} {{ searchResult.currency }}</span>
+                  <span class="extra-status-value" v-if="searchResult.driver">{{ driverFee }} {{ currencySymbol }}</span>
                   <span class="extra-status-value muted" v-else>{{ t('bookingStatus.notIncluded') }}</span>
                 </div>
               </div>
@@ -195,7 +177,7 @@
                 </div>
                 <div class="extra-status-info">
                   <span class="extra-status-label">{{ t('bookingStatus.carSeat') }}</span>
-                  <span class="extra-status-value" v-if="searchResult.car_seat">{{ searchResult.car_seat_fee }} {{ searchResult.currency }}</span>
+                  <span class="extra-status-value" v-if="searchResult.car_seat">{{ carSeatFee }} {{ currencySymbol }}</span>
                   <span class="extra-status-value muted" v-else>{{ t('bookingStatus.notIncluded') }}</span>
                 </div>
               </div>
@@ -203,11 +185,15 @@
             <div class="extras-total">
               <div class="extras-total-line">
                 <span>{{ t('bookingStatus.commission') }}</span>
-                <span>{{ searchResult.commission_amount }} {{ searchResult.currency }}</span>
+                <span>{{ commissionAmount }} {{ currencySymbol }}</span>
+              </div>
+              <div class="extras-total-line" v-if="searchResult.security_deposit > 0">
+                <span>{{ t('bookingStatus.securityDeposit') }}</span>
+                <span>{{ securityDeposit }} {{ currencySymbol }}</span>
               </div>
               <div class="extras-total-line total">
                 <span>{{ t('bookingStatus.totalAmount') }}</span>
-                <span class="total-value">{{ searchResult.total_amount }} {{ searchResult.currency }}</span>
+                <span class="total-value">{{ totalWithDeposit }} {{ currencySymbol }}</span>
               </div>
             </div>
           </div>
@@ -256,9 +242,7 @@
         <p>
           {{ t('bookingStatus.noBookingFoundDesc') }}
         </p>
-        <a-button @click="clearSearch" type="primary">
-          <SearchOutlined /> {{ t('bookingStatus.newSearch') }}
-        </a-button>
+
       </div>
     </section>
 
@@ -280,7 +264,7 @@
 import {
   SearchOutlined,
   NumberOutlined,
-  MailOutlined,
+  //MailOutlined,
   CarOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
@@ -298,18 +282,25 @@ import {
 } from '@ant-design/icons-vue'
 
 import dayjs from 'dayjs'
-import { ref, reactive, computed, h } from 'vue'
+import { ref, reactive, computed, h, watch, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
 import QRCodeScanner from './QRCodeScanner.vue'
-import { baseURL } from '../services/api'
+//import { baseURL } from '../services/api'
 import HeaderPage from './HeaderPage.vue'
-import {bookingService} from '../services/api'
+import {bookingService, vehicleService} from '../services/api'
+import { useUtilities } from '../composables/utilits.js'
+import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency.js'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const { calculateRentalDays } = useUtilities()
+const { currentCurrency } = useLanguageAndCurrency()
+
+// Config state
+const config = ref({})
 
 
-const url = computed(() => baseURL)
+//const url = computed(() => baseURL)
 
 // Reactive data
 const isLoading = ref(false)
@@ -318,8 +309,16 @@ const showEmptyState = ref(false)
 const formRef = ref(null)
 
 const searchForm = reactive({
-  bookingNumber: '',
-  email: ''
+  bookingNumber: ''
+})
+
+// Watch for language changes to clear form and validation
+watch(locale, () => {
+  searchResult.value = null
+  showEmptyState.value = false
+  searchForm.bookingNumber = ''
+  formRef.value?.resetFields()
+  formRef.value?.clearValidate()
 })
 
 function scrollToSection(sectionId) {
@@ -339,12 +338,72 @@ const formRules = computed(() => ({
   bookingNumber: [
     { required: true, message: t('bookingStatus.validation.bookingNumberRequired') },
     { min: 1, message: t('bookingStatus.validation.bookingNumberMin') }
-  ],
-  email: [
-    { required: true, message: t('bookingStatus.validation.emailRequired') },
-    { type: 'email', message: t('bookingStatus.validation.emailInvalid') }
   ]
 }))
+
+// Currency conversion helper
+const convertValue = (cveValue) => {
+  const baseValue = Number(cveValue) || 0
+  const usdRate = Number(config.value?.usd_exchange_rate) || 1
+  const eurRate = Number(config.value?.euro_exchange_rate) || 1
+
+  switch (currentCurrency.value) {
+    case 'USD':
+      return Math.round(usdRate ? baseValue / usdRate : 0)
+    case 'EUR':
+      return Math.round(eurRate ? baseValue / eurRate : 0)
+    case 'CVE':
+    default:
+      return Math.round(baseValue)
+  }
+}
+
+// Computed properties for converted values
+const dailyRate = computed(() => {
+  if (!searchResult.value) return 0
+  return convertValue(searchResult.value.daily_rate)
+})
+
+const subtotal = computed(() => {
+  if (!searchResult.value) return 0
+  return convertValue(searchResult.value.subtotal)
+})
+
+const driverFee = computed(() => {
+  if (!searchResult.value) return 0
+  return convertValue(searchResult.value.driver_fee)
+})
+
+const carSeatFee = computed(() => {
+  if (!searchResult.value) return 0
+  return convertValue(searchResult.value.car_seat_fee)
+})
+
+const commissionAmount = computed(() => {
+  if (!searchResult.value) return 0
+  return convertValue(searchResult.value.commission_amount)
+})
+
+const securityDeposit = computed(() => {
+  if (!searchResult.value) return 0
+  return convertValue(searchResult.value.security_deposit)
+})
+
+// Computed total with security deposit
+const totalWithDeposit = computed(() => {
+  if (!searchResult.value) return 0
+  const baseTotal = Number(searchResult.value.total_amount) || 0
+  //const deposit = Number(searchResult.value.security_deposit) || 0
+  return convertValue(baseTotal)
+})
+
+const currencySymbol = computed(() => {
+  switch (currentCurrency.value) {
+    case 'USD': return 'USD'
+    case 'EUR': return 'EUR'
+    case 'CVE': default: return 'CVE'
+  }
+})
 
 
 /*const navigateToVehicleDetails = (booking) => {
@@ -352,6 +411,16 @@ const formRules = computed(() => ({
     window.open(`/vehicle/${searchResult.value.vehicle_info.id}`, '_blank');
   }
 }*/
+
+// Load system configuration
+const loadSystemConfig = async () => {
+  try {
+    const response = await vehicleService.getSystemConfig()
+    config.value = response.data
+  } catch (error) {
+    console.error('Erro ao carregar configuração do sistema:', error)
+  }
+}
 
 // Methods
 const handleSearch = async (values) => {
@@ -361,12 +430,11 @@ const handleSearch = async (values) => {
     searchResult.value = null
     
     const result = await bookingService.getRentalDetails(
-      values.bookingNumber,
-      values.email
+      values.bookingNumber
     )
 
     searchResult.value = result.data
-    message.success(t('bookingStatus.bookingFound'))
+    //message.success(t('bookingStatus.bookingFound'))
     // Scroll to results section after a short delay to ensure it has rendered
     setTimeout(() => {
       scrollToSection('resultsSection')
@@ -375,7 +443,7 @@ const handleSearch = async (values) => {
   } catch (error) {
     console.error('Search error:', error)
     showEmptyState.value = true
-    message.error(t('bookingStatus.bookingNotFound'))
+    //message.error(t('bookingStatus.bookingNotFound'))
     // Scroll to empty state section after a short delay to ensure it has rendered
     setTimeout(() => {
       scrollToSection('emptyStateSection')
@@ -389,16 +457,16 @@ const clearSearch = () => {
   searchResult.value = null
   showEmptyState.value = false
   searchForm.bookingNumber = ''
-  searchForm.email = ''
   formRef.value?.resetFields()
 }
 
 const formatDate = (dateString) => {
-  return dayjs(dateString).format('DD/MM/YYYY')
+  return dayjs(dateString).format('DD/MM/YYYY HH:mm')
 }
 
 const calculateDuration = (startDate, endDate) => {
-  return dayjs(endDate).diff(dayjs(startDate), 'day')
+  const tolerance = Number(config.value?.rental_days_tolerance_hours) || 12
+  return calculateRentalDays(startDate, endDate, tolerance)
 }
 
 const getBookingProgress = (booking) => {
@@ -444,22 +512,22 @@ const openQRScanner = () => {
 }
 
 const handleQRCodeDetected = (qrData) => {
-  // Preencher o formulário com os dados do QR code
   if (qrData.bookingNumber) {
     searchForm.bookingNumber = qrData.bookingNumber
   }
-  if (qrData.email) {
-    searchForm.email = qrData.email
-  }
   
-  // Se ambos os campos estão preenchidos, fazer a busca automaticamente
-  if (searchForm.bookingNumber && searchForm.email) {
+  if (searchForm.bookingNumber) {
     message.success(t('bookingStatus.qrDataLoadedSearching'))
     handleSearch()
   } else {
     message.success(t('bookingStatus.qrDataLoaded'))
   }
 }
+
+// Load configuration on component mount
+onMounted(() => {
+  loadSystemConfig()
+})
 </script>
 
 <style scoped>
@@ -581,13 +649,6 @@ const handleQRCodeDetected = (qrData) => {
   width: 100%;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
 .form-item {
   margin-bottom: 0;
 }
@@ -600,12 +661,13 @@ const handleQRCodeDetected = (qrData) => {
 
 .form-input {
   border-radius: 12px;
+  height: 50px;
 }
 
 .form-input :deep(.ant-input) {
   border-radius: 12px;
   border: 2px solid #e5e7eb;
-  padding: 12px 16px;
+  padding: 15px 16px;
   transition: all 0.3s ease;
   font-size: 16px;
 }
@@ -613,10 +675,6 @@ const handleQRCodeDetected = (qrData) => {
 .form-input :deep(.ant-input:focus) {
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.form-actions {
-  text-align: center;
 }
 
 .search-btn {
@@ -1023,13 +1081,14 @@ const handleQRCodeDetected = (qrData) => {
     padding: 24px 20px;
   }
   
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .search-inline-row {
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  .search-btn {
-    width: 100%;
+
+  .search-actions {
+    flex-direction: column;
+    margin-top: 30px;
   }
   
   .results-header {
@@ -1146,13 +1205,6 @@ const handleQRCodeDetected = (qrData) => {
   width: 100%;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
 .form-item {
   margin-bottom: 0;
 }
@@ -1180,8 +1232,40 @@ const handleQRCodeDetected = (qrData) => {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.form-actions {
-  text-align: center;
+.search-inline-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.form-item-input {
+  flex: 1;
+  position: relative;
+}
+
+.form-item-input :deep(.ant-form-item) {
+  margin-bottom: 0 !important;
+}
+
+.form-item-input :deep(.ant-form-item-explain) {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.search-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.qr-btn {
+  height: 50px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 0 20px;
 }
 
 .search-btn {
@@ -1690,13 +1774,13 @@ const handleQRCodeDetected = (qrData) => {
     padding: 24px 20px;
   }
   
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .search-inline-row {
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  .search-btn {
-    width: 100%;
+
+  .search-actions {
+    flex-direction: column;
   }
   
   .results-header {

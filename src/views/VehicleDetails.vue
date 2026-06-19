@@ -14,9 +14,9 @@
 
             <div class="hero-title-section">
               <div class="vehicle-badges">
-                <div  class="availability-badge-modern available">
+                <div class="availability-badge-modern" :class="availability ? 'available' : 'unavailable'">
                   <SecurityScanOutlined class="badge-icon" />
-                  Seguro
+                  <span>{{ availability ? t('vehicles.available') : t('vehicles.unavailable') }}</span>
                 </div>
 
                 <div class="verified-badge-modern">
@@ -59,6 +59,7 @@
             :subtotal="subtotal"
             :taxes="taxes"
             :total-price="totalPrice"
+            :availability="availability"
             @book="handleBooking"
             @contact="contactOwner"
             @update:start-date="(date) => bookingDates.startDate = date"
@@ -83,7 +84,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import dayjs from 'dayjs'
 import HeaderPage from '../components/HeaderPage.vue'
@@ -99,13 +100,36 @@ import {
 } from '@ant-design/icons-vue'
 import { vehicleService } from '../services/api'
 import { useI18n } from 'vue-i18n'
+import { useHead } from '@vueuse/head'
+import { useUtilities } from '../composables/utilits.js'
 
 const { t } = useI18n()
 const route = useRoute()
+const { calculateRentalDays } = useUtilities()
 
 const loading = ref(false)
 const bookingLoading = ref(false)
 const vehicle = ref({})
+
+// SEO dinâmico baseado nos dados do veículo
+watch(() => vehicle.value, (newVehicle) => {
+  if (newVehicle && newVehicle.brand) {
+    useHead({
+      title: `${newVehicle.brand} ${newVehicle.model} - Aluguer - Universal Rent-a-Car`,
+      meta: [
+        { name: 'description', content: `Alugue ${newVehicle.brand} ${newVehicle.model} - ${newVehicle.year}. ${newVehicle.description || 'Veículo disponível para reserva online com as melhores condições.'} Categoria: ${newVehicle.category}.` },
+        { name: 'keywords', content: `${newVehicle.brand}, ${newVehicle.model}, aluguer ${newVehicle.brand}, ${newVehicle.category}, rent a car` },
+        { property: 'og:title', content: `${newVehicle.brand} ${newVehicle.model} - Aluguer` },
+        { property: 'og:description', content: `Alugue ${newVehicle.brand} ${newVehicle.model} - ${newVehicle.year}` },
+        { property: 'og:image', content: newVehicle.images?.[0] || '' },
+        { property: 'og:url', content: `https://www.universalrental.cv/vehicle-details/${newVehicle.id}` },
+      ],
+      link: [
+        { rel: 'canonical', href: `https://www.universalrental.cv/vehicle-details/${newVehicle.id}` }
+      ]
+    })
+  }
+}, { deep: true })
 
 const config = ref({})
 
@@ -178,7 +202,8 @@ const vehicleImages = ref([])
 // Computed properties for booking url query parameters
 const totalDays = computed(() => {
   if (!bookingDates.value.startDate || !bookingDates.value.endDate) return 0
-  return dayjs(bookingDates.value.endDate).diff(dayjs(bookingDates.value.startDate), 'day') || 1
+  const tolerance = Number(config.value?.rental_days_tolerance_hours) || 12
+  return calculateRentalDays(bookingDates.value.startDate, bookingDates.value.endDate, tolerance)
 })
 
 const subtotal = computed(() => {
@@ -191,6 +216,24 @@ const taxes = computed(() => {
 
 const totalPrice = computed(() => {
   return subtotal.value + taxes.value
+})
+
+// Check vehicle availability based on active rentals
+const availability = computed(() => {
+  if (!bookingDates.value.startDate || !bookingDates.value.endDate || !vehicle.value.active_rentals) {
+    return true // Default to available if no dates or no active_rentals
+  }
+
+  const start = dayjs(bookingDates.value.startDate)
+  const end = dayjs(bookingDates.value.endDate)
+
+  const hasOverlap = vehicle.value.active_rentals?.some(rental => {
+    const rentalStart = dayjs(rental.start_date)
+    const rentalEnd = dayjs(rental.end_date)
+    return start.isBefore(rentalEnd) && end.isAfter(rentalStart)
+  })
+
+  return !hasOverlap
 })
 
 // Methods
@@ -245,6 +288,9 @@ onMounted(() => {
   background: #f8fafc;
   min-height: 100vh;
   padding-top: 30px;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Hero Section */
@@ -252,7 +298,6 @@ onMounted(() => {
   padding: 80px 0 60px;
   background: linear-gradient(90deg,#3A1C71 0%,#FDBB2D 100%) !important;
   position: relative;
-  overflow: hidden;
 }
 
 .hero-details-section::before {
@@ -327,7 +372,7 @@ onMounted(() => {
   backdrop-filter: blur(10px);
 }
 
-.availability-badge-modern.unvailable {
+.availability-badge-modern.unavailable {
   background: rgba(216, 7, 7, 0.2);
   color: #e8e0e0;
   backdrop-filter: blur(10px);
@@ -374,14 +419,22 @@ onMounted(() => {
 /* Main Content */
 .vehicle-details-container {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: -40px auto 0;
   padding: 0 24px;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  position: relative;
+  z-index: 100;
 }
 
 .main-content-modern {
-  margin-top: -40px;
+  margin-top: 0;
   position: relative;
-  z-index: 3;
+  z-index: 2;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Gallery Section */

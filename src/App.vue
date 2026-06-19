@@ -1,4 +1,5 @@
 <template>
+  <a-config-provider :locale="antLocale">
   <a-layout id="app">
 
     <a-layout-content class="content">
@@ -23,10 +24,10 @@
                     <!--span class="logo-text-modern">Universal Rent-a-Car</!--span-->
                   </div>
                   <div class="company-tagline">
-                    Encontre o melhor carro para alugar
+                    {{ t('footer.tagline') }}
                   </div>
                   <span class="footer-description-modern">
-                    Proporcionamos experiências inesquecíveis sobre rodas.
+                    {{ t('footer.companyDescription') }}
                   </span>
                 </div>
 
@@ -48,7 +49,7 @@
 
             <a-col :xs="12" :lg="6">
               <div class="footer-section-modern">
-                <h3 class="footer-title-modern">Contatos</h3>
+                <h3 class="footer-title-modern">{{ t('footer.contact') }}</h3>
                 <ul class="footer-links-modern">
                 <!-- Link de email -->
                 <li>
@@ -72,7 +73,7 @@
 
                 <!-- Localização -->
                 <li>
-                  <a href="https://share.google/YQe0oo9bARsLcKA1X" target="_blank" rel="noopener noreferrer">
+                  <a href="https://share.google/2O3o2Be5o7msaRhqJ" target="_blank" rel="noopener noreferrer">
                     <EnvironmentOutlined /> Achada Santo António, Praia
                   </a>
                 </li>
@@ -118,7 +119,7 @@
           <div class="footer-bottom-content">
             <div class="copyright-section">
               <p class="copyright-modern">
-                © {{ currentYear }} Universal Rent-A-Car. Todos os direitos reservados.
+                © {{ currentYear }} Universal Rent-A-Car. {{ t('footer.allRightsReserved') }}
               </p>
             </div>
             <div class="payment-section">
@@ -155,6 +156,7 @@
       </div>
     </a-layout-footer>
   </a-layout>
+  </a-config-provider>
 </template>
 
 <script setup>
@@ -170,6 +172,9 @@ import { useRoute } from 'vue-router'
 import { useLanguageAndCurrency } from './composables/useLanguageAndCurrency'
 import { useInactivityLogout } from './composables/useInactivityLogout'
 import logo from './assets/logo2.png'
+import antLocale_pt_BR from 'ant-design-vue/es/locale/pt_BR'
+import antLocale_en_US from 'ant-design-vue/es/locale/en_US'
+import antLocale_fr_FR from 'ant-design-vue/es/locale/fr_FR'
 
 const route = useRoute()
 
@@ -178,7 +183,16 @@ const token = ref(null)
 // Language and Currency
 const {
   t,
+  currentLanguage
 } = useLanguageAndCurrency()
+
+const antLocale = computed(() => {
+  switch (currentLanguage.value) {
+    case 'en': return antLocale_en_US
+    case 'fr': return antLocale_fr_FR
+    default: return antLocale_pt_BR
+  }
+})
 
 // Session inactivity logout (30 min)
 useInactivityLogout()

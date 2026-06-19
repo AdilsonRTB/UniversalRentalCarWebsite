@@ -29,6 +29,7 @@
             :rules="formRules"
             layout="vertical"
             @finish="handleForgotPassword"
+            @finish-failed="formValidated = true"
           >
             <!-- Email Field -->
             <a-form-item
@@ -118,15 +119,24 @@ import {
   CheckCircleOutlined,
   ArrowLeftOutlined
 } from '@ant-design/icons-vue'
-import { ref, reactive, h } from 'vue'
+import { ref, reactive, computed, h, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import {authService} from '../services/api'
 import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const router = useRouter()
 
 // Form references
 const formRef = ref(null)
+const formValidated = ref(false)
+
+watch(locale, () => {
+  if (formValidated.value) {
+    formRef.value?.validate().catch(() => {})
+  }
+})
 
 // Reactive data
 const isLoading = ref(false)
@@ -139,12 +149,12 @@ const formData = reactive({
 })
 
 // Form validation rules
-const formRules = {
+const formRules = computed(() => ({
   email: [
     { required: true, message: t('auth.emailRequiredValidation') },
     { type: 'email', message: t('auth.emailValidValidation') }
   ]
-}
+}))
 
 // Methods
 const handleForgotPassword = async (values) => {
@@ -154,12 +164,20 @@ const handleForgotPassword = async (values) => {
     
     await authService.forgotPassword(values.email)
     
-    emailSent.value = true
     message.success(t('auth.instructionsSentSuccess'))
+    sessionStorage.setItem('forgotPasswordFlow', 'true')
+    router.push({ path: '/forgot-password-recovery', query: { email: values.email } })
     
   } catch (error) {
     //console.error('Forgot password error:', error)
-    errorMessage.value = t('auth.sendInstructionsError')
+    const data = error.response?.data
+    if (data?.customer === true && data?.account === false) {
+      errorMessage.value = t('auth.noAccountError')
+    } else if (data?.customer === false && data?.account === false) {
+      errorMessage.value = t('auth.emailNotFoundError')
+    } else {
+      errorMessage.value = t('auth.sendInstructionsError')
+    }
   } finally {
     isLoading.value = false
   }

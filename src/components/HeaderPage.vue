@@ -33,7 +33,7 @@
           </div>
 
           <div v-else>
-            <a-button class="hero-auth-btn primary" type="link" @click="navigateTo('/owner-dashboard?tab=overview')">
+            <a-button class="hero-auth-btn primary" type="link" @click="navigateTo('/owner-dashboard?tab=profile')">
                 <UserOutlined />
                 {{ customer?.first_name }} {{ customer?.last_name }}
 
@@ -118,7 +118,7 @@
                   </!--a-button-->
                   <a-button block class="mobile-menu-item" @click="navigateTo('/owner-dashboard?tab=notifications')">
                     <BellOutlined />
-                    Notificações
+                    {{ t('nav.notifications') }}
                   </a-button>
                   <!--a-button-- block class="mobile-menu-item" @click="navigateTo('/owner-dashboard?tab=messages')">
                     <MessageOutlined />
@@ -156,7 +156,7 @@
   </div>
 </template>
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency'
@@ -165,7 +165,7 @@ import {
   UserOutlined,
   //DashboardOutlined,
   LogoutOutlined,
-  //BellOutlined,
+  BellOutlined,
   //MessageOutlined,
   CalendarOutlined,
   MenuOutlined,
@@ -209,13 +209,43 @@ const getCustomerData = async () => {
 
 watch(() => localStorage.getItem('authToken'), (newToken) => {
   isAuthenticated.value = !!newToken
+  // Atualizar dados do cliente quando o token mudar
+  if (newToken) {
+    getCustomerData()
+  } else {
+    customer.value = null
+  }
 })
 
 onMounted(() => {
   if (isAuthenticated.value) {
     getCustomerData()
   }
+
+  if (sessionStorage.getItem('openLoginModal') === 'true') {
+    sessionStorage.removeItem('openLoginModal')
+    showLoginModal.value = true
+  }
+  
+  // Ouvir evento customizado de login de outros componentes
+  window.addEventListener('user-logged-in', handleUserLoggedIn)
+  window.addEventListener('open-login-modal', handleOpenLoginModal)
 })
+
+onUnmounted(() => {
+  // Remover listener ao desmontar componente
+  window.removeEventListener('user-logged-in', handleUserLoggedIn)
+  window.removeEventListener('open-login-modal', handleOpenLoginModal)
+})
+
+const handleUserLoggedIn = () => {
+  isAuthenticated.value = true
+  getCustomerData()
+}
+
+const handleOpenLoginModal = () => {
+  showLoginModal.value = true
+}
 
 const login = async () => {
   showLoginModal.value = true

@@ -104,7 +104,7 @@ export default {
     termsOfUse: 'Terms of Use',
     privacyPolicy: 'Privacy Policy',
     insurance: 'Insurance',
-    contact: 'Contact',
+    contact: 'Contacts',
     contactEmail: 'contact{\'@\'}vehiclerental.com',
     contactPhone: '(11) 1234-5678',
     contactAddress: 'São Paulo, SP - Brazil',
@@ -113,7 +113,9 @@ export default {
     newsletterDesc: 'Receive exclusive offers',
     yourEmail: 'Your email',
     allRightsReserved: 'All rights reserved.',
-    paymentMethods: 'Payment methods:'
+    paymentMethods: 'Payment methods:',
+    tagline: 'Find the best car to rent',
+    companyDescription: 'We provide unforgettable experiences on wheels.'
   },
 
   // Common
@@ -486,6 +488,7 @@ export default {
     customPeriod: 'Custom period',
     // Details Modal
     rentalDetails: 'Rental Details',
+    rentalCode: 'Rental Code',
     vehicleInformation: 'Vehicle Information',
     year: 'Year',
     plate: 'License Plate',
@@ -510,7 +513,81 @@ export default {
     servicesFees: 'Services Fees',
     total: 'Total',
     notes: 'Notes',
-    bookedOn: 'Booked on'
+    bookedOn: 'Booked on',
+    // Rating submission messages
+    ratingSubmittedSuccess: 'Rating submitted successfully!',
+    ratingSubmitError: 'Error submitting rating. Please try again.',
+    allRatingsRequired: 'All ratings are required!',
+    issueDescriptionRequired: 'Please describe the issues encountered!',
+    evaluate: 'Evaluate'
+  },
+
+  // Notifications
+  notifications: {
+    // Breadcrumb & Title
+    title: 'Notifications',
+    
+    // Stats
+    total: 'Total',
+    unread: 'Unread',
+    urgent: 'Urgent',
+    
+    // Actions
+    controlsAndFilters: 'Controls and Filters',
+    markAllRead: 'Mark All Read',
+    clearRead: 'Clear Read',
+    markAllAsRead: 'Mark all as read',
+    markAsUnread: 'Mark as unread',
+    markAsRead: 'Mark as read',
+    deleteNotification: 'Delete notification',
+    
+    // Filters
+    category: 'Category',
+    allCategories: 'All categories',
+    status: 'Status',
+    allStatus: 'All statuses',
+    sortBy: 'Sort by',
+    sorting: 'Sorting',
+    
+    // Filter options
+    read: 'Read',
+    
+    // Category labels
+    booking: 'Booking',
+    bookings: 'Bookings',
+    payment: 'Payment',
+    payments: 'Payments',
+    review: 'Review',
+    reviews: 'Reviews',
+    system: 'System',
+    notification: 'Notification',
+    
+    // Sort options
+    dateDesc: 'Date (Most recent)',
+    dateAsc: 'Date (Oldest)',
+    priority: 'Priority',
+    unreadFirst: 'Unread first',
+    
+    // Status labels
+    urgentTag: 'URGENT',
+    
+    // Results
+    notificationsFound: 'notification(s) found',
+    
+    // Loading
+    loading: 'Loading notifications...',
+    
+    // Empty state
+    noNotifications: 'No notifications found',
+    noNotificationsDesc: 'There are no notifications matching the selected filters.',
+    
+    // Time formatting
+    justNow: 'Just now',
+    ago: 'ago',
+    yesterday: 'Yesterday',
+    daysAgo: 'days ago',
+    minutesAgo: 'm ago',
+    hoursAgo: 'h ago'
   },
 
   // Earnings
@@ -929,6 +1006,8 @@ export default {
     emailValidValidation: 'Please enter a valid email',
     instructionsSentSuccess: 'Instructions sent successfully!',
     sendInstructionsError: 'Error sending instructions. Please try again.',
+    noAccountError: 'This email is registered as a customer but does not have an access account.',
+    emailNotFoundError: 'No account found associated with this email.',
     emailResentSuccess: 'Email resent successfully!',
     resendEmailError: 'Error resending email. Please try again.',
     
@@ -998,7 +1077,33 @@ export default {
     pwWeak: 'Weak',
     pwMedium: 'Medium',
     pwGood: 'Good',
-    pwStrong: 'Strong'
+    pwStrong: 'Strong',
+    // Validation extras
+    passwordRequiredValidation: 'Please enter your password',
+    otpRequired: 'Please enter the OTP code',
+    otpLength: 'The OTP code must have 6 digits',
+    newPasswordRequired: 'Please enter the new password',
+    resetPasswordErrorInvalidOtp: 'Invalid OTP code. Check the code you received or request a new one.',
+    resetPasswordErrorOtpExpired: 'The OTP code has expired. Please request a new one.',
+    resetPasswordErrorUserNotFound: 'No account found with this email.',
+    resetPasswordErrorOtpUsed: 'This OTP code has already been used. Please request a new one.',
+    resetPasswordErrorGeneric: 'Error resetting password. Please check the details and try again.',
+    resendCodeSuccess: 'Code resent successfully!',
+    resendCodeError: 'Error resending the code. Please try again.',
+    // Recovery page static
+    recoverySubtitle: 'Enter the OTP code sent to your email and set a new password',
+    otpLabel: 'OTP Code',
+    otpPlaceholder: 'Enter the 6-digit code',
+    notReceivedCode: "Didn't receive the code?",
+    resendLabel: 'Resend',
+    newPasswordLabel: 'New Password',
+    newPasswordPlaceholder: 'Enter the new password',
+    confirmNewPasswordLabel: 'Confirm New Password',
+    confirmNewPasswordPlaceholder: 'Confirm the new password',
+    resetPasswordBtn: 'Reset Password',
+    passwordResetSuccessTitle: 'Password Reset Successfully!',
+    passwordResetSuccessMessage: 'Your password has been changed successfully.',
+    passwordResetSuccessHint: 'You can now log in with your new password.'
   },
 
   // Search & Vehicles
@@ -1020,9 +1125,11 @@ export default {
     filters: 'Filters',
     brand: 'Brand',
     selectBrand: 'Select a brand',
+    noData: 'No results',
     pickupDate: 'Pickup Date',
     returnDate: 'Return Date',
     selectDate: 'Select date',
+    selectTime: 'Time',
     
     // Transmission filter
     transmissionManual: 'Manual',
@@ -1091,6 +1198,8 @@ export default {
     noResults: 'No vehicles found',
     adjustFilters: 'Try adjusting the search filters',
     showAllVehicles: 'Show All Vehicles',
+    selectDatesFirst: 'Please choose the pickup and return dates and times before viewing the details.',
+    fieldRequired: 'Date and time fields required',
     
     // General
     priceRange: 'Price Range',
@@ -1121,6 +1230,8 @@ export default {
       defaultLocation: 'Achada Santo António, Santiago',
       pickupLocation: 'Pickup location',
       returnLocation: 'Return location',
+      others: 'Others',
+      customLocationPlaceholder: 'Enter the location',
       withDriver: 'With driver',
       carSeat: 'Child Seat',
       dailyPrice: 'Daily price',
@@ -1128,12 +1239,15 @@ export default {
       withDriverDays: 'With driver ({days} days)',
       carSeatDays: 'Child Seat ({days} days)',
       serviceFee: 'Service fee',
+      securityDeposit: 'Deposit',
       reserveNow: 'Reserve Now',
       viewVehicleDetails: 'View Vehicle Details',
       selectDatesWarning: 'Please select pickup and return dates',
       reservationSuccess: 'Reservation completed successfully!',
       shareError: 'Error sharing',
       shareNotSupported: 'Sharing not supported in this browser.',
+      shareCopy: 'Copy link',
+      shareCopied: 'Link copied!',
       seats: 'Seats'
     }
   },
@@ -1149,6 +1263,7 @@ export default {
       locations: 'Pickup and Return Locations:',
       period: 'Period:',
       serviceFee: 'Service fee:',
+      securityDeposit: 'Deposit:',
       withDriver: 'With driver',
       carSeat: 'Child Seat',
       dailyValue: 'Daily Value:',
@@ -1162,14 +1277,21 @@ export default {
       lastNamePlaceholder: 'Last Name',
       birthDatePlaceholder: 'Date of birth',
       emailPlaceholder: 'your.email{\'@\'}example.com',
+      emailLabel: 'Email',
       phonePlaceholder: '+238 xxx xxxx',
+      phoneLabel: 'Phone',
       drivingLicensePlaceholder: 'Driving license number',
+      drivingLicenseLabel: 'Driving License',
       licenseIssueDatePlaceholder: 'License issue date',
+      licenseIssueDateLabel: 'Issue Date',
+      termsLabel: 'Terms and Conditions',
       termsText: 'I accept the',
       termsLink: 'terms and conditions',
       andText: 'and',
       privacyLink: 'privacy policy',
       submitButton: 'Make Reservation',
+      loginButton: 'Login',
+      exitButton: 'Exit',
       downloadButton: 'Download'
     },
     validation: {
@@ -1187,6 +1309,7 @@ export default {
       drivingLicenseMinLength: 'License number must have at least 5 characters',
       phoneRequired: 'Please enter your phone number',
       phoneInvalid: 'Please enter a valid phone number',
+      emailOrPhoneRequired: 'Please enter an email or phone number',
       licenseIssueDateRequired: 'Please select the license issue date',
       licenseIssueDateRequiredMsg: 'License issue date is required',
       licenseExperienceRequired: 'You must have had a driving license for at least 2 years',
@@ -1194,12 +1317,27 @@ export default {
       termsRequired: 'You must accept the terms and conditions'
     },
     messages: {
+      rentalCode: 'Rental Code',
+      emailAlreadyExists: 'This email is already registered in the system. Please login before making a reservation.',
       reservationSuccess: 'Reservation created successfully!',
       reservationPendingPayment: 'Reservation Awaiting Payment Confirmation',
       paymentInstructions: 'Bank account information for payment has been sent to your email. Please check your inbox.',
       reservationError: 'Error creating reservation. Please try again.',
       customerError: 'Error creating customer. Please try again.',
-      qrCodeText: 'Reservation #: {id}\nCustomer: {name}\nVehicle: {vehicle}\nPeriod: {dates}\nTotal: {total} CVE'
+      qrCodeText: 'Reservation #: {id}\nCustomer: {name}\nVehicle: {vehicle}\nPeriod: {dates}\nTotal: {total} CVE',
+      bankTransferTitle: 'BANKING DETAILS FOR WIRE TRANSFER',
+      bankTransferHolder: 'Account Holder',
+      bankTransferBank: 'Bank',
+      bankTransferAccount: 'Account Number',
+      bankTransferInstructionSend: 'Please send the transfer proof to',
+      bankTransferInstructionOr: 'or via WhatsApp',
+      bankTransferInstructionRef: 'indicating reservation number #{id} as reference.',
+      bankCancellationWarning: 'Warning: if payment is not made and confirmed within 24 hours, the reservation will be automatically cancelled.',
+      bankCompanyAddress: 'Address: Achada Santo António, Praia, Cape Verde',
+      bankIbanTitle: 'Your IBAN',
+      bankCopy: 'Copy',
+      bankCopied: 'Copied!',
+      bankShareDetails: 'Share details'
     }
   },
 
@@ -1318,7 +1456,7 @@ export default {
   // Booking Status Page
   bookingStatus: {
     pageTitle: 'Rental Status',
-    pageSubtitle: 'Enter your rental number and email to check your reservation status',
+    pageSubtitle: 'Enter your rental number to check your reservation status',
     searchBooking: 'Search Reservation',
     bookingNumber: 'Rental Number',
     bookingNumberPlaceholder: 'Ex: #12345',
@@ -1348,6 +1486,7 @@ export default {
     subtotal: 'Subtotal',
     numberOfDays: 'Number of days',
     commission: 'Service Fee',
+    securityDeposit: 'Deposit',
     details: 'Details',
     contact: 'Contact',
     cancel: 'Cancel',
@@ -1356,7 +1495,7 @@ export default {
     print: 'Print',
     download: 'Download',
     noBookingFound: 'No reservation found',
-    noBookingFoundDesc: 'Could not find a reservation with the provided data. Please verify the rental number and email are correct.',
+    noBookingFoundDesc: 'Could not find a reservation with the provided data. Please verify the rental number is correct.',
     newSearch: 'New Search',
     loadingBooking: 'Searching reservation...',
     bookingFound: 'Reservation found successfully!',

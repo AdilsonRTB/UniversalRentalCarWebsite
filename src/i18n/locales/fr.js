@@ -104,7 +104,7 @@ export default {
     termsOfUse: "Conditions d'Utilisation",
     privacyPolicy: 'Politique de Confidentialité',
     insurance: 'Assurance',
-    contact: 'Contact',
+    contact: 'Contacts',
     contactEmail: 'contact{\'@\'}locationvehicules.com',
     contactPhone: '(11) 1234-5678',
     contactAddress: 'São Paulo, SP - Brésil',
@@ -113,7 +113,9 @@ export default {
     newsletterDesc: 'Recevez des offres exclusives',
     yourEmail: 'Votre email',
     allRightsReserved: 'Tous droits réservés.',
-    paymentMethods: 'Méthodes de paiement:'
+    paymentMethods: 'Méthodes de paiement:',
+    tagline: 'Trouvez la meilleure voiture à louer',
+    companyDescription: 'Nous offrons des expériences inoubliables sur roues.'
   },
 
   // Common
@@ -486,6 +488,7 @@ export default {
     customPeriod: 'Période personnalisée',
     // Details Modal
     rentalDetails: 'Détails de la Location',
+    rentalCode: 'Code de Location',
     vehicleInformation: 'Informations sur le Véhicule',
     year: 'Année',
     plate: 'Plaque d\'Immatriculation',
@@ -510,7 +513,81 @@ export default {
     servicesFees: 'Frais de Services',
     total: 'Total',
     notes: 'Remarques',
-    bookedOn: 'Réservé le'
+    bookedOn: 'Réservé le',
+    // Rating submission messages
+    ratingSubmittedSuccess: 'Évaluation soumise avec succès!',
+    ratingSubmitError: 'Erreur lors de la soumission de l\'évaluation. Veuillez réessayer.',
+    allRatingsRequired: 'Toutes les évaluations sont obligatoires!',
+    issueDescriptionRequired: 'Veuillez décrire les problèmes rencontrés!',
+    evaluate: 'Évaluer'
+  },
+
+  // Notifications
+  notifications: {
+    // Breadcrumb & Title
+    title: 'Notifications',
+    
+    // Stats
+    total: 'Total',
+    unread: 'Non Lues',
+    urgent: 'Urgentes',
+    
+    // Actions
+    controlsAndFilters: 'Contrôles et Filtres',
+    markAllRead: 'Marquer Toutes Lues',
+    clearRead: 'Effacer Lues',
+    markAllAsRead: 'Marquer toutes comme lues',
+    markAsUnread: 'Marquer comme non lue',
+    markAsRead: 'Marquer comme lue',
+    deleteNotification: 'Supprimer la notification',
+    
+    // Filters
+    category: 'Catégorie',
+    allCategories: 'Toutes les catégories',
+    status: 'Statut',
+    allStatus: 'Tous les statuts',
+    sortBy: 'Trier par',
+    sorting: 'Tri',
+    
+    // Filter options
+    read: 'Lues',
+    
+    // Category labels
+    booking: 'Réservation',
+    bookings: 'Réservations',
+    payment: 'Paiement',
+    payments: 'Paiements',
+    review: 'Évaluation',
+    reviews: 'Évaluations',
+    system: 'Système',
+    notification: 'Notification',
+    
+    // Sort options
+    dateDesc: 'Date (Plus récente)',
+    dateAsc: 'Date (Plus ancienne)',
+    priority: 'Priorité',
+    unreadFirst: 'Non lues en premier',
+    
+    // Status labels
+    urgentTag: 'URGENT',
+    
+    // Results
+    notificationsFound: 'notification(s) trouvée(s)',
+    
+    // Loading
+    loading: 'Chargement des notifications...',
+    
+    // Empty state
+    noNotifications: 'Aucune notification trouvée',
+    noNotificationsDesc: 'Il n\'y a aucune notification correspondant aux filtres sélectionnés.',
+    
+    // Time formatting
+    justNow: 'À l\'instant',
+    ago: 'il y a',
+    yesterday: 'Hier',
+    daysAgo: 'jours',
+    minutesAgo: 'min',
+    hoursAgo: 'h'
   },
 
   // Earnings
@@ -929,6 +1006,8 @@ export default {
     emailValidValidation: 'Veuillez entrer un e-mail valide',
     instructionsSentSuccess: 'Instructions envoyées avec succès!',
     sendInstructionsError: 'Erreur lors de l\'envoi des instructions. Veuillez réessayer.',
+    noAccountError: 'Cet e-mail est enregistré en tant que client mais ne possède pas de compte d\'accès.',
+    emailNotFoundError: 'Aucun compte trouvé associé à cet e-mail.',
     emailResentSuccess: 'E-mail renvoyé avec succès!',
     resendEmailError: 'Erreur lors du renvoi de l\'e-mail. Veuillez réessayer.',
     
@@ -998,7 +1077,33 @@ export default {
     pwWeak: 'Faible',
     pwMedium: 'Moyen',
     pwGood: 'Bon',
-    pwStrong: 'Fort'
+    pwStrong: 'Fort',
+    // Validation extras
+    passwordRequiredValidation: 'Veuillez entrer votre mot de passe',
+    otpRequired: 'Veuillez entrer le code OTP',
+    otpLength: 'Le code OTP doit comporter 6 chiffres',
+    newPasswordRequired: 'Veuillez entrer le nouveau mot de passe',
+    resetPasswordErrorInvalidOtp: 'Code OTP invalide. Vérifiez le code reçu ou demandez-en un nouveau.',
+    resetPasswordErrorOtpExpired: 'Le code OTP a expiré. Veuillez en demander un nouveau.',
+    resetPasswordErrorUserNotFound: 'Aucun compte trouvé avec cet e-mail.',
+    resetPasswordErrorOtpUsed: 'Ce code OTP a déjà été utilisé. Veuillez en demander un nouveau.',
+    resetPasswordErrorGeneric: 'Erreur lors de la réinitialisation. Vérifiez les données et réessayez.',
+    resendCodeSuccess: 'Code renvoyé avec succès !',
+    resendCodeError: 'Erreur lors du renvoi du code. Veuillez réessayer.',
+    // Recovery page static
+    recoverySubtitle: 'Entrez le code OTP envoyé à votre e-mail et définissez un nouveau mot de passe',
+    otpLabel: 'Code OTP',
+    otpPlaceholder: 'Entrez le code à 6 chiffres',
+    notReceivedCode: "Vous n'avez pas reçu le code ?",
+    resendLabel: 'Renvoyer',
+    newPasswordLabel: 'Nouveau mot de passe',
+    newPasswordPlaceholder: 'Entrez le nouveau mot de passe',
+    confirmNewPasswordLabel: 'Confirmer le nouveau mot de passe',
+    confirmNewPasswordPlaceholder: 'Confirmez le nouveau mot de passe',
+    resetPasswordBtn: 'Réinitialiser le mot de passe',
+    passwordResetSuccessTitle: 'Mot de passe réinitialisé avec succès !',
+    passwordResetSuccessMessage: 'Votre mot de passe a été modifié avec succès.',
+    passwordResetSuccessHint: 'Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.'
   },
 
   // Search & Vehicles
@@ -1020,9 +1125,11 @@ export default {
     filters: 'Filtres',
     brand: 'Marque',
     selectBrand: 'Sélectionnez une marque',
+    noData: 'Aucun résultat',
     pickupDate: 'Date de Prise en Charge',
     returnDate: 'Date de Retour',
     selectDate: 'Sélectionner la date',
+    selectTime: 'Heure',
     
     // Transmission filter
     transmissionManual: 'Manuelle',
@@ -1092,6 +1199,8 @@ export default {
     noResults: 'Aucun véhicule trouvé',
     adjustFilters: 'Essayez d\'ajuster les filtres de recherche',
     showAllVehicles: 'Afficher Tous les Véhicules',
+    selectDatesFirst: 'Veuillez choisir les dates et heures de prise en charge et de retour avant de voir les détails.',
+    fieldRequired: 'Champs date et heure requis',
     
     // General
     //filters: 'Filtres',
@@ -1123,6 +1232,8 @@ export default {
       defaultLocation: 'Achada Santo António, Santiago',
       pickupLocation: 'Lieu de prise en charge',
       returnLocation: 'Lieu de retour',
+      others: 'Autres',
+      customLocationPlaceholder: 'Indiquez l\'emplacement',
       withDriver: 'Avec chauffeur',
       carSeat: 'Siège Enfant',
       dailyPrice: 'Prix quotidien',
@@ -1130,12 +1241,15 @@ export default {
       withDriverDays: 'Avec chauffeur ({days} jours)',
       carSeatDays: 'Siège Enfant ({days} jours)',
       serviceFee: 'Frais de service',
+      securityDeposit: 'Caution',
       reserveNow: 'Réserver Maintenant',
       viewVehicleDetails: 'Voir les Détails du Véhicule',
       selectDatesWarning: 'Veuillez sélectionner les dates de prise en charge et de retour',
       reservationSuccess: 'Réservation effectuée avec succès !',
       shareError: 'Erreur lors du partage',
       shareNotSupported: 'Partage non pris en charge dans ce navigateur.',
+      shareCopy: 'Copier le lien',
+      shareCopied: 'Lien copié !',
       seats: 'Places'
     }
   },
@@ -1151,6 +1265,7 @@ export default {
       locations: 'Lieux de Prise et de Retour:',
       period: 'Période:',
       serviceFee: 'Frais de service:',
+      securityDeposit: 'Caution:',
       withDriver: 'Avec chauffeur',
       carSeat: 'Siège Enfant',
       dailyValue: 'Valeur Quotidienne:',
@@ -1164,14 +1279,21 @@ export default {
       lastNamePlaceholder: 'Nom de Famille',
       birthDatePlaceholder: 'Date de naissance',
       emailPlaceholder: 'votre.email{\'@\'}exemple.com',
+      emailLabel: 'Email',
       phonePlaceholder: '+238 xxx xxxx',
+      phoneLabel: 'Téléphone',
       drivingLicensePlaceholder: 'Numéro du permis de conduire',
+      drivingLicenseLabel: 'Permis de Conduire',
       licenseIssueDatePlaceholder: 'Date d\'émission du permis',
+      licenseIssueDateLabel: 'Date d\'Émission',
+      termsLabel: 'Termes et Conditions',
       termsText: 'J\'accepte les',
       termsLink: 'termes et conditions',
       andText: 'et la',
       privacyLink: 'politique de confidentialité',
       submitButton: 'Effectuer la Réservation',
+      loginButton: 'Connexion',
+      exitButton: 'Sortir',
       downloadButton: 'Télécharger'
     },
     validation: {
@@ -1189,6 +1311,7 @@ export default {
       drivingLicenseMinLength: 'Le numéro de permis doit avoir au moins 5 caractères',
       phoneRequired: 'Veuillez entrer votre numéro de téléphone',
       phoneInvalid: 'Veuillez entrer un numéro de téléphone valide',
+      emailOrPhoneRequired: 'Veuillez entrer un email ou un numéro de téléphone',
       licenseIssueDateRequired: 'Veuillez sélectionner la date d\'émission du permis',
       licenseIssueDateRequiredMsg: 'La date d\'émission du permis est obligatoire',
       licenseExperienceRequired: 'Vous devez avoir le permis de conduire depuis au moins 2 ans',
@@ -1196,12 +1319,27 @@ export default {
       termsRequired: 'Vous devez accepter les termes et conditions'
     },
     messages: {
+      rentalCode: 'Code de Location',
+      emailAlreadyExists: 'Cet email est déjà enregistré dans le système. Veuillez vous connecter avant de faire une réservation.',
       reservationSuccess: 'Réservation créée avec succès !',
       reservationPendingPayment: 'Réservation en Attente de Confirmation de Paiement',
       paymentInstructions: 'Les informations du compte bancaire pour le paiement ont été envoyées à votre email. Veuillez vérifier votre boîte de réception.',
       reservationError: 'Erreur lors de la création de la réservation. Veuillez réessayer.',
       customerError: 'Erreur lors de la création du client. Veuillez réessayer.',
-      qrCodeText: 'Réservation N°: {id}\nClient: {name}\nVéhicule: {vehicle}\nPériode: {dates}\nTotal: {total} CVE'
+      qrCodeText: 'Réservation N°: {id}\nClient: {name}\nVéhicule: {vehicle}\nPériode: {dates}\nTotal: {total} CVE',
+      bankTransferTitle: 'COORDONNÉES BANCAIRES POUR VIREMENT',
+      bankTransferHolder: 'Titulaire',
+      bankTransferBank: 'Banque',
+      bankTransferAccount: 'Numéro de Compte',
+      bankTransferInstructionSend: 'Veuillez envoyer la preuve de virement à',
+      bankTransferInstructionOr: 'ou via WhatsApp',
+      bankTransferInstructionRef: 'en indiquant le numéro de réservation #{id} comme référence.',
+      bankCancellationWarning: 'Attention : si le paiement n\'est pas effectué et confirmé dans les 24 heures, la réservation sera automatiquement annulée.',
+      bankCompanyAddress: 'Adresse : Achada Santo António, Praia, Cap-Vert',
+      bankIbanTitle: 'Votre IBAN',
+      bankCopy: 'Copier',
+      bankCopied: 'Copié !',
+      bankShareDetails: 'Partager les détails'
     }
   },
 
@@ -1320,7 +1458,7 @@ export default {
   // Booking Status Page
   bookingStatus: {
     pageTitle: 'Statut de la Location',
-    pageSubtitle: 'Entrez votre numéro de location et votre email pour consulter le statut de votre réservation',
+    pageSubtitle: 'Entrez votre numéro de location pour consulter le statut de votre réservation',
     searchBooking: 'Consulter la Réservation',
     bookingNumber: 'Numéro de Location',
     bookingNumberPlaceholder: 'Ex: #12345',
@@ -1350,6 +1488,7 @@ export default {
     subtotal: 'Sous-total',
     numberOfDays: 'Nombre de jours',
     commission: 'Frais de Service',
+    securityDeposit: 'Caution',
     details: 'Détails',
     contact: 'Contact',
     cancel: 'Annuler',
@@ -1358,7 +1497,7 @@ export default {
     print: 'Imprimer',
     download: 'Télécharger',
     noBookingFound: 'Aucune réservation trouvée',
-    noBookingFoundDesc: 'Impossible de trouver une réservation avec les données fournies. Vérifiez que le numéro de location et l\'email sont corrects.',
+    noBookingFoundDesc: 'Impossible de trouver une réservation avec les données fournies. Vérifiez que le numéro de location est correct.',
     newSearch: 'Nouvelle Recherche',
     loadingBooking: 'Recherche de la réservation...',
     bookingFound: 'Réservation trouvée avec succès!',

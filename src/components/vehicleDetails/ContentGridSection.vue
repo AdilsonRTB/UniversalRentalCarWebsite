@@ -125,17 +125,16 @@
                   :locale="datePickerLocale"
                   :show-today="false"
                 />
-                <a-time-picker
-                  size="large"
+                <a-select
                   v-model:value="filters.startTime"
+                  size="large"
                   class="modern-time-picker"
-                  format="HH:mm"
-                  :minute-step="15"
-                  :disabled-hours="disabledHours"
-                  :show-now="false"
-                  placeholder="08:00"
-                  :key="'start-time-' + currentLanguage"
-                />
+                  :placeholder="t('search.selectTime')"
+                >
+                  <a-select-option v-for="time in availableStartTimes" :key="time" :value="time">
+                    {{ time }}
+                  </a-select-option>
+                </a-select>
               </div>
             </div>
             <div class="date-item-modern">
@@ -153,17 +152,16 @@
                   :locale="datePickerLocale"
                   :show-today="false"
                 />
-                <a-time-picker
-                  size="large"
+                <a-select
                   v-model:value="filters.endTime"
+                  size="large"
                   class="modern-time-picker"
-                  format="HH:mm"
-                  :minute-step="15"
-                  :disabled-hours="disabledHours"
-                  :show-now="false"
-                  placeholder="08:00"
-                  :key="'end-time-' + currentLanguage"
-                />
+                  :placeholder="t('search.selectTime')"
+                >
+                  <a-select-option v-for="time in availableEndTimes" :key="time" :value="time">
+                    {{ time }}
+                  </a-select-option>
+                </a-select>
               </div>
             </div>
           </div>
@@ -187,6 +185,15 @@
                 :placeholder="t('search.gallery.pickupLocation')"
                 class="location-select"
                 :options="locationsOptions"
+                show-search
+                :filter-option="(input, option) => option.label.toLowerCase().includes(input.toLowerCase())"
+              />
+              <a-input
+                v-if="pickupLocation === '__others__'"
+                v-model:value="customPickupLocation"
+                :placeholder="t('search.gallery.customLocationPlaceholder')"
+                size="large"
+                class="custom-location-input"
               />
             </div>
             <div class="location-select-item">
@@ -197,6 +204,15 @@
                 :placeholder="t('search.gallery.returnLocation')"
                 class="location-select"
                 :options="locationsOptions"
+                show-search
+                :filter-option="(input, option) => option.label.toLowerCase().includes(input.toLowerCase())"
+              />
+              <a-input
+                v-if="returnLocation === '__others__'"
+                v-model:value="customReturnLocation"
+                :placeholder="t('search.gallery.customLocationPlaceholder')"
+                size="large"
+                class="custom-location-input"
               />
             </div>
           </div>
@@ -239,6 +255,10 @@
               <span class="price-label">{{ t('search.gallery.serviceFee') }}</span>
               <span class="price-value">{{ serviceFeeAmount }} {{ currencySymbol }}</span>
             </div>
+            <div class="price-line" v-if="securityDeposit > 0">
+              <span class="price-label">{{ t('search.gallery.securityDeposit') }}</span>
+              <span class="price-value">{{ securityDeposit }} {{ currencySymbol }}</span>
+            </div>
           </div>
         </div>
         
@@ -248,7 +268,7 @@
             size="large"
             class="next-btn-modern"
             :loading="bookingLoading"
-            :disabled="disableBooking"
+            :disabled="isBookingDisabled"
             @click="handleBooking"
           >
             <div class="button-content">
@@ -270,13 +290,14 @@
       :car-seat="carSeat"
       :with-driver-value="totalDays * driverDailyRate"
       :car-seat-value="totalDays * carSeatDailyRate"
-      :pickupLocation="pickupLocation"
-      :returnLocation="returnLocation"
+      :pickupLocation="effectivePickupLocation"
+      :returnLocation="effectiveReturnLocation"
       :locations="locations"
       @reservation-confirmed="handleReservationConfirmed"
       :serviceFeeAmount="serviceFeeAmount"
       :currencySymbol="currencySymbol"
       :dailyRate="dailyRate * totalDays"
+      :securityDeposit="securityDeposit"
     />
   </div>
 </template>
@@ -366,11 +387,70 @@ const loadDateFromStorage = (key) => {
   return null
 }
 
+// Load time from localStorage
+const loadTimeFromStorage = (key, defaultTime = '08:00') => {
+  try {
+    const savedDate = localStorage.getItem(key)
+    if (savedDate) {
+      return dayjs(savedDate).format('HH:mm')
+    }
+  } catch (error) {
+    console.error(t('common.errors.loadingDateFromStorage'), error)
+  }
+  return defaultTime
+}
+
 const filters = ref({
   startDate: loadDateFromStorage(STORAGE_KEYS.START_DATE) || dayjs().add(1, 'day'),
   endDate: loadDateFromStorage(STORAGE_KEYS.END_DATE) || dayjs().add(3, 'day'),
-  startTime: loadDateFromStorage(STORAGE_KEYS.START_DATE) || dayjs().hour(8).minute(0),
-  endTime: loadDateFromStorage(STORAGE_KEYS.END_DATE) || dayjs().hour(8).minute(0)
+  startTime: loadTimeFromStorage(STORAGE_KEYS.START_DATE, '08:00'),
+  endTime: loadTimeFromStorage(STORAGE_KEYS.END_DATE, '08:00')
+})
+
+// Generate time options (00:00 to 23:30 in 30-minute intervals)
+const timeOptions = computed(() => {
+  const times = []
+  for (let hour = 0; hour < 24; hour++) {
+    const hourStr = hour.toString().padStart(2, '0')
+    times.push(`${hourStr}:00`)
+    times.push(`${hourStr}:30`)
+  }
+  return times
+})
+
+// Available pickup times: if start date is today, exclude past times
+const availableStartTimes = computed(() => {
+  const isToday = filters.value.startDate && filters.value.startDate.isSame(dayjs(), 'day')
+  if (!isToday) return timeOptions.value
+  const currentHour = dayjs().hour()
+  const currentMinute = dayjs().minute()
+  return timeOptions.value.filter(time => {
+    const [h, m] = time.split(':').map(Number)
+    return h > currentHour || (h === currentHour && m > currentMinute)
+  })
+})
+
+// Available return times: if rental is exactly 2 days (48h minimum), show only times >= pickup time
+const availableEndTimes = computed(() => {
+  // If no dates selected, return all times
+  if (!filters.value.startDate || !filters.value.endDate) {
+    return timeOptions.value
+  }
+  
+  // Calculate difference in days
+  const daysDiff = filters.value.endDate.diff(filters.value.startDate, 'day')
+  
+  // If exactly 2 days (48 hours minimum rental), filter times
+  if (daysDiff === 2) {
+    const startTime = filters.value.startTime
+    if (!startTime) return timeOptions.value
+    
+    // Return only times >= pickup time to ensure minimum 48 hours
+    return timeOptions.value.filter(time => time >= startTime)
+  }
+  
+  // For other cases, return all times
+  return timeOptions.value
 })
 
 // Date picker locale support
@@ -381,10 +461,10 @@ const datePickerLocale = computed(() => {
   return antLocale_pt_BR.DatePicker
 })
 
-// Disable hours outside 8-23 range
-const disabledHours = () => {
+// Disable hours outside 8-23 range (no longer needed with select dropdown)
+/*const disabledHours = () => {
   return [0, 1, 2, 3, 4, 5, 6, 7]
-}
+}*/
 
 // Watch for language changes to update dayjs locale
 watch(currentLanguage, (newLang) => {
@@ -402,6 +482,16 @@ const carSeat = ref(false)
 // Location state
 const pickupLocation = ref(null)
 const returnLocation = ref(null)
+const customPickupLocation = ref('')
+const customReturnLocation = ref('')
+
+// Effective location: custom text if 'Outros' selected, else selected value
+const effectivePickupLocation = computed(() =>
+  pickupLocation.value === '__others__' ? customPickupLocation.value.trim() : pickupLocation.value
+)
+const effectiveReturnLocation = computed(() =>
+  returnLocation.value === '__others__' ? customReturnLocation.value.trim() : returnLocation.value
+)
 
 // Calculated total with extras
 const calculateTotal = computed(() => {
@@ -421,12 +511,22 @@ const calculateTotal = computed(() => {
   // Add service fee based on config
   const serviceFee = serviceFeeAmount.value;
 
-  return Math.round(baseTotal + extras + serviceFee);
+  // Add security deposit
+  const deposit = securityDeposit.value;
+
+  return Math.round(baseTotal + extras + serviceFee + deposit);
 })
 
-// Computed options for locations
+// Computed options for locations — includes 'Outros' for custom input
 const locationsOptions = computed(() => {
-  return props.locations.map(loc => ({ label: loc.name, value: loc.id }))
+  const options = props.locations.map(loc => ({ label: loc.name, value: loc.name }))
+  options.push({ label: t('search.gallery.others'), value: '__others__' })
+  return options
+})
+
+// Check if booking button should be disabled
+const isBookingDisabled = computed(() => {
+  return disableBooking.value || !effectivePickupLocation.value || !effectiveReturnLocation.value
 })
 
 const handleBooking = () => {
@@ -435,10 +535,10 @@ const handleBooking = () => {
     return
   }
   
-  /*if (!props.availability) {
+  if (disableBooking.value) {
     message.warning(t('search.gallery.vehicleNotAvailable'))
     return
-  }*/
+  }
   
   showReservationModal.value = true
 }
@@ -448,13 +548,13 @@ watch(() => props.locations, (newLocations) => {
     // Find default pickup location
     const defaultPickup = newLocations.find(loc => loc.default_pickup === true)
     if (defaultPickup && !pickupLocation.value) {
-      pickupLocation.value = defaultPickup
+      pickupLocation.value = defaultPickup.name
     }
-    
+
     // Find default return location
     const defaultReturn = newLocations.find(loc => loc.default_return === true)
     if (defaultReturn && !returnLocation.value) {
-      returnLocation.value = defaultReturn
+      returnLocation.value = defaultReturn.name
     }
   }
 }, { immediate: true })
@@ -474,11 +574,41 @@ watch(() => localStorage.getItem('authToken'), (newToken) => {
 
 
 const disabledStartDate = (current) => {
-  return current && current < dayjs().startOf('day')
+  if (!current) return false
+  
+  const today = dayjs().startOf('day')
+  const maxDate = dayjs().add(2, 'year').endOf('day')
+  
+  // Não pode ser antes de hoje ou depois de 2 anos a partir de hoje
+  return current < today || current > maxDate
 }
 
 const disabledEndDate = (current) => {
-  return current && (current < dayjs().startOf('day') || (filters.value.startDate && current <= dayjs(filters.value.startDate)))
+  if (!current) return false
+
+  const today = dayjs().startOf('day')
+  const maxDate = dayjs().add(2, 'year').endOf('day')
+
+  // Não pode ser anterior ao dia de hoje
+  if (current < today) {
+    return true
+  }
+
+  // Não pode ser depois de 2 anos a partir de hoje
+  if (current > maxDate) {
+    return true
+  }
+
+  // Mínimo: data de recolha + 2 dias
+  const minReturn = filters.value.startDate
+    ? filters.value.startDate.add(2, 'day').startOf('day')
+    : dayjs().add(2, 'day').startOf('day')
+
+  if (current < minReturn) {
+    return true
+  }
+
+  return false
 }
 
 // Computed property para descrição do veículo na linguagem selecionada
@@ -555,6 +685,23 @@ const serviceFeeAmount = computed(() => {
   }
 })
 
+const securityDeposit = computed(() => {
+  const baseDeposit = Number(props.vehicle?.security_deposit) || 0
+
+  const usdRate = Number(props.config?.usd_exchange_rate) || 1
+  const eurRate = Number(props.config?.euro_exchange_rate) || 1
+
+  switch (currentCurrency.value) {
+    case 'USD':
+      return usdRate ? Math.round(baseDeposit / usdRate) : 0
+    case 'EUR':
+      return eurRate ? Math.round(baseDeposit / eurRate) : 0
+    case 'CVE':
+    default:
+      return baseDeposit
+  }
+})
+
 
 const currencySymbol = computed(() => {
   switch (currentCurrency.value) {
@@ -600,6 +747,28 @@ const gearboxTypeMap = (type) => {
 // Watch for startDate changes and save to localStorage
 watch(() => filters.value.startDate, (newDate) => {
   if (newDate && dayjs.isDayjs(newDate)) {
+    const today = dayjs().startOf('day')
+    
+    // Se a nova data for anterior a hoje, ajustar para hoje
+    if (newDate.isBefore(today)) {
+      filters.value.startDate = today
+      return
+    }
+    
+    // Verificar se a data de devolução precisa ser ajustada (mínimo 2 dias)
+    if (filters.value.endDate && filters.value.endDate.isBefore(newDate.add(2, 'day'))) {
+      filters.value.endDate = newDate.add(2, 'day')
+    }
+    
+    // Se mudou para hoje e a hora selecionada já passou, limpar a hora
+    if (newDate.isSame(dayjs(), 'day') && filters.value.startTime) {
+      const [h, m] = filters.value.startTime.split(':').map(Number)
+      const now = dayjs()
+      if (h < now.hour() || (h === now.hour() && m <= now.minute())) {
+        filters.value.startTime = null
+      }
+    }
+    
     localStorage.setItem(STORAGE_KEYS.START_DATE, newDate.toISOString())
   } else if (newDate) {
     // If it's not a dayjs object, try to convert it
@@ -617,6 +786,20 @@ watch(() => filters.value.startDate, (newDate) => {
 // Watch for endDate changes and save to localStorage
 watch(() => filters.value.endDate, (newDate) => {
   if (newDate && dayjs.isDayjs(newDate)) {
+    const today = dayjs().startOf('day')
+    
+    // Se a nova data for anterior a hoje, ajustar para hoje + 2 dias
+    if (newDate.isBefore(today)) {
+      filters.value.endDate = today.add(2, 'day')
+      return
+    }
+    
+    // Se existe startDate e endDate for anterior a startDate + 2 dias, ajustar
+    if (filters.value.startDate && newDate.isBefore(filters.value.startDate.add(2, 'day'))) {
+      filters.value.endDate = filters.value.startDate.add(2, 'day')
+      return
+    }
+    
     localStorage.setItem(STORAGE_KEYS.END_DATE, newDate.toISOString())
   } else if (newDate) {
     // If it's not a dayjs object, try to convert it
@@ -634,22 +817,43 @@ watch(() => filters.value.endDate, (newDate) => {
 // Watch for startTime changes and combine with startDate
 watch(() => filters.value.startTime, (newTime) => {
   if (newTime && filters.value.startDate) {
+    // Se a diferença for exatamente 2 dias e hora de devolução < hora de recolha, ajustar
+    if (filters.value.endDate && filters.value.endTime) {
+      const daysDiff = filters.value.endDate.diff(filters.value.startDate, 'day')
+      if (daysDiff === 2 && filters.value.endTime < newTime) {
+        filters.value.endTime = newTime
+      }
+    }
+    
+    const [hour, minute] = newTime.split(':')
     const combinedDateTime = dayjs(filters.value.startDate)
-      .hour(dayjs(newTime).hour())
-      .minute(dayjs(newTime).minute())
+      .hour(parseInt(hour))
+      .minute(parseInt(minute))
+      .second(0)
     localStorage.setItem(STORAGE_KEYS.START_DATE, combinedDateTime.toISOString())
   }
-}, { deep: true })
+})
 
 // Watch for endTime changes and combine with endDate
 watch(() => filters.value.endTime, (newTime) => {
   if (newTime && filters.value.endDate) {
+    // Se a diferença for exatamente 2 dias, garantir que hora de devolução >= hora de recolha
+    if (filters.value.startDate && filters.value.startTime) {
+      const daysDiff = filters.value.endDate.diff(filters.value.startDate, 'day')
+      if (daysDiff === 2 && newTime < filters.value.startTime) {
+        filters.value.endTime = filters.value.startTime
+        return
+      }
+    }
+    
+    const [hour, minute] = newTime.split(':')
     const combinedDateTime = dayjs(filters.value.endDate)
-      .hour(dayjs(newTime).hour())
-      .minute(dayjs(newTime).minute())
+      .hour(parseInt(hour))
+      .minute(parseInt(minute))
+      .second(0)
     localStorage.setItem(STORAGE_KEYS.END_DATE, combinedDateTime.toISOString())
   }
-}, { deep: true })
+})
 
 const checkVehicleAvailable = async () => {
 
@@ -683,6 +887,11 @@ const checkVehicleAvailable = async () => {
     console.log(t('common.console.vehicleAvailability'), disableBooking.value ? t('common.console.notAvailable') : t('common.console.available'))
   }
 }
+
+// Watch for vehicle active_rentals to check availability when data is loaded
+watch(() => props.vehicle?.active_rentals, () => {
+  checkVehicleAvailable()
+}, { immediate: true, deep: true })
 </script>
 
 <style scoped>
@@ -692,6 +901,9 @@ const checkVehicleAvailable = async () => {
   grid-template-columns: 1fr;
   gap: 32px;
   margin-bottom: 40px;
+  max-width: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 /* Cards */
@@ -703,6 +915,11 @@ const checkVehicleAvailable = async () => {
   border-radius: 20px;
   padding: 32px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  max-width: 100%;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .card-header-modern {
@@ -727,6 +944,9 @@ const checkVehicleAvailable = async () => {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 20px;
+  max-width: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 .spec-item-modern {
@@ -734,6 +954,9 @@ const checkVehicleAvailable = async () => {
   align-items: center;
   gap: 16px;
   padding: 16px;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
   border-radius: 12px;
   background: #f8fafc;
 }
@@ -857,6 +1080,9 @@ const checkVehicleAvailable = async () => {
 /* Booking Form */
 .booking-form-modern {
   margin-top: 24px;
+  max-width: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 .date-grid-modern {
@@ -864,64 +1090,118 @@ const checkVehicleAvailable = async () => {
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-bottom: 24px;
+  max-width: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 .date-item-modern {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .date-time-group {
   display: flex;
   gap: 8px;
   margin-top: 8px;
+  max-width: 100%;
 }
 
 .date-only {
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .modern-time-picker {
   flex: 0 0 120px;
+  max-width: 120px;
 }
 
 .modern-date-picker {
   width: 100%;
+  max-width: 100%;
 }
 
 /* Location Section */
 .location-section {
   margin-bottom: 20px;
   padding-bottom: 0px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .location-selects {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .location-select-item {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .location-select {
   width: 100%;
   border-radius: 8px;
   margin-top: 8px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.location-select :deep(.ant-select-selector) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.location-select :deep(.ant-select-selection-item) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.location-select :deep(.ant-select-dropdown) {
+  max-width: 100vw !important;
+}
+
+.location-select :deep(.ant-select-item) {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.custom-location-input {
+  margin-top: 8px;
+  border-radius: 8px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Extras Section */
 .extras-section {
   margin-bottom: 20px;
   padding-bottom: 0px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .extras-options {
   display: flex;
   flex-direction: row;
   gap: 12px;
+  max-width: 100%;
 }
 
 .extra-option {
@@ -952,6 +1232,8 @@ const checkVehicleAvailable = async () => {
 /* Price Display */
 .price-display {
   margin-bottom: 20px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .price-breakdown {
@@ -959,6 +1241,8 @@ const checkVehicleAvailable = async () => {
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 10px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .price-line {
@@ -1046,6 +1330,20 @@ const checkVehicleAvailable = async () => {
   color: white !important;
 }
 
+.next-btn-modern:disabled,
+.next-btn-modern[disabled] {
+  background: #d1d5db !important;
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+.next-btn-modern:disabled:hover,
+.next-btn-modern[disabled]:hover {
+  background: #d1d5db !important;
+  color: #9ca3af !important;
+}
+
 .button-content {
   display: flex;
   justify-content: space-between;
@@ -1090,6 +1388,15 @@ const checkVehicleAvailable = async () => {
 }
 
 @media (max-width: 768px) {
+  .specs-card-modern,
+  .features-card-modern,
+  .description-card-modern,
+  .booking-card-modern {
+    padding: 20px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
   .specs-grid-modern {
     grid-template-columns: 1fr 1fr;
   }
@@ -1114,6 +1421,11 @@ const checkVehicleAvailable = async () => {
 
   .location-selects {
     grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+
+  .location-select-item {
+    max-width: 100%;
   }
 
   .extras-options {
@@ -1122,8 +1434,34 @@ const checkVehicleAvailable = async () => {
 }
 
 @media (max-width: 480px) {
+  .specs-card-modern,
+  .features-card-modern,
+  .description-card-modern,
+  .booking-card-modern {
+    padding: 16px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
   .specs-grid-modern {
     grid-template-columns: 1fr;
+  }
+
+  .location-section {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .location-selects {
+    max-width: 100%;
+  }
+
+  .location-select-item {
+    max-width: 100%;
+  }
+
+  .location-select {
+    max-width: 100%;
   }
 }
 </style>

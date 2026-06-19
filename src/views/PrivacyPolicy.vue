@@ -3,11 +3,11 @@
     <HeaderPage />
     <div class="legal-container">
       <div class="legal-header">
-        <h1>{{ t('privacy.title') }}</h1>
-        <p class="legal-update">{{ t('privacy.lastUpdate') }}: 17/03/2026</p>
+
       </div>
 
       <div class="legal-content">
+        <h1>{{ t('privacy.title') }}</h1>
         <!-- 1. Introdução -->
         <section class="legal-section">
           <h2>1. {{ t('privacy.introTitle') }}</h2>
@@ -179,9 +179,14 @@
 <script setup>
 import HeaderPage from '@/components/HeaderPage.vue'
 import { LeftOutlined } from '@ant-design/icons-vue'
+import { watchEffect } from 'vue'
 import { useLanguageAndCurrency } from '@/composables/useLanguageAndCurrency'
 
 const { t } = useLanguageAndCurrency()
+
+watchEffect(() => {
+  document.title = `${t('privacy.title')} | Universal Rent-A-Car`
+})
 </script>
 
 <style scoped>
@@ -199,6 +204,7 @@ const { t } = useLanguageAndCurrency()
 .legal-header {
   text-align: center;
   margin-bottom: 40px;
+  margin-top: 50px;
 }
 
 .legal-header h1 {

@@ -66,7 +66,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('/universal-rent-a-car/'),
+  history: createWebHistory('/'),
   routes,
   scrollBehavior(to) {
     if (to.hash) {
@@ -87,6 +87,22 @@ router.beforeEach(async (to, from, next) => {
     // Check if user is authenticated with local storage token
     const token = localStorage.getItem('authToken')
     const isAuthenticated = !!token
+
+    // ForgotPasswordRecovery: only accessible unauthenticated and via ForgotPassword flow
+    if (to.name === 'ForgotPasswordRecovery') {
+      if (isAuthenticated) {
+        next('/')
+        return
+      }
+      const hasFlow = sessionStorage.getItem('forgotPasswordFlow')
+      if (!hasFlow) {
+        next('/forgot-password')
+        return
+      }
+      sessionStorage.removeItem('forgotPasswordFlow')
+      next()
+      return
+    }
     
     //console.log(`[Router] User authenticated: ${isAuthenticated}`)
 

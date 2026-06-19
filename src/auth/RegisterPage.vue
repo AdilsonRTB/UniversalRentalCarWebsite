@@ -401,7 +401,7 @@ import antLocale_fr_FR from 'ant-design-vue/es/locale/fr_FR'
 //import keycloakService from '../services/keycloak'
 
 const router = useRouter()
-const { currentLanguage } = useLanguageAndCurrency()
+const { currentLanguage, t } = useLanguageAndCurrency()
 
 // reCAPTCHA - DESATIVADO
 // const { 
@@ -418,6 +418,7 @@ const { currentLanguage } = useLanguageAndCurrency()
 
 // Form references
 const formRef = ref(null)
+const formValidated = ref(false)
 
 // Reactive data
 const isLoading = ref(false)
@@ -503,102 +504,110 @@ watch(currentLanguage, (newLang) => {
   dayjs.locale(newLang)
 }, { immediate: true })
 
+watch(currentLanguage, () => {
+  if (formValidated.value) {
+    formRef.value?.validate().catch(() => {})
+  }
+})
+
 // Form validation rules
-const formRules = {
+const formRules = computed(() => ({
   firstName: [
-    { required: true, message: 'Por favor, insira o seu primeiro nome' },
-    { min: 2, message: 'O nome deve ter pelo menos 2 caracteres' }
+    { required: true, message: t('auth.firstNameRequired') },
+    { min: 2, message: t('auth.nameMinLength') }
   ],
   lastName: [
-    { required: true, message: 'Por favor, insira o seu último nome' },
-    { min: 2, message: 'O nome deve ter pelo menos 2 caracteres' }
+    { required: true, message: t('auth.lastNameRequired') },
+    { min: 2, message: t('auth.nameMinLength') }
   ],
   email: [
-    { required: true, message: 'Por favor, insira o seu e-mail' },
-    { type: 'email', message: 'Por favor, insira um e-mail válido' }
+    { required: true, message: t('auth.emailRequiredValidation') },
+    { type: 'email', message: t('auth.emailValidValidation') }
   ],
   phoneNumber: [
-    { required: true, message: 'Por favor, insira o seu número de telefone' },
-    { pattern: /^[+]?[0-9\s-()]+$/, message: 'Formato de telefone inválido' }
+    { required: true, message: t('auth.phoneNumberRequired') },
+    { pattern: /^[+]?[0-9\s-()]+$/, message: t('auth.phoneInvalidFormat') }
   ],
   idNumber: [
-    { required: true, message: 'Por favor, insira o número de identificação' }
+    { required: true, message: t('auth.idNumberRequired') }
   ],
   password: [
-    { required: true, message: 'Por favor, insira uma palavra-passe' },
-    { min: 8, message: 'A palavra-passe deve ter pelo menos 8 caracteres' },
+    { required: true, message: t('auth.passwordRequiredRegister') },
+    { min: 8, message: t('auth.passwordMinLengthRegister') },
     { 
       pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
-      message: 'Deve conter pelo menos uma minúscula, maiúscula e um número' 
+      message: t('auth.passwordComplexity') 
     }
   ],
   confirmPassword: [
-    { required: true, message: 'Por favor, confirme a sua palavra-passe' },
+    { required: true, message: t('auth.confirmPasswordRequired') },
     {
       validator: (rule, value) => {
         if (value && value !== formData.password) {
-          return Promise.reject('As palavras-passe não coincidem')
+          return Promise.reject(t('auth.passwordsDoNotMatch'))
         }
         return Promise.resolve()
       }
     }
   ],
   drivingLicenseNumber: [
-    { required: true, message: 'Por favor, insira o número da carta de condução' }
+    { required: true, message: t('auth.drivingLicenseRequired') }
   ],
   licenseExpiryDate: [
-    { required: true, message: 'Por favor, selecione a data de validade' },
+    { required: true, message: t('auth.licenseExpiryRequired') },
     {
       validator: (rule, value) => {
         if (value && value.isBefore(new Date(), 'day')) {
-          return Promise.reject('A carta de condução deve estar válida')
+          return Promise.reject(t('auth.licenseExpired'))
         }
         return Promise.resolve()
       }
     }
   ],
   addressLine1: [
-    { required: true, message: 'Por favor, insira o endereço' }
+    { required: true, message: t('auth.addressRequired') }
   ],
   postalCode: [
-    { required: true, message: 'Por favor, insira o código postal' },
-    { pattern: /^\d{4}-\d{3}$/, message: 'Formato: 0000-000' }
+    { required: true, message: t('auth.postalCodeRequired') },
+    { pattern: /^\d{4}-\d{3}$/, message: t('auth.postalCodeFormat') }
   ],
   city: [
-    { required: true, message: 'Por favor, insira a sua cidade' }
+    { required: true, message: t('auth.cityRequired') }
   ],
   country: [
-    { required: true, message: 'Por favor, selecione o país' }
+    { required: true, message: t('auth.countryRequired') }
   ],
   agreeTerms: [
     {
       validator: (rule, value) => {
         if (!value) {
-          return Promise.reject('Deve concordar com os termos e condições')
+          return Promise.reject(t('auth.agreeTermsRequired'))
         }
         return Promise.resolve()
       }
     }
   ]
-}
+}))
 
 // Methods
 const nextStep = async () => {
   if (currentStep.value === 0) {
     // Validate personal information
+    formValidated.value = true
     try {
       await formRef.value.validateFields(['firstName', 'lastName', 'email', 'phoneNumber', 'idNumber', 'password', 'confirmPassword'])
       currentStep.value++
     } catch (error) {
-      message.error('Por favor, corrija os erros antes de continuar')
+      message.error(t('auth.fixErrorsBeforeContinue'))
     }
   } else if (currentStep.value === 1) {
     // Validate license information
+    formValidated.value = true
     try {
       await formRef.value.validateFields(['drivingLicenseNumber', 'licenseExpiryDate'])
       currentStep.value++
     } catch (error) {
-      message.error('Por favor, corrija os erros antes de continuar')
+      message.error(t('auth.fixErrorsBeforeContinue'))
     }
   }
 }

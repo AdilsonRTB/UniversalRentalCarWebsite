@@ -31,6 +31,7 @@
               :rules="formRules"
               layout="vertical"
               @finish="handleLogin"
+              @finish-failed="formValidated = true"
             >
               <!-- Email Field -->
               <a-form-item
@@ -115,7 +116,7 @@ import {
   LockOutlined,
   LoginOutlined
 } from '@ant-design/icons-vue'
-import { ref, reactive, h, defineProps, defineEmits } from 'vue'
+import { ref, reactive, computed, h, defineProps, defineEmits, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {authService} from '../services/api'
 import logo from '../assets/logo2.png'
@@ -130,11 +131,18 @@ defineProps({
 
 const emit = defineEmits(['close', 'success', 'register', 'openModal'])
 
-const { t } = useLanguageAndCurrency()
+const { t, currentLanguage } = useLanguageAndCurrency()
 const router = useRouter()
 
 // Form references
 const formRef = ref(null)
+const formValidated = ref(false)
+
+watch(currentLanguage, () => {
+  if (formValidated.value) {
+    formRef.value?.validate().catch(() => {})
+  }
+})
 
 // Reactive data
 const isLoading = ref(false)
@@ -149,7 +157,7 @@ const formData = reactive({
 
 
 // Form validation rules
-const formRules = {
+const formRules = computed(() => ({
   email: [
     { required: true, message: t('auth.emailRequired') },
     { type: 'email', message: t('auth.emailInvalid') }
@@ -158,7 +166,7 @@ const formRules = {
     { required: true, message: t('auth.passwordRequired') },
     { min: 6, message: t('auth.passwordMinLength') }
   ]
-}
+}))
 
 // Methods
 const handleLogin = async (values) => {
@@ -194,6 +202,12 @@ const showForgotPassword = () => {
 }
 
 const handleCancel = () => {
+  formData.email = ''
+  formData.password = ''
+  formData.rememberMe = false
+  errorMessage.value = ''
+  formValidated.value = false
+  formRef.value?.clearValidate()
   emit('close')
 }
 

@@ -68,6 +68,8 @@ defineProps({
 /* Gallery Section */
 .gallery-section-modern {
   margin-bottom: 40px;
+  position: relative;
+  z-index: 100;
 }
 
 .gallery-container {
@@ -86,13 +88,56 @@ defineProps({
 
 .carousel-slide-modern {
   position: relative;
-  height: 400px;
+  height: 480px;
+  overflow: hidden;
 }
 
 .vehicle-image-modern {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .carousel-slide-modern {
+    height: 360px;
+  }
+}
+
+@media (max-width: 768px) {
+  .carousel-slide-modern {
+    height: 260px;
+  }
+
+  .gallery-container {
+    border-radius: 12px;
+  }
+
+  .modern-carousel {
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-slide-modern {
+    height: 200px;
+  }
+
+  .image-overlay-actions {
+    top: 10px;
+    right: 10px;
+    gap: 8px;
+  }
+
+  .action-btn-modern {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 .image-overlay-actions {

@@ -8,26 +8,31 @@
               <div v-for="(image, index) in vehicleImages" :key="index" class="carousel-slide-modern">
                 <img :src="image.image" :alt="`${vehicle?.brand_name} ${vehicle?.model} - Imagem ${index + 1}`" class="vehicle-image-modern" />
                 <h1 class="vehicle-title-modern">{{ vehicle?.brand_name }} {{ vehicle?.model }}</h1>
-                <div class="vehicle-meta-modern">
-                    <div class="meta-item">
-                      <CalendarOutlined class="meta-icon" />
-                      <span>{{ vehicle?.year }}</span>
-                    </div>
-                    <!--div class="meta-item">
-                      <EnvironmentOutlined class="meta-icon" />
-                      <span>{{ $t('search.gallery.defaultLocation') }}</span>
-                    </!--div-->
+
+                <!-- Availability Badge -->
+                <div v-if="hasDateFilter" class="availability-badge-modern" :class="availability ? 'available' : 'unavailable'">
+                  <CheckCircleFilled class="availability-icon" v-if="availability"/>
+                  <CloseCircleFilled class="availability-icon" v-else/>
+                  <span>{{ availability ? $t('vehicles.available') : $t('vehicles.unavailable') }}</span>
                 </div>
                 <div class="image-overlay-actions">
-                  <a-button type="text" class="action-btn-modern" @click="viewVehicle(vehicle?.id)">
-                    <CarOutlined style="font-size: large;"/>
+                  <!-- Menu button for mobile -->
+                  <a-button type="text" class="action-btn-modern menu-toggle-btn" @click.stop="showActionsMenu = !showActionsMenu">
+                    <MoreOutlined style="font-size: 20px;" />
                   </a-button>
-                  <a-button type="text" class="action-btn-modern" @click="shareLink">
-                    <ShareAltOutlined />
-                  </a-button>
-                  <a-button type="text" class="action-btn-modern" @click="visible = true">
-                    <ExpandOutlined />
-                  </a-button>
+                  
+                  <!-- Action buttons (desktop always visible, mobile conditional) -->
+                  <div class="action-buttons-group" :class="{ 'show-menu': showActionsMenu }">
+                    <a-button type="text" class="action-btn-modern" @click.stop="viewVehicle(vehicle?.id); showActionsMenu = false">
+                      <CarOutlined style="font-size: large;"/>
+                    </a-button>
+                    <a-button type="text" class="action-btn-modern" @click.stop="shareVehicleLink">
+                      <ShareAltOutlined />
+                    </a-button>
+                    <a-button type="text" class="action-btn-modern" @click.stop="visible = true; showActionsMenu = false">
+                      <ExpandOutlined />
+                    </a-button>
+                  </div>
                 </div>
                 <div class="specs-grid-modern">
                   <div class="spec-item-modern">
@@ -74,18 +79,10 @@
                 <!--p class="card-subtitle-modern">Informações sobre o veículo</!--p-->
               </div>
 
-              <div class="description-container" :class="{ scrollable: expanded }" >
-                <div class="description-text" :class="{ collapsed: !expanded }">
+              <div class="description-container">
+                <div class="description-text">
                   <div v-html="vehicleDescription"></div>
                 </div>
-                <a-button 
-                  v-if="!expanded" 
-                  type="link"
-                  @click="onExpand(true)"
-                  class="expand-btn"
-                >
-                  {{ $t('search.gallery.seeMore') }}
-                </a-button>
               </div>
             </div>
 
@@ -95,21 +92,37 @@
               <div class="location-section">
                 <div class="location-selects">
                   <div class="location-select-item">
-                    <label class="location-label">{{ $t('search.gallery.pickupLocation') }}</label>
+                    <label class="location-label required-field">{{ $t('search.gallery.pickupLocation') }}</label>
                     <a-select
                       v-model:value="pickupLocation"
                       :placeholder="$t('search.gallery.pickupLocation')"
                       class="location-select"
                       :options="locationsOptions"
+                      show-search
+                      :filter-option="(input, option) => option.label.toLowerCase().includes(input.toLowerCase())"
+                    />
+                    <a-input
+                      v-if="pickupLocation === '__others__'"
+                      v-model:value="customPickupLocation"
+                      :placeholder="$t('search.gallery.customLocationPlaceholder')"
+                      class="custom-location-input"
                     />
                   </div>
                   <div class="location-select-item">
-                    <label class="location-label">{{ $t('search.gallery.returnLocation') }}</label>
+                    <label class="location-label required-field">{{ $t('search.gallery.returnLocation') }}</label>
                     <a-select
                       v-model:value="returnLocation"
                       :placeholder="$t('search.gallery.returnLocation')"
                       class="location-select"
                       :options="locationsOptions"
+                      show-search
+                      :filter-option="(input, option) => option.label.toLowerCase().includes(input.toLowerCase())"
+                    />
+                    <a-input
+                      v-if="returnLocation === '__others__'"
+                      v-model:value="customReturnLocation"
+                      :placeholder="$t('search.gallery.customLocationPlaceholder')"
+                      class="custom-location-input"
                     />
                   </div>
                 </div>
@@ -153,6 +166,10 @@
                     <span class="price-label">{{ $t('search.gallery.serviceFee') }}</span>
                     <span class="price-value">{{ serviceFeeAmount }} {{ currencySymbol }}</span>
                   </div>
+                  <div class="price-line">
+                    <span class="price-label">{{ $t('search.gallery.securityDeposit') }}</span>
+                    <span class="price-value">{{ securityDeposit }} {{ currencySymbol }}</span>
+                  </div>
                 </div>
               </div>
 
@@ -162,7 +179,7 @@
                 size="large"
                 class="next-btn-modern"
                 @click="handleReservation"
-                :disabled="!availability"
+                :disabled="isReserveButtonDisabled"
               >
                 <div class="button-content">
                   <span class="button-text">{{ $t('search.gallery.reserveNow') }}</span>
@@ -193,14 +210,15 @@
       :car-seat="carSeat"
       :with-driver-value="days * driverDailyRate"
       :car-seat-value="days * carSeatDailyRate"
-      :pickupLocation="pickupLocation"
-      :returnLocation="returnLocation"
+      :pickupLocation="effectivePickupLocation"
+      :returnLocation="effectiveReturnLocation"
       :locations="locations"
       @reservation-confirmed="handleReservationConfirmed"
       :serviceFeeAmount="serviceFeeAmount"
       :currencySymbol="currencySymbol"
       :dailyRate="dailyRate * days"
       :serviceFeeType="config?.service_fee_type"
+      :securityDeposit="securityDeposit"
     />
   </section>
   <div style="display: none">
@@ -214,19 +232,20 @@
 </template>
 
 <script setup>
-import { defineProps, computed, ref, watch } from 'vue'
-import { CarOutlined, ShareAltOutlined, CalendarOutlined, SettingOutlined, UserOutlined, ExpandOutlined } from '@ant-design/icons-vue'
+import { defineProps, computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import { CarOutlined, ShareAltOutlined, SettingOutlined, UserOutlined, ExpandOutlined, MoreOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
 import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency.js'
 import dayjs from 'dayjs'
 import ReservationModal from '../components/ReservationModal.vue'
 import { useRouter } from 'vue-router'
-//import { useUtilities } from '../composables/utilits.js'
+import { useUtilities } from '../composables/utilits.js'
 
 const { t, locale } = useI18n()
 const { currentCurrency } = useLanguageAndCurrency()
 const router = useRouter()
+const { calculateRentalDays } = useUtilities()
 //const { formatImageUrl } = useUtilities()
 
 const props = defineProps({
@@ -260,9 +279,24 @@ const props = defineProps({
   }
 })
 
-const expanded = ref(false);
-
 const visible = ref(false);
+const showActionsMenu = ref(false);
+
+// Close menu when clicking outside
+const handleClickOutside = (event) => {
+  const actionsMenu = event.target.closest('.image-overlay-actions')
+  if (!actionsMenu && showActionsMenu.value) {
+    showActionsMenu.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 // Extras state
 const withDriver = ref(false);
@@ -271,13 +305,31 @@ const carSeat = ref(false);
 // Location state
 const pickupLocation = ref(null);
 const returnLocation = ref(null);
-
-const onExpand = (isExpanded) => {
-  expanded.value = isExpanded;
-};
+const customPickupLocation = ref('');
+const customReturnLocation = ref('');
 
 const locationsOptions = computed(() => {
-  return props.locations.map(loc => ({ label: loc.name, value: loc.id }))
+  const options = props.locations.map(loc => ({ label: loc.name, value: loc.id }))
+  //options.push({ label: t('search.gallery.others'), value: '__others__' })
+  return options
+})
+
+// Effective location: custom text or predefined name
+const effectivePickupLocation = computed(() => {
+  if (pickupLocation.value === '__others__') return customPickupLocation.value.trim()
+  if (pickupLocation.value && props.locations) {
+    const found = props.locations.find(loc => loc.id === pickupLocation.value)
+    return found ? found.name : ''
+  }
+  return ''
+})
+const effectiveReturnLocation = computed(() => {
+  if (returnLocation.value === '__others__') return customReturnLocation.value.trim()
+  if (returnLocation.value && props.locations) {
+    const found = props.locations.find(loc => loc.id === returnLocation.value)
+    return found ? found.name : ''
+  }
+  return ''
 })
 
 // Watch for changes in locations to set default values
@@ -286,27 +338,41 @@ watch(() => props.locations, (newLocations) => {
     // Find default pickup location
     const defaultPickup = newLocations.find(loc => loc.default_pickup === true)
     if (defaultPickup && !pickupLocation.value) {
-      pickupLocation.value = defaultPickup
+      pickupLocation.value = defaultPickup.id
     }
     
     // Find default return location
     const defaultReturn = newLocations.find(loc => loc.default_return === true)
     if (defaultReturn && !returnLocation.value) {
-      returnLocation.value = defaultReturn
+      returnLocation.value = defaultReturn.id
     }
   }
 }, { immediate: true })
 
-const shareLink = () => {
-  const linkToShare = window.location.href + `vehicle/${props.vehicle.id}`
+const vehicleUrl = computed(() =>
+  `${window.location.origin}/vehicle/${props.vehicle?.id}`
+)
 
+const shareVehicleLink = async () => {
+  const url = vehicleUrl.value
+  showActionsMenu.value = false
   if (navigator.share) {
-    navigator.share({
-      title: document.title,
-      url: linkToShare
-    }).catch(err => console.error(t('search.gallery.shareError'), err))
+    try {
+      await navigator.share({ title: document.title, url })
+    } catch (err) {
+      if (err.name !== 'AbortError') console.error('Erro ao partilhar', err)
+    }
   } else {
-    alert(t('search.gallery.shareNotSupported'))
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      const el = document.createElement('textarea')
+      el.value = url
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+    }
   }
 }
 
@@ -315,9 +381,8 @@ const showReservationModal = ref(false)
 
 const days = computed(() => {
   if (props.startDate && props.endDate) {
-    const start = dayjs(props.startDate);
-    const end = dayjs(props.endDate);
-    return end.diff(start, 'day');
+    const tolerance = Number(props.config?.rental_days_tolerance_hours) || 12
+    return calculateRentalDays(props.startDate, props.endDate, tolerance);
   }
   return 0;
 })
@@ -339,7 +404,32 @@ const calculateTotal = computed(() => {
   // Add service fee based on config
   const serviceFee = serviceFeeAmount.value;
 
-  return Math.round(baseTotal + extras + serviceFee);
+  // Add security deposit
+  const deposit = securityDeposit.value;
+
+  return Math.round(baseTotal + extras + serviceFee + deposit);
+})
+
+// Check if reserve button should be disabled
+const isReserveButtonDisabled = computed(() => {
+  const hasLocations = effectivePickupLocation.value && effectiveReturnLocation.value
+  const hasDates = props.startDate && props.endDate
+  const isAvailable = props.availability
+  
+  console.log('🔍 Reserve button debug:', {
+    hasLocations,
+    hasDates,
+    isAvailable,
+    pickupLocationId: pickupLocation.value,
+    returnLocationId: returnLocation.value,
+    startDate: props.startDate,
+    endDate: props.endDate,
+    availability: props.availability,
+    shouldDisable: !isAvailable || !hasLocations || !hasDates
+  })
+  
+  // Disable if: no availability OR no locations OR no dates
+  return !isAvailable || !hasLocations || !hasDates
 })
 
 // Função de reserva
@@ -388,8 +478,14 @@ const vehicleDescription = computed(() => {
     default:
       description = props.vehicle?.description || t('vehicles.defaultDescription')
   }
-  // Substituir ponto e vírgula por quebra de linha
-  return description.replace(/;/g, ';<br>')
+  
+  // Formatar a descrição: remover espaços antes de : e ;, substituir quebras de linha
+  return description
+    .replace(/\s+:/g, ':')           // Remove espaços antes de :
+    .replace(/\s+;/g, ';')           // Remove espaços antes de ;
+    .replace(/\r\n/g, '<br>')        // Substitui \r\n por <br>
+    .replace(/\n/g, '<br>')          // Substitui \n por <br>
+    //.replace(/;/g, ';<br>')          // Adiciona <br> após cada ;
 })
 
 // Computed properties para valores da configuração baseados na moeda selecionada
@@ -448,6 +544,23 @@ const serviceFeeAmount = computed(() => {
   }
 })
 
+const securityDeposit = computed(() => {
+  const baseDeposit = Number(props.vehicle?.security_deposit) || 0
+
+  const usdRate = Number(props.config?.usd_exchange_rate) || 1
+  const eurRate = Number(props.config?.euro_exchange_rate) || 1
+
+  switch (currentCurrency.value) {
+    case 'USD':
+      return usdRate ? baseDeposit / usdRate : 0
+    case 'EUR':
+      return eurRate ? baseDeposit / eurRate : 0
+    case 'CVE':
+    default:
+      return baseDeposit
+  }
+})
+
 const currencySymbol = computed(() => {
   switch (currentCurrency.value) {
     case 'USD':
@@ -458,6 +571,11 @@ const currencySymbol = computed(() => {
     default:
       return 'CVE'
   }
+})
+
+// Check if date filters are applied
+const hasDateFilter = computed(() => {
+  return !!(props.startDate && props.endDate)
 })
 
 
@@ -521,12 +639,16 @@ const viewVehicle = (vehicleId) => {
 }
 
 .image-column {
-  min-height: 500px;
+  min-height: 0;
+}
+
+.image-column .modern-carousel {
+  height: 100%;
 }
 
 .content-column {
   background: white;
-  min-height: 500px;
+  min-height: 0;
 }
 
 .column-content-wrapper {
@@ -544,11 +666,12 @@ const viewVehicle = (vehicleId) => {
   background: white;
   border-radius: 12px;
   margin-bottom: 0px;
+  max-height: 220px;
+  overflow-y: auto;
 }
 
 .description-container {
   height: auto;
-  max-height: 180px;
   overflow: visible;
   display: block;
 }
@@ -557,42 +680,65 @@ const viewVehicle = (vehicleId) => {
   margin-bottom: 0;
 }
 
-.description-container.scrollable {
-  max-height: none;
-  overflow-y: auto; /* ativa scroll */
-}
-
 .description-text {
   font-size: 12px;
   line-height: 1.2;
   color: #374151;
 }
 
-.description-text.collapsed {
-  display: -webkit-box;
-  -webkit-line-clamp: 6;
-  line-clamp: 6;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+/* Custom scrollbar for description */
+.description-card-modern::-webkit-scrollbar {
+  width: 6px;
 }
 
-.expand-btn {
-  padding: 0;
-  color: #1890ff;
-  font-size: 14px;
-  margin-top: 4px;
+.description-card-modern::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
 }
 
-.expand-btn:hover {
-  color: #40a9ff;
+.description-card-modern::-webkit-scrollbar-thumb {
+  background: #FE7743;
+  border-radius: 10px;
+}
+
+.description-card-modern::-webkit-scrollbar-thumb:hover {
+  background: #ff5722;
 }
 
 .pricing-section-modern {
   flex-shrink: 0;
-  margin-top: -120px;
+  margin-top: 0px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
 }
 
 /* Responsive adjustments */
+/* Telas extra grandes */
+@media (min-width: 1920px) {
+  .carousel-slide-modern {
+    min-height: 600px;
+  }
+}
+
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .carousel-slide-modern {
+    min-height: 550px;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .carousel-slide-modern {
+    min-height: 500px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .carousel-slide-modern {
+    min-height: 450px;
+  }
+}
+
 @media (max-width: 991px) {
   .equal-height-row {
     display: block;
@@ -609,10 +755,19 @@ const viewVehicle = (vehicleId) => {
   
   .description-card-modern {
     flex: none;
+    max-height: none;
+    overflow-y: visible;
   }
   
   .pricing-section-modern {
     margin-top: 20px;
+    padding: 16px;
+  }
+
+  .carousel-slide-modern {
+    height: 420px !important;
+    min-height: 420px !important;
+    max-height: none !important;
   }
   
   .location-selects {
@@ -636,6 +791,133 @@ const viewVehicle = (vehicleId) => {
     flex-direction: column !important;
     gap: 10px;
   }
+  
+  .location-select :deep(.ant-select-selector) {
+    padding: 7px 10px !important;
+    min-height: 38px !important;
+  }
+  
+  .location-select :deep(.ant-select-selection-item) {
+    font-size: 13px !important;
+  }
+  
+  .location-select :deep(.ant-select-dropdown) {
+    max-width: 94vw !important;
+  }
+
+  /* Mobile action menu for tablets */
+  .menu-toggle-btn {
+    display: flex !important;
+    z-index: 102 !important;
+  }
+  
+  .action-buttons-group {
+    display: none !important;
+    flex-direction: column;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 12px;
+    padding: 8px;
+    gap: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+    z-index: 101;
+    min-width: 50px;
+    animation: slideDown 0.2s ease-out;
+  }
+  
+  .action-buttons-group.show-menu {
+    display: flex !important;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .image-overlay-actions {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
+  }
+
+  .carousel-slide-modern {
+    height: 320px !important;
+    min-height: 320px !important;
+  }
+
+  .vehicle-title-modern {
+    font-size: 20px;
+    top: 10px;
+    left: 14px;
+    right: 65px;
+    white-space: nowrap;
+  }
+  
+  .vehicle-meta-modern {
+    top: 36px;
+    left: 14px;
+  }
+
+  .availability-badge-modern {
+    top: 45px;
+    left: 14px;
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-slide-modern {
+    height: 200px !important;
+    min-height: 200px !important;
+  }
+
+  .gallery-container {
+    border-radius: 12px;
+  }
+
+  .modern-carousel {
+    border-radius: 12px;
+  }
+
+  .image-overlay-actions {
+    top: 10px;
+    right: 10px;
+    gap: 8px;
+  }
+
+  .action-btn-modern {
+    width: 36px;
+    height: 36px;
+  }
+
+  .specs-grid-modern {
+    bottom: 10px;
+    left: 10px;
+  }
+
+  .location-select :deep(.ant-select-selector) {
+    padding: 6px 8px !important;
+    min-height: 36px !important;
+  }
+  
+  .location-select :deep(.ant-select-selection-item) {
+    font-size: 11px !important;
+    padding-right: 16px !important;
+  }
+  
+  .location-select :deep(.ant-select-item-option-content) {
+    font-size: 11px !important;
+  }
 }
 
 @media (max-width: 576px) {
@@ -657,30 +939,141 @@ const viewVehicle = (vehicleId) => {
     font-size: 12px;
   }
   
-  .location-select .ant-select-selector {
-    padding: 6px 10px;
-    min-height: 36px;
+  .location-select :deep(.ant-select-selector) {
+    padding: 6px 10px !important;
+    min-height: 36px !important;
+  }
+  
+  .location-select :deep(.ant-select-selection-item) {
+    font-size: 12px !important;
+    padding-right: 18px !important;
+  }
+  
+  .location-select :deep(.ant-select-dropdown) {
+    max-width: 92vw !important;
+  }
+  
+  .location-select :deep(.ant-select-item) {
+    padding: 8px 12px !important;
+  }
+  
+  .location-select :deep(.ant-select-item-option-content) {
+    font-size: 12px !important;
+  }
+  
+  /* Mobile action menu */
+  .menu-toggle-btn {
+    display: flex !important;
+    z-index: 102 !important;
+  }
+  
+  .action-buttons-group {
+    display: none !important;
+    flex-direction: column;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 12px;
+    padding: 8px;
+    gap: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+    z-index: 101;
+    min-width: 50px;
+    animation: slideDown 0.2s ease-out;
+  }
+  
+  .action-buttons-group.show-menu {
+    display: flex !important;
+  }
+  
+  .image-overlay-actions {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
+  }
+  
+  .carousel-slide-modern {
+    height: 230px !important;
+    min-height: 230px !important;
+  }
+
+  .vehicle-title-modern {
+    font-size: 15px;
+    top: 8px;
+    left: 12px;
+    right: 60px;
+  }
+  
+  .vehicle-meta-modern {
+    top: 28px;
+    left: 12px;
+  }
+
+  .availability-badge-modern {
+    top: 35px;
+    left: 12px;
+    font-size: 10px;
+    padding: 3px 8px;
+    gap: 4px;
+  }
+  
+  .availability-icon {
+    font-size: 11px;
+  }
+
+  .meta-item {
+    font-size: 12px;
+  }
+
+  .meta-icon {
+    font-size: 14px;
   }
 }
 
 .vehicle-image-carousel-modern {
   position: relative;
+  height: 100%;
 }
 
 .modern-carousel {
   border-radius: 20px;
+  height: 100%;
+}
+
+.modern-carousel :deep(.slick-slider) {
+  height: 100%;
+}
+
+.modern-carousel :deep(.slick-list) {
+  height: 100%;
+}
+
+.modern-carousel :deep(.slick-track) {
+  height: 100%;
+}
+
+.modern-carousel :deep(.slick-slide) {
+  height: 100%;
+}
+
+.modern-carousel :deep(.slick-slide > div) {
+  height: 100%;
 }
 
 .carousel-slide-modern {
   position: relative;
-  height: 500px;
-  min-height: 500px;
+  height: 100% !important;
+  overflow: hidden;
 }
 
 .vehicle-image-modern {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .image-overlay-actions {
@@ -689,21 +1082,36 @@ const viewVehicle = (vehicleId) => {
   right: 20px;
   display: flex;
   gap: 12px;
-  z-index: 10;
+  z-index: 100;
   pointer-events: auto;
 }
 
+.menu-toggle-btn {
+  display: none;
+  z-index: 101;
+}
+
+.action-buttons-group {
+  display: flex;
+  gap: 12px;
+  z-index: 100;
+}
+
 .vehicle-title-modern {
-  font-size: 32px;
+  font-size: clamp(16px, 2.8vw, 32px);
   font-weight: 700;
-  margin-bottom: 16px;
+  margin: 0;
   line-height: 1.2;
   color: white;
   position: absolute;
   top: 15px;
   left: 20px;
-  display: flex;
-  gap: 12px;
+  right: 180px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .vehicle-meta-modern {
@@ -724,6 +1132,36 @@ const viewVehicle = (vehicleId) => {
 
 .meta-icon {
   font-size: 18px;
+}
+
+/* Availability Badge */
+.availability-badge-modern {
+  position: absolute;
+  top: 55px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.availability-badge-modern.available {
+  background: rgba(16, 185, 129, 0.9);
+  color: white;
+}
+
+.availability-badge-modern.unavailable {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+}
+
+.availability-icon {
+  font-size: 14px;
 }
 
 .action-btn-modern {
@@ -942,8 +1380,8 @@ const viewVehicle = (vehicleId) => {
 
 .location-selects {
   display: flex;
-  flex-direction: row;
-  gap: 16px;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .location-select-item {
@@ -960,35 +1398,74 @@ const viewVehicle = (vehicleId) => {
   margin-bottom: 0px;
 }
 
+.location-label.required-field {
+  color: #374151;
+}
+
+.location-label.required-field::after {
+  content: ' *';
+  color: #ff4d4f;
+  margin-left: 2px;
+}
+
 .location-select {
   width: 100%;
   max-width: 100%;
+  min-width: 0;
 }
 
-.location-select .ant-select-selector {
+.location-select :deep(.ant-select-selector) {
+  border-radius: 8px !important;
+  border: 1px solid #d1d5db !important;
+  padding: 8px 12px !important;
+  min-height: 40px !important;
+  transition: all 0.2s ease !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.location-select :deep(.ant-select-selection-item) {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+  padding-right: 20px !important;
+}
+
+.location-select :deep(.ant-select-selection-search) {
+  max-width: 100% !important;
+}
+
+.location-select :deep(.ant-select-selection-search-input) {
+  max-width: 100% !important;
+}
+
+.location-select :deep(.ant-select-selector:hover) {
+  border-color: #FE7743 !important;
+}
+
+.location-select:deep(.ant-select-focused .ant-select-selector) {
+  border-color: #FE7743 !important;
+  box-shadow: 0 0 0 2px rgba(254, 119, 67, 0.1) !important;
+}
+
+/* Dropdown options responsiveness */
+.location-select :deep(.ant-select-dropdown) {
+  max-width: 95vw !important;
+}
+
+.location-select :deep(.ant-select-item-option-content) {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.4 !important;
+  padding: 4px 0 !important;
+}
+
+.custom-location-input {
+  margin-top: 8px;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
-  padding: 8px 12px;
-  min-height: 40px;
-  transition: all 0.2s ease;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.location-select .ant-select-selection-item {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: calc(100% - 24px);
-}
-
-.location-select .ant-select-selector:hover {
-  border-color: #FE7743;
-}
-
-.location-select.ant-select-focused .ant-select-selector {
-  border-color: #FE7743;
-  box-shadow: 0 0 0 2px rgba(254, 119, 67, 0.1);
 }
 .extras-options {
   display: flex;
@@ -1043,14 +1520,22 @@ const viewVehicle = (vehicleId) => {
   text-decoration: underline;
 }
 
-
-
-
-
-
-
-
-
+/* Desktop - Buttons always visible, menu toggle hidden */
+@media (min-width: 769px) {
+  .menu-toggle-btn {
+    display: none !important;
+  }
+  
+  .action-buttons-group {
+    display: flex !important;
+    flex-direction: row !important;
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    gap: 12px !important;
+    box-shadow: none !important;
+  }
+}
 
 
 </style>

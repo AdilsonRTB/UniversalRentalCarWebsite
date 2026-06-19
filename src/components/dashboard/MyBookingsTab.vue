@@ -102,7 +102,7 @@
           <div class="vehicle-cover">
             <div class="vehicle-icon-wrapper">
               <CarOutlined class="vehicle-icon-similar" v-if="!booking.vehicle_info.primary_photo && !booking.vehicle_info.photo"/>
-              <img :src="booking.vehicle_info.primary_photo" :alt="`${booking.vehicle_info?.brand} ${booking.vehicle_info?.model}`" class="vehicle-photo-modern" v-else/>
+              <img :src="booking.vehicle_info.primary_photo || mediaURL + booking.vehicle_info.photo" :alt="`${booking.vehicle_info?.brand} ${booking.vehicle_info?.model}`" class="vehicle-photo-modern" v-else/>
             </div>
             <div class="status-badge" :class="booking.status.toLowerCase()">
               {{ booking.status_display }}
@@ -113,7 +113,7 @@
           <div class="booking-header">
             <div class="vehicle-title">
               <h5>{{ booking.vehicle_info.brand }} {{ booking.vehicle_info.model }}</h5>
-              <span class="booking-id">#{{ booking.vehicle_info.year }}</span>
+              <span class="booking-id">#{{ booking.rental_code }}</span>
             </div>
           </div>
 
@@ -157,20 +157,11 @@
             </div>
           </div>
 
-          <!-- Progress Bar (for active bookings) -->
-          <div v-if="['pending', 'confirmed'].includes(booking.status)" class="progress-section">
+          <!-- Progress Bar (for confirmed bookings only) -->
+          <div v-if="booking.status === 'confirmed'" class="progress-section">
             <div class="progress-info">
               <span>{{ $t('bookings.tripProgress') }}</span>
               <span>{{ getBookingProgress(booking) }}%</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" :style="{ width: getBookingProgress(booking) + '%' }"></div>
-            </div>
-          </div>
-          <div v-else class="progress-section">
-            <div class="progress-info">
-              <span>{{ $t('bookings.tripProgress') }}</span>
-              <span> </span>
             </div>
             <div class="progress-bar">
               <div class="progress-fill" :style="{ width: getBookingProgress(booking) + '%' }"></div>
@@ -208,7 +199,7 @@
               @click="rateRental(booking)"
               class="action-btn"
             >
-              <StarOutlined /> Avaliar
+              <StarOutlined /> {{ $t('bookings.evaluate') }}
             </a-button>
           </div>
         </div>
@@ -248,6 +239,12 @@
       @cancel="closeDetailsModal"
     >
       <div class="details-modal-content" v-if="selectedBookingDetails">
+        <!-- Rental Code -->
+        <div class="rental-code-display-modal" v-if="selectedBookingDetails.rental_code">
+          <div class="rental-code-label">{{ $t('bookings.rentalCode') }}</div>
+          <div class="rental-code-value">#{{ selectedBookingDetails.rental_code }}</div>
+        </div>
+
         <!-- Vehicle Info -->
         <div class="details-section">
           <h4 class="details-section-title">
@@ -256,7 +253,7 @@
           <div class="details-vehicle-card">
             <div class="details-vehicle-image">
               <CarOutlined v-if="!selectedBookingDetails.vehicle_info?.primary_photo && !selectedBookingDetails.vehicle_info?.photo" />
-              <img :src="selectedBookingDetails.vehicle_info?.primary_photo" :alt="selectedBookingDetails.vehicle_info?.brand" v-else />
+              <img :src="mediaURL + selectedBookingDetails.vehicle_info?.photo" :alt="selectedBookingDetails.vehicle_info?.brand" v-else />
             </div>
             <div class="details-vehicle-info">
               <h5>{{ selectedBookingDetails.vehicle_info?.brand }} {{ selectedBookingDetails.vehicle_info?.model }}</h5>
@@ -577,7 +574,7 @@ import { defineProps, defineEmits, ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useLanguageAndCurrency } from '../../composables/useLanguageAndCurrency'
-import { baseURL, vehicleService } from '../../services/api'
+import { baseURL, vehicleService, mediaURL } from '../../services/api'
 
 const url = computed(() => baseURL)
 
@@ -761,7 +758,7 @@ const paginationShowTotal = (total, range) => {
 
 // Methods
 const formatDate = (dateString) => {
-  return dayjs(dateString).format('DD/MM/YYYY')
+  return dayjs(dateString).format('DD/MM/YYYY HH:mm')
 }
 
 const getBookingProgress = (booking) => {
@@ -772,8 +769,8 @@ const getBookingProgress = (booking) => {
   if (now.isBefore(start)) return 0
   if (now.isAfter(end)) return 100
   
-  const total = end.diff(start, 'day')
-  const elapsed = now.diff(start, 'day')
+  const total = end.diff(start, 'minute')
+  const elapsed = now.diff(start, 'minute')
   
   return Math.round((elapsed / total) * 100)
 }
@@ -846,11 +843,11 @@ const submitRating = async () => {
         ratingForm.value.vehicle_condition_rating === 0 ||
         ratingForm.value.service_quality_rating === 0 ||
         ratingForm.value.value_for_money_rating === 0) {
-      throw new Error('Todas as avaliações são obrigatórias!')
+      throw new Error(t('bookings.allRatingsRequired'))
     }
 
     if (ratingForm.value.had_issues && !ratingForm.value.issue_description.trim()) {
-      throw new Error('Por favor, descreva os problemas encontrados!')
+      throw new Error(t('bookings.issueDescriptionRequired'))
     }
 
     // Aqui você faria a chamada para a API
@@ -862,7 +859,7 @@ const submitRating = async () => {
     
     // Sucesso
     const { message } = await import('ant-design-vue')
-    message.success('Avaliação enviada com sucesso!')
+    message.success(t('bookings.ratingSubmittedSuccess'))
     
     closeRatingModal()
 
@@ -871,7 +868,7 @@ const submitRating = async () => {
   } catch (error) {
     console.error('Erro ao enviar avaliação:', error)
     const { message } = await import('ant-design-vue')
-    message.error(error.message || 'Erro ao enviar avaliação. Tente novamente.')
+    message.error(error.message || t('bookings.ratingSubmitError'))
   } finally {
     submittingRating.value = false
   }
@@ -1721,6 +1718,35 @@ onMounted(() => {
   max-height: 70vh;
   overflow-y: auto;
   padding: 4px;
+}
+
+/* Rental Code Display in Modal */
+.rental-code-display-modal {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.rental-code-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rental-code-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .details-section {

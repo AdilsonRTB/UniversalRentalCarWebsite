@@ -51,114 +51,111 @@
           
           <!-- Advanced Filters -->
           <div class="advanced-filters-section" id="filtro">
-            <div class="filters-header">
-              <h3 class="filters-title">{{ t('search.filters') }}</h3>
-              <!--a-button type="text" class="toggle-filters">{{ t('search.showMore') }}</!--a-button-->
-            </div>
-
-            <div class="filters-grid">
-              <div class="filter-group">
-                  <div class="search-field">
-                      <label class="filter-label">{{ t('search.brand') }}</label>
-                      <a-select
-                        v-model:value="filters.brand"
-                        :placeholder="t('search.selectBrand')"
-                        size="large"
-                        class="modern-input"
-                        allowClear
-                        showSearch
-                        :filterOption="(input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0"
-                      >
-                        <template #suffixIcon>
-                          <CarOutlined class="input-icon" />
-                        </template>
-                        <a-select-option
-                          v-for="brand in brands" 
-                          :key="brand.id" 
-                          :value="brand.name"
+            <a-form ref="searchFormRef" :model="filters" :rules="filterRules">
+              <div class="filters-grid">
+                <div class="filter-group">
+                    <h3 class="filters-title">{{ t('search.filters') }}</h3>
+                    <div class="search-field">
+                        <label class="filter-label">{{ t('search.brand') }}</label>
+                        <a-select
+                          v-model:value="filters.brand"
+                          :placeholder="t('search.selectBrand')"
+                          size="large"
+                          class="modern-input"
+                          allowClear
+                          showSearch
+                          :not-found-content="t('search.noData')"
+                          :filterOption="(input, option) => String(option.value || '').toLowerCase().includes(input.toLowerCase())"
                         >
-                          {{ brand.name }}
+                          <template #suffixIcon>
+                            <CarOutlined class="input-icon" style="pointer-events: none;" />
+                          </template>
+                          <a-select-option
+                            v-for="brand in brands"
+                            :key="brand.id" 
+                            :value="brand.name"
+                          >
+                            {{ brand.name }}
+                          </a-select-option>
+                        </a-select>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                  <label class="filter-label">{{ t('search.pickupDate') }}</label>
+                  <a-form-item name="startDate" class="group-form-item">
+                    <div class="date-time-group">
+                      <a-date-picker
+                        :key="'pickup-date-' + currentLanguage"
+                        v-model:value="filters.startDate"
+                        size="large"
+                        :placeholder="t('search.selectDate')"
+                        class="modern-date-picker date-only"
+                        format="YYYY-MM-DD"
+                        :disabled-date="disabledDate"
+                        :allowClear="false"
+                        :locale="datePickerLocale"
+                        :show-today="false"
+                      />
+                      <a-select
+                        v-model:value="filters.startTime"
+                        size="large"
+                        class="modern-time-picker"
+                        :placeholder="t('search.selectTime')"
+                      >
+                        <a-select-option v-for="time in availableStartTimes" :key="time" :value="time">
+                          {{ time }}
                         </a-select-option>
                       </a-select>
-                  </div>
-              </div>
-              
-              <div class="filter-group">
-                <label class="filter-label">{{ t('search.pickupDate') }}</label>
-                <div class="date-time-group">
-                  <a-date-picker
-                    :key="'pickup-date-' + currentLanguage"
-                    v-model:value="filters.startDate"
-                    size="large"
-                    :placeholder="t('search.selectDate')"
-                    class="modern-date-picker date-only"
-                    format="YYYY-MM-DD"
-                    :disabled-date="disabledDate"
-                    :allowClear="false"
-                    :locale="datePickerLocale"
-                    :show-today="false"
-                  />
-                  <a-time-picker
-                    :key="'pickup-time-' + currentLanguage"
-                    v-model:value="filters.startDate"
-                    size="large"
-                    placeholder="08:00"
-                    class="modern-time-picker"
-                    format="HH:mm"
-                    :minute-step="15"
-                    :disabled-hours="disabledHours"
-                    :allowClear="false"
-                    :locale="datePickerLocale"
-                    :show-now="false"
-                  />
+                    </div>
+                  </a-form-item>
+                </div>
+                
+                <div class="filter-group">
+                  <label class="filter-label">{{ t('search.returnDate') }}</label>
+                  <a-form-item name="endDate" class="group-form-item">
+                    <div class="date-time-group">
+                      <a-date-picker
+                        :key="'return-date-' + currentLanguage"
+                        v-model:value="filters.endDate"
+                        size="large"
+                        :placeholder="t('search.selectDate')"
+                        class="modern-date-picker date-only"
+                        format="YYYY-MM-DD"
+                        :disabled-date="disabledEndDate"
+                        :allowClear="false"
+                        :locale="datePickerLocale"
+                        :show-today="false"
+                      />
+                      <a-select
+                        v-model:value="filters.endTime"
+                        size="large"
+                        class="modern-time-picker"
+                        :placeholder="t('search.selectTime')"
+                      >
+                        <a-select-option v-for="time in availableEndTimes" :key="time" :value="time">
+                          {{ time }}
+                        </a-select-option>
+                      </a-select>
+                    </div>
+                  </a-form-item>
+                </div>
+                <div class="filter-group">
+                  <div class="search-action">
+                      <a-button
+                        type="primary"
+                        @click="validateAndSearch()"
+                        size="large"
+                        :loading="loading"
+                        class="search-btn-modern"
+                      >
+                        <SearchOutlined />
+                        {{ t('search.searchVehicles') }}
+                      </a-button>
+                    </div>
                 </div>
               </div>
-              
-              <div class="filter-group">
-                <label class="filter-label">{{ t('search.returnDate') }}</label>
-                <div class="date-time-group">
-                  <a-date-picker
-                    :key="'return-date-' + currentLanguage"
-                    v-model:value="filters.endDate"
-                    size="large"
-                    :placeholder="t('search.selectDate')"
-                    class="modern-date-picker date-only"
-                    format="YYYY-MM-DD"
-                    :disabled-date="disabledEndDate"
-                    :allowClear="false"
-                    :locale="datePickerLocale"
-                    :show-today="false"
-                  />
-                  <a-time-picker
-                    :key="'return-time-' + currentLanguage"
-                    v-model:value="filters.endDate"
-                    size="large"
-                    placeholder="08:00"
-                    class="modern-time-picker"
-                    format="HH:mm"
-                    :minute-step="15"
-                    :disabled-hours="disabledHours"
-                    :allowClear="false"
-                    :locale="datePickerLocale"
-                    :show-now="false"
-                  />
-                </div>
-              </div>
-              <div class="filter-group">
-                <div class="search-action">
-                    <a-button
-                      type="primary"
-                      @click="loadAvailableVehicles()"
-                      size="large"
-                      :loading="loading"
-                      class="search-btn-modern"
-                    >
-                      <SearchOutlined />
-                      {{ t('search.searchVehicles') }}
-                    </a-button>
-                  </div>
-              </div>
-            </div>
+            </a-form>
           </div>
           
 
@@ -222,7 +219,7 @@
                           {{ getVehicleTypeLabel(vehicle.type) }}
                         </div>
                       </div>
-                      
+
                       <div class="vehicle-details">
                         <!--div class="detail-item">
                           <CalendarOutlined class="detail-icon" />
@@ -265,7 +262,7 @@
                           <StarFilled class="star-icon" />
                           <span>{{ vehicle.stats.average_overall_rating }} ({{ vehicle.stats.total_evaluations }})</span>
                         </div>
-                        <div class="status-modern" :class="vehicle.is_available ? '' : 'status-modern-unavailable'">
+                        <div v-if="hasDateFilter" class="status-modern" :class="vehicle.is_available ? '' : 'status-modern-unavailable'">
                           <CheckCircleFilled class="status-icon" v-if="vehicle.is_available"/>
                           <CloseCircleFilled class="status-icon-error" v-else/>
                           <span>{{ vehicle.is_available ? t('vehicles.available') : t('vehicles.unavailable') }}</span>
@@ -277,8 +274,8 @@
                   <a-col  :span="24" id="details">
                     <div v-if="rentaldetails">
                       <VehicleDetails :vehicleId="vehicleId" :key="vehicleId" :availability="availability"
-                        :startDate="filters.startDate.format('YYYY-MM-DD HH:mm') + ':00'"
-                        :endDate="filters.endDate.format('YYYY-MM-DD HH:mm') + ':00'"
+                        :startDate="formattedStartDateTime"
+                        :endDate="formattedEndDateTime"
                         :config="config"
                       />
                     </div>
@@ -361,6 +358,7 @@ import 'dayjs/locale/en'
 import 'dayjs/locale/fr'
 import { useRoute } from 'vue-router'
 import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency.js'
+import { useSeo } from '../composables/useSeo.js'
 import antLocale_pt_BR from 'ant-design-vue/es/locale/pt_BR'
 import antLocale_en_US from 'ant-design-vue/es/locale/en_US'
 import antLocale_fr_FR from 'ant-design-vue/es/locale/fr_FR'
@@ -375,6 +373,14 @@ const route = useRoute()
 const openLoginModal = ref(false);
 // Use i18n and language/currency functionality
 const { t } = useI18n()
+
+// SEO meta tags
+useSeo({
+  title: 'Pesquisar Veículos - Universal Rent-a-Car',
+  description: 'Encontre o veículo perfeito para sua viagem. Compare preços, veja avaliações e reserve online com segurança.',
+  keywords: 'pesquisar carros, veículos disponíveis, aluguel de carros online, comparar preços',
+  url: 'https://www.universalrental.cv/vehicle-search'
+})
 
 // Date picker locale based on current language
 const datePickerLocale = computed(() => {
@@ -406,6 +412,12 @@ watch(currentLanguage, (newLang) => {
   console.log('Dayjs locale set to:', dayjsLocale)
 }, { immediate: true })
 
+watch(currentLanguage, () => {
+  if (formValidated.value) {
+    searchFormRef.value?.validate().catch(() => {})
+  }
+})
+
 // Disable hours outside 8-23 range
 /*const disabledHours = () => {
   const hours = []
@@ -436,22 +448,40 @@ const getAvailableBrands = async () => {
 }
 
 const disabledDate = (current) => {
-  return current && current < now.startOf("day")
+  if (!current) return false
+  
+  const today = now.startOf("day")
+  const maxDate = now.add(2, 'year').endOf('day')
+  
+  // Não pode ser antes de hoje ou depois de 2 anos a partir de hoje
+  return current < today || current > maxDate
 }
 
 const disabledEndDate = (current) => {
   if (!current) return false
-  
+
+  const today = now.startOf('day')
+  const maxDate = now.add(2, 'year').endOf('day')
+
   // Não pode ser anterior ao dia de hoje
-  if (current < now.startOf("day")) {
+  if (current < today) {
     return true
   }
-  
-  // Se existe data de recolha, não pode ser anterior a ela
-  if (filters.value.startDate && current < filters.value.startDate.startOf("day")) {
+
+  // Não pode ser depois de 2 anos a partir de hoje
+  if (current > maxDate) {
     return true
   }
-  
+
+  // Mínimo: data de recolha + 2 dias
+  const minReturn = filters.value.startDate
+    ? filters.value.startDate.add(2, 'day').startOf('day')
+    : dayjs().add(2, 'day').startOf('day')
+
+  if (current < minReturn) {
+    return true
+  }
+
   return false
 }
 
@@ -480,8 +510,56 @@ const filters = ref({
   year: null,
   startDate: null,
   endDate: null,
+  startTime: null,
+  endTime: null,
   owner: null,
   hasPromotion: null
+})
+
+// Generate time options (00:00 to 23:30 in 30-minute intervals)
+const timeOptions = computed(() => {
+  const times = []
+  for (let hour = 0; hour < 24; hour++) {
+    const hourStr = hour.toString().padStart(2, '0')
+    times.push(`${hourStr}:00`)
+    times.push(`${hourStr}:30`)
+  }
+  return times
+})
+
+// Available pickup times: if start date is today, exclude past times
+const availableStartTimes = computed(() => {
+  const isToday = filters.value.startDate && filters.value.startDate.isSame(dayjs(), 'day')
+  if (!isToday) return timeOptions.value
+  const currentHour = dayjs().hour()
+  const currentMinute = dayjs().minute()
+  return timeOptions.value.filter(time => {
+    const [h, m] = time.split(':').map(Number)
+    return h > currentHour || (h === currentHour && m > currentMinute)
+  })
+})
+
+// Available return times: if rental is exactly 2 days (48h minimum), show only times >= pickup time
+const availableEndTimes = computed(() => {
+  // If no dates selected, return all times
+  if (!filters.value.startDate || !filters.value.endDate) {
+    return timeOptions.value
+  }
+  
+  // Calculate difference in days
+  const daysDiff = filters.value.endDate.diff(filters.value.startDate, 'day')
+  
+  // If exactly 2 days (48 hours minimum rental), filter times
+  if (daysDiff === 2) {
+    const startTime = filters.value.startTime
+    if (!startTime) return timeOptions.value
+    
+    // Return only times >= pickup time to ensure minimum 48 hours
+    return timeOptions.value.filter(time => time >= startTime)
+  }
+  
+  // For other cases, return all times
+  return timeOptions.value
 })
 
 // LocalStorage keys
@@ -491,7 +569,7 @@ const STORAGE_KEYS = {
 }
 
 // Load dates from localStorage
-const loadDatesFromStorage = () => {
+/*const loadDatesFromStorage = () => {
   try {
     const savedStartDate = localStorage.getItem(STORAGE_KEYS.START_DATE)
     const savedEndDate = localStorage.getItem(STORAGE_KEYS.END_DATE)
@@ -500,26 +578,34 @@ const loadDatesFromStorage = () => {
     if (savedStartDate) {
       const startDate = dayjs(savedStartDate)
       // Se a data salva for anterior a hoje, ajustar para hoje
-      filters.value.startDate = startDate.isBefore(today) ? dayjs() : startDate
+      filters.value.startDate = startDate.isBefore(today) ? dayjs().startOf('day') : startDate.startOf('day')
+      // Extrair a hora
+      filters.value.startTime = startDate.format('HH:mm')
     } else {
-      filters.value.startDate = dayjs()
+      filters.value.startDate = dayjs().startOf('day')
+      filters.value.startTime = '08:00'
     }
     
     if (savedEndDate) {
       const endDate = dayjs(savedEndDate)
       // Se a data de devolução for anterior a hoje ou anterior à data de recolha + 1 dia, ajustar
       const minEndDate = filters.value.startDate.add(2, 'day')
-      filters.value.endDate = endDate.isBefore(minEndDate) ? minEndDate : endDate
+      filters.value.endDate = endDate.isBefore(minEndDate) ? minEndDate : endDate.startOf('day')
+      // Extrair a hora
+      filters.value.endTime = endDate.format('HH:mm')
     } else {
       filters.value.endDate = filters.value.startDate.add(2, 'day')
+      filters.value.endTime = '08:00'
     }
   } catch (error) {
     console.error('Error loading dates from localStorage:', error)
     // Fallback to default dates
-    filters.value.startDate = dayjs()
-    filters.value.endDate = dayjs().add(2, 'day')
+    filters.value.startDate = dayjs().startOf('day')
+    filters.value.endDate = dayjs().add(2, 'day').startOf('day')
+    filters.value.startTime = '08:00'
+    filters.value.endTime = '08:00'
   }
-}
+}*/
 
 // Watch for brand changes to auto-search
 watch(() => filters.value.brand, () => {
@@ -535,7 +621,7 @@ watch(() => filters.value.startDate, (newDate) => {
     
     // Se a nova data for anterior a hoje, ajustar para hoje
     if (newDate.isBefore(today)) {
-      filters.value.startDate = dayjs()
+      filters.value.startDate = dayjs().startOf('day')
       return
     }
     
@@ -543,18 +629,51 @@ watch(() => filters.value.startDate, (newDate) => {
     if (filters.value.endDate && filters.value.endDate.isBefore(newDate.add(2, 'day'))) {
       filters.value.endDate = newDate.add(2, 'day')
     }
+
+    // Se mudou para hoje e a hora selecionada já passou, limpar a hora
+    if (newDate.isSame(dayjs(), 'day') && filters.value.startTime) {
+      const [h, m] = filters.value.startTime.split(':').map(Number)
+      const now = dayjs()
+      if (h < now.hour() || (h === now.hour() && m <= now.minute())) {
+        filters.value.startTime = null
+      }
+    }
     
-    localStorage.setItem(STORAGE_KEYS.START_DATE, newDate.toISOString())
+    // Combinar data + hora e salvar
+    if (filters.value.startTime) {
+      const [hour, minute] = filters.value.startTime.split(':')
+      const dateWithTime = newDate.hour(parseInt(hour)).minute(parseInt(minute)).second(0)
+      localStorage.setItem(STORAGE_KEYS.START_DATE, dateWithTime.toISOString())
+    }
     
     // Auto-search when start date changes
     if (!loading.value) {
       searchVehicles()
     }
-  } else {
-    // Never allow empty - reset to today
-    filters.value.startDate = dayjs()
   }
 }, { deep: true })
+
+// Watch for startTime changes and save to localStorage
+watch(() => filters.value.startTime, (newTime) => {
+  if (newTime && filters.value.startDate) {
+    // Se a diferença for exatamente 2 dias e hora de devolução < hora de recolha, ajustar
+    if (filters.value.endDate && filters.value.endTime) {
+      const daysDiff = filters.value.endDate.diff(filters.value.startDate, 'day')
+      if (daysDiff === 2 && filters.value.endTime < newTime) {
+        filters.value.endTime = newTime
+      }
+    }
+    
+    const [hour, minute] = newTime.split(':')
+    const dateWithTime = filters.value.startDate.hour(parseInt(hour)).minute(parseInt(minute)).second(0)
+    localStorage.setItem(STORAGE_KEYS.START_DATE, dateWithTime.toISOString())
+    
+    // Auto-search when start time changes
+    if (!loading.value) {
+      searchVehicles()
+    }
+  }
+})
 
 // Watch for endDate changes and save to localStorage
 watch(() => filters.value.endDate, (newDate) => {
@@ -563,7 +682,7 @@ watch(() => filters.value.endDate, (newDate) => {
     
     // Se a nova data for anterior a hoje, ajustar para hoje + 2 dias
     if (newDate.isBefore(today)) {
-      filters.value.endDate = dayjs().add(2, 'day')
+      filters.value.endDate = dayjs().add(2, 'day').startOf('day')
       return
     }
     
@@ -573,17 +692,42 @@ watch(() => filters.value.endDate, (newDate) => {
       return
     }
     
-    localStorage.setItem(STORAGE_KEYS.END_DATE, newDate.toISOString())
+    // Combinar data + hora e salvar
+    if (filters.value.endTime) {
+      const [hour, minute] = filters.value.endTime.split(':')
+      const dateWithTime = newDate.hour(parseInt(hour)).minute(parseInt(minute)).second(0)
+      localStorage.setItem(STORAGE_KEYS.END_DATE, dateWithTime.toISOString())
+    }
     
     // Auto-search when end date changes
     if (!loading.value) {
       searchVehicles()
     }
-  } else {
-    // Never allow empty - reset to today + 2 days
-    filters.value.endDate = (filters.value.startDate || dayjs()).add(2, 'day')
   }
 }, { deep: true })
+
+// Watch for endTime changes and save to localStorage
+watch(() => filters.value.endTime, (newTime) => {
+  if (newTime && filters.value.endDate) {
+    // Se a diferença for exatamente 2 dias, garantir que hora de devolução >= hora de recolha
+    if (filters.value.startDate && filters.value.startTime) {
+      const daysDiff = filters.value.endDate.diff(filters.value.startDate, 'day')
+      if (daysDiff === 2 && newTime < filters.value.startTime) {
+        filters.value.endTime = filters.value.startTime
+        return
+      }
+    }
+    
+    const [hour, minute] = newTime.split(':')
+    const dateWithTime = filters.value.endDate.hour(parseInt(hour)).minute(parseInt(minute)).second(0)
+    localStorage.setItem(STORAGE_KEYS.END_DATE, dateWithTime.toISOString())
+    
+    // Auto-search when end time changes
+    if (!loading.value) {
+      searchVehicles()
+    }
+  }
+})
 
 const vehicles = ref([])
 const allVehicles = ref([])
@@ -593,6 +737,28 @@ const transmissionFilter = ref([])
 const vehicleId = ref(null);
 const availability = ref(false);
 const config = ref({})
+const hasDateFilter = ref(false)
+const searchFormRef = ref(null)
+const formValidated = ref(false)
+
+const filterRules = computed(() => ({
+  startDate: [{
+    validator: () => {
+      if (!filters.value.startDate || !filters.value.startTime)
+        return Promise.reject(t('search.fieldRequired'))
+      return Promise.resolve()
+    },
+    trigger: 'change'
+  }],
+  endDate: [{
+    validator: () => {
+      if (!filters.value.endDate || !filters.value.endTime)
+        return Promise.reject(t('search.fieldRequired'))
+      return Promise.resolve()
+    },
+    trigger: 'change'
+  }],
+}))
 
 const getLabelTransmission = (type) => {
   if (!type) return ''
@@ -633,6 +799,16 @@ const formatPriceWithApiRates = (amount) => {
 
 
 const openDetailsRendels = async (id, available) => {
+  const hasAllDates = filters.value.startDate && filters.value.endDate &&
+                      filters.value.startTime && filters.value.endTime
+
+  if (!hasAllDates) {
+    formValidated.value = true
+    scrollToSection('filtro')
+    searchFormRef.value?.validate().catch(() => {})
+    return
+  }
+
   if (id === vehicleId.value){
     rentaldetails.value = false;
     vehicleId.value = null;
@@ -662,8 +838,31 @@ const sortedVehicles = computed(() => {
   }
 })
 
+// Computed properties to combine date + time for VehicleDetails
+const formattedStartDateTime = computed(() => {
+  if (!filters.value.startDate || !filters.value.startTime) return ''
+  return `${filters.value.startDate.format('YYYY-MM-DD')} ${filters.value.startTime}:00`
+})
+
+const formattedEndDateTime = computed(() => {
+  if (!filters.value.endDate || !filters.value.endTime) return ''
+  return `${filters.value.endDate.format('YYYY-MM-DD')} ${filters.value.endTime}:00`
+})
+
+const validateAndSearch = async () => {
+  formValidated.value = true
+  try {
+    await searchFormRef.value.validate()
+  } catch {
+    scrollToSection('filtro')
+    return
+  }
+  loadAvailableVehicles()
+}
+
 const loadAvailableVehicles = async () => {
   loading.value = true
+  hasDateFilter.value = !!(filters.value.startDate && filters.value.endDate)
   try {
     const response = await vehicleService.getAllVehicles()
     allVehicles.value = response.data
@@ -803,7 +1002,6 @@ const filterByTransmission = () => {
 onMounted(() => {
   loadSystemConfig()
   getAvailableBrands()
-  loadDatesFromStorage()
   loadAvailableVehicles()
 
   console.log(route.query.from)
@@ -1012,6 +1210,23 @@ onMounted(() => {
   width: 100%;
 }
 
+.group-form-item {
+  margin-bottom: 0;
+  position: relative;
+}
+
+.group-form-item :deep(.ant-form-item-explain) {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  padding-top: 2px;
+}
+
+.group-form-item :deep(.ant-form-item-explain-error) {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .date-only {
   flex: 1;
   min-width: 0;
@@ -1026,6 +1241,37 @@ onMounted(() => {
 
 .modern-time-picker:hover {
   border-color: #FE7743 !important;
+}
+
+.modern-time-picker :deep(.ant-select-selector) {
+  border: none !important;
+  background: transparent !important;
+}
+
+.modern-time-picker:hover :deep(.ant-select-selector) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.modern-time-picker :deep(.ant-select-focused .ant-select-selector) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.modern-time-picker :deep(.ant-select-arrow) {
+  color: #9ca3af !important;
+}
+
+.modern-time-picker:hover :deep(.ant-select-arrow) {
+  color: #FE7743 !important;
+}
+
+.search-btn-modern {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 .modern-time-picker:focus {
@@ -1102,18 +1348,11 @@ onMounted(() => {
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.filters-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
 .filters-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
-  margin: 0;
+  margin: 0 0 4px 0;
 }
 
 .toggle-filters {
@@ -1125,7 +1364,7 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 24px;
-  align-items: center;
+  align-items: end;
   justify-items: center;
   max-width: 1200px;
   margin: 0 auto;
@@ -1143,6 +1382,7 @@ onMounted(() => {
   font-weight: 600;
   color: #374151;
   font-size: 14px;
+  margin-bottom: 4px;
 }
 
 /* Promotions Section */
@@ -1700,6 +1940,32 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
   
+  .map-decoration {
+    width: 300px;
+    height: 300px;
+    right: 20px;
+  }
+  
+  .floating-element {
+    min-width: 150px;
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  
+  .floating-element.element-1 {
+    top: 80px;
+    left: 60px;
+  }
+
+  .floating-element.element-2 {
+    bottom: 180px;
+    left: -5px;
+  }
+
+  .floating-element.element-3 {
+    bottom: 80px;
+    left: 70px;
+  }
 
 }
 
@@ -1709,6 +1975,14 @@ onMounted(() => {
   }
 
   .map-decoration {
+    width: 400px;
+    height: 400px;
+    right: 100px;
+    top: 50%;
+    opacity: 0.3;
+  }
+  
+  .floating-element {
     display: none;
   }
   
@@ -1740,16 +2014,39 @@ onMounted(() => {
     flex: 0 0 280px;
   }
   
-
-  
   .vehicle-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
+  
+  .advanced-filters-section {
+    padding: 20px;
+  }
+  
+  .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .filter-group {
+    max-width: 100%;
+  }
+  
+  .filters-title {
+    font-size: 1.25rem;
+  }
 }
 
 @media (max-width: 640px) {
+  .map-decoration {
+    width: 350px;
+    height: 350px;
+    right: 50px;
+    top: 50%;
+    opacity: 0.25;
+  }
+
   .hero-search-section {
     min-height: 50vh;
   }
@@ -1768,15 +2065,22 @@ onMounted(() => {
   }
   
   .advanced-filters-section {
-    padding: 24px;
+    padding: 16px;
+    border-radius: 16px;
   }
   
   .filters-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .filter-group {
+    max-width: 100%;
   }
   
   .date-time-group {
     flex-direction: column;
+    gap: 12px;
   }
   
   .modern-time-picker {
@@ -1784,8 +2088,80 @@ onMounted(() => {
     width: 100%;
   }
   
+  .date-only {
+    width: 100%;
+  }
+  
+  .filters-title {
+    font-size: 1.125rem;
+  }
+  
+  .filter-label {
+    font-size: 13px;
+  }
+  
+  .search-btn-modern {
+    height: 52px;
+    font-size: 15px;
+  }
+  
+  .search-action {
+    margin-top: 20px;
+  }
+  
   .promo-card-modern {
     flex: 0 0 260px;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-decoration {
+    width: 320px;
+    height: 320px;
+    right: 30px;
+    top: 50%;
+    opacity: 0.2;
+  }
+  
+  .advanced-filters-section {
+    padding: 12px;
+    margin-bottom: 24px;
+  }
+  
+  .filters-header {
+    margin-bottom: 16px;
+  }
+  
+  .filters-title {
+    font-size: 1rem;
+  }
+  
+  .filters-grid {
+    gap: 14px;
+  }
+  
+  .filter-label {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+  
+  .modern-input,
+  .modern-date-picker,
+  .modern-time-picker {
+    font-size: 14px;
+  }
+  
+  .date-time-group {
+    gap: 10px;
+  }
+  
+  .search-btn-modern {
+    height: 48px;
+    font-size: 14px;
+  }
+  
+  .content-wrapper {
+    padding: 0 12px;
   }
 }
 
@@ -1824,6 +2200,11 @@ onMounted(() => {
   height: 48px;
   padding: 0 24px;
   font-weight: 600;
+}
+
+.steps-buttons :deep(.ant-btn-primary:hover) {
+  background: #ff5722 !important;
+  border-color: #ff5722 !important;
 }
 
 </style>

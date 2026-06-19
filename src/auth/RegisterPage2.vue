@@ -300,6 +300,7 @@ const router = useRouter()
 
 // Form references
 const formRef = ref(null)
+const formValidated = ref(false)
 
 // Reactive data
 const isLoading = ref(false)
@@ -340,6 +341,12 @@ watch(currentLanguage, (newLang) => {
   else if (newLang === 'fr') dayjs.locale('fr')
 }, { immediate: true })
 
+watch(currentLanguage, () => {
+  if (formValidated.value) {
+    formRef.value?.validate().catch(() => {})
+  }
+})
+
 // Password strength computation
 const passwordStrength = computed(() => {
   const password = formData.password
@@ -375,7 +382,7 @@ const passwordStrength = computed(() => {
 })
 
 // Form validation rules
-const formRules = {
+const formRules = computed(() => ({
   firstName: [
     { required: true, message: t('auth.firstNameRequired') },
     { min: 2, message: t('auth.nameMinLength') }
@@ -479,12 +486,13 @@ const formRules = {
       }
     }
   ]
-}
+}))
 
 // Methods
 const nextStep = async () => {
   if (currentStep.value === 0) {
     // Validate step 1 fields
+    formValidated.value = true
     try {
       await formRef.value.validateFields(['firstName', 'lastName', 'email', 'phoneNumber', 'drivingLicenseNumber', 'birthDate', 'licenseIssueDate'])
       currentStep.value++

@@ -3,14 +3,14 @@
     <div class="breadcrumb-modern">
       <router-link to="/owner-dashboard?tab=overview" class="breadcrumb-link">Dashboard</router-link>
       <span class="breadcrumb-separator">›</span>
-      <span class="breadcrumb-current">Notificações</span>
+      <span class="breadcrumb-current">{{ $t('notifications.title') }}</span>
 
     </div>
     <!-- Header Section -->
     <section class="header-section">
       <h3 class="section-title">
         <BellOutlined />
-        Notificações
+        {{ $t('notifications.title') }}
       </h3>
       
       <!-- Quick Stats -->
@@ -21,17 +21,17 @@
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ totalCount }}</div>
-            <div class="stat-label">Total</div>
+            <div class="stat-label">{{ $t('notifications.total') }}</div>
           </div>
         </div>
-        
+
         <div class="stat-card accent">
           <div class="stat-icon-bg">
             <ExclamationCircleOutlined />
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ unreadCount }}</div>
-            <div class="stat-label">Não Lidas</div>
+            <div class="stat-label">{{ $t('notifications.unread') }}</div>
           </div>
         </div>
         
@@ -41,7 +41,7 @@
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ urgentCount }}</div>
-            <div class="stat-label">Urgentes</div>
+            <div class="stat-label">{{ $t('notifications.urgent') }}</div>
           </div>
         </div>
       </div>
@@ -51,60 +51,60 @@
     <section class="actions-section">
       <div class="actions-card">
         <div class="actions-header">
-          <h4>Controles e Filtros</h4>
+          <h4>{{ $t('notifications.controlsAndFilters') }}</h4>
           <div class="header-actions">
             <a-button type="text" size="small" @click="markAllAsRead">
               <CheckOutlined />
-              Marcar Todas Lidas
+              {{ $t('notifications.markAllRead') }}
             </a-button>
             <a-button type="text" size="small" @click="clearRead">
               <DeleteOutlined />
-              Limpar Lidas
+              {{ $t('notifications.clearRead') }}
             </a-button>
           </div>
         </div>
         
         <div class="filters-grid">
           <div class="filter-item">
-            <label>Categoria</label>
+            <label>{{ $t('notifications.category') }}</label>
             <a-select
               v-model:value="selectedCategory"
-              placeholder="Todas as categorias"
+              :placeholder="$t('notifications.allCategories')"
               style="width: 100%"
               allow-clear
             >
-              <a-select-option value="booking">Reservas</a-select-option>
-              <a-select-option value="payment">Pagamentos</a-select-option>
-              <a-select-option value="review">Avaliações</a-select-option>
-              <a-select-option value="system">Sistema</a-select-option>
+              <a-select-option value="booking">{{ $t('notifications.bookings') }}</a-select-option>
+              <a-select-option value="payment">{{ $t('notifications.payments') }}</a-select-option>
+              <a-select-option value="review">{{ $t('notifications.reviews') }}</a-select-option>
+              <a-select-option value="system">{{ $t('notifications.system') }}</a-select-option>
             </a-select>
           </div>
           
           <div class="filter-item">
-            <label>Status</label>
+            <label>{{ $t('notifications.status') }}</label>
             <a-select
               v-model:value="selectedStatus"
-              placeholder="Todos os status"
+              :placeholder="$t('notifications.allStatus')"
               style="width: 100%"
               allow-clear
             >
-              <a-select-option value="unread">Não Lidas</a-select-option>
-              <a-select-option value="read">Lidas</a-select-option>
-              <a-select-option value="urgent">Urgentes</a-select-option>
+              <a-select-option value="unread">{{ $t('notifications.unread') }}</a-select-option>
+              <a-select-option value="read">{{ $t('notifications.read') }}</a-select-option>
+              <a-select-option value="urgent">{{ $t('notifications.urgent') }}</a-select-option>
             </a-select>
           </div>
           
           <div class="filter-item">
-            <label>Ordenar por</label>
+            <label>{{ $t('notifications.sortBy') }}</label>
             <a-select
               v-model:value="sortBy"
-              placeholder="Ordenação"
+              :placeholder="$t('notifications.sorting')"
               style="width: 100%"
             >
-              <a-select-option value="date-desc">Data (Mais recente)</a-select-option>
-              <a-select-option value="date-asc">Data (Mais antiga)</a-select-option>
-              <a-select-option value="priority">Prioridade</a-select-option>
-              <a-select-option value="unread-first">Não lidas primeiro</a-select-option>
+              <a-select-option value="date-desc">{{ $t('notifications.dateDesc') }}</a-select-option>
+              <a-select-option value="date-asc">{{ $t('notifications.dateAsc') }}</a-select-option>
+              <a-select-option value="priority">{{ $t('notifications.priority') }}</a-select-option>
+              <a-select-option value="unread-first">{{ $t('notifications.unreadFirst') }}</a-select-option>
             </a-select>
           </div>
         </div>
@@ -114,11 +114,11 @@
     <!-- Notifications List -->
     <section class="notifications-section">
       <div class="section-header">
-        <h4>{{ filteredNotifications.length }} notificação(ões) encontrada(s)</h4>
+        <h4>{{ filteredNotifications.length }} {{ $t('notifications.notificationsFound') }}</h4>
         <div class="header-controls">
           <a-button type="text" size="small" @click="markAllAsRead">
             <CheckOutlined />
-            Marcar todas como lidas
+            {{ $t('notifications.markAllAsRead') }}
           </a-button>
         </div>
       </div>
@@ -126,7 +126,7 @@
       <!-- Loading State -->
       <div v-if="isLoading" class="loading-state">
         <a-spin size="large" />
-        <p>Carregando notificações...</p>
+        <p>{{ $t('notifications.loading') }}</p>
       </div>
 
       <div class="notifications-list" v-else-if="paginatedNotifications.length > 0">
@@ -166,7 +166,7 @@
                   size="small"
                   class="priority-tag"
                 >
-                  URGENTE
+                  {{ $t('notifications.urgentTag') }}
                 </a-tag>
               </div>
             </div>
@@ -189,12 +189,12 @@
                   <a-menu-item @click.stop="toggleReadStatus(notification)">
                     <EyeOutlined v-if="notification.read" />
                     <EyeInvisibleOutlined v-else />
-                    {{ notification.read ? 'Marcar como não lida' : 'Marcar como lida' }}
+                    {{ notification.read ? $t('notifications.markAsUnread') : $t('notifications.markAsRead') }}
                   </a-menu-item>
                   <a-menu-divider />
                   <a-menu-item @click.stop="deleteNotification(notification.id)" danger>
                     <DeleteOutlined />
-                    Excluir notificação
+                    {{ $t('notifications.deleteNotification') }}
                   </a-menu-item>
                 </a-menu>
               </template>
@@ -209,8 +209,8 @@
       <!-- Empty State -->
       <div v-else class="empty-state">
         <InboxOutlined class="empty-icon" />
-        <h4>Nenhuma notificação encontrada</h4>
-        <p>Não há notificações que correspondam aos filtros selecionados.</p>
+        <h4>{{ $t('notifications.noNotifications') }}</h4>
+        <p>{{ $t('notifications.noNotificationsDesc') }}</p>
       </div>
     </section>
 
@@ -246,7 +246,7 @@
             color="red"
             size="large"
           >
-            URGENTE
+            {{ $t('notifications.urgentTag') }}
           </a-tag>
           <span class="details-date">{{ formatDetailDate(selectedNotification.createdAt) }}</span>
         </div>
@@ -277,7 +277,10 @@ import {
 } from '@ant-design/icons-vue'
 
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { vehicleService, authService } from '../../services/api'
+
+const { t } = useI18n()
 
 // Reactive data
 const notifications = ref([])
@@ -434,11 +437,11 @@ const formatTime = (date) => {
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
 
-  if (diffMins < 1) return 'Agora mesmo'
-  if (diffMins < 60) return `${diffMins}m atrás`
-  if (diffHours < 24) return `${diffHours}h atrás`
-  if (diffDays === 1) return 'Ontem'
-  if (diffDays < 7) return `${diffDays} dias atrás`
+  if (diffMins < 1) return t('notifications.justNow')
+  if (diffMins < 60) return `${diffMins}${t('notifications.minutesAgo')}`
+  if (diffHours < 24) return `${diffHours}${t('notifications.hoursAgo')}`
+  if (diffDays === 1) return t('notifications.yesterday')
+  if (diffDays < 7) return `${diffDays} ${t('notifications.daysAgo')}`
   
   return notifDate.toLocaleDateString('pt-BR')
 }
@@ -514,12 +517,12 @@ const getCategoryColor = (type) => {
 
 const getCategoryLabel = (type) => {
   const labels = {
-    booking: 'Reserva',
-    payment: 'Pagamento', 
-    review: 'Avaliação',
-    system: 'Sistema'
+    booking: t('notifications.booking'),
+    payment: t('notifications.payment'),
+    review: t('notifications.review'),
+    system: t('notifications.system')
   }
-  return labels[type] || 'Notificação'
+  return labels[type] || t('notifications.notification')
 }
 
 // Initialize notifications

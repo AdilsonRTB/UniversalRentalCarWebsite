@@ -32,6 +32,7 @@
               :rules="formRules"
               layout="vertical"
               @finish="handleLogin"
+              @finish-failed="formValidated = true"
             >
               <!-- Email Field -->
               <a-form-item
@@ -127,14 +128,16 @@ import {
   LockOutlined,
   LoginOutlined
 } from '@ant-design/icons-vue'
-import { ref, reactive, h } from 'vue'
+import { ref, reactive, computed, h, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { message } from 'ant-design-vue'
 import {authService} from '../services/api'
 import logo from '../assets/logo2.png'
 // import { useRecaptcha } from '../composables/useRecaptcha' // DESATIVADO
 
 const router = useRouter()
+const { t, locale } = useI18n()
 
 // reCAPTCHA - DESATIVADO
 // const { 
@@ -151,6 +154,13 @@ const router = useRouter()
 
 // Form references
 const formRef = ref(null)
+const formValidated = ref(false)
+
+watch(locale, () => {
+  if (formValidated.value) {
+    formRef.value?.validate().catch(() => {})
+  }
+})
 
 // Reactive data
 const isLoading = ref(false)
@@ -162,15 +172,15 @@ const formData = reactive({
 })
 
 // Form validation rules
-const formRules = {
+const formRules = computed(() => ({
   email: [
-    { required: true, message: 'Por favor, insira o seu e-mail' },
-    { type: 'email', message: 'Por favor, insira um e-mail válido' }
+    { required: true, message: t('auth.emailRequiredValidation') },
+    { type: 'email', message: t('auth.emailValidValidation') }
   ],
   password: [
-    { required: true, message: 'Por favor, insira a sua palavra-passe' }
+    { required: true, message: t('auth.passwordRequiredValidation') }
   ]
-}
+}))
 
 // Login handler
 const handleLogin = async (values) => {

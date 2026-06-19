@@ -303,8 +303,14 @@ import {
   LineChartOutlined
 } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
+import { useSeo } from '../composables/useSeo.js'
 
-
+// SEO meta tags
+useSeo({
+  title: 'Dashboard - Universal Rent-a-Car',
+  description: 'Gerencie suas reservas, veículos e perfil. Acesse suas informações de aluguel de forma rápida e segura.',
+  url: 'https://www.universalrental.cv/dashboard'
+})
 
 const activeTab = ref('overview')
 const user = ref({

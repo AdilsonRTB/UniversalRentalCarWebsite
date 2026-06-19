@@ -104,7 +104,7 @@ export default {
     termsOfUse: 'Termos de Uso',
     privacyPolicy: 'Política de Privacidade',
     insurance: 'Seguro',
-    contact: 'Contato',
+    contact: 'Contatos',
     contactEmail: 'contato{\'@\'}veiculosaluguel.com',
     contactPhone: '(11) 1234-5678',
     contactAddress: 'São Paulo, SP - Brasil',
@@ -113,7 +113,9 @@ export default {
     newsletterDesc: 'Receba ofertas exclusivas',
     yourEmail: 'Seu e-mail',
     allRightsReserved: 'Todos os direitos reservados.',
-    paymentMethods: 'Formas de pagamento:'
+    paymentMethods: 'Formas de pagamento:',
+    tagline: 'Encontre o melhor carro para alugar',
+    companyDescription: 'Proporcionamos experiências inesquecíveis sobre rodas.'
   },
 
   // Common
@@ -486,6 +488,7 @@ export default {
     customPeriod: 'Período personalizado',
     // Details Modal
     rentalDetails: 'Detalhes do Aluguel',
+    rentalCode: 'Código de Aluguer',
     vehicleInformation: 'Informações do Veículo',
     year: 'Ano',
     plate: 'Matrícula',
@@ -500,7 +503,7 @@ export default {
     driverService: 'Motorista',
     carSeat: 'Cadeira de Bebê',
     insuranceFee: 'Taxa de Seguro',
-    securityDeposit: 'Depósito de Segurança',
+    securityDeposit: 'Caução',
     commission: 'Comissão',
     lateReturnFee: 'Taxa de Atraso',
     damageFee: 'Taxa de Danos',
@@ -510,7 +513,81 @@ export default {
     servicesFees: 'Taxas de Serviços',
     total: 'Total',
     notes: 'Observações',
-    bookedOn: 'Reservado em'
+    bookedOn: 'Reservado em',
+    // Rating submission messages
+    ratingSubmittedSuccess: 'Avaliação enviada com sucesso!',
+    ratingSubmitError: 'Erro ao enviar avaliação. Tente novamente.',
+    allRatingsRequired: 'Todas as avaliações são obrigatórias!',
+    issueDescriptionRequired: 'Por favor, descreva os problemas encontrados!',
+    evaluate: 'Avaliar'
+  },
+
+  // Notifications
+  notifications: {
+    // Breadcrumb & Title
+    title: 'Notificações',
+    
+    // Stats
+    total: 'Total',
+    unread: 'Não Lidas',
+    urgent: 'Urgentes',
+    
+    // Actions
+    controlsAndFilters: 'Controles e Filtros',
+    markAllRead: 'Marcar Todas Lidas',
+    clearRead: 'Limpar Lidas',
+    markAllAsRead: 'Marcar todas como lidas',
+    markAsUnread: 'Marcar como não lida',
+    markAsRead: 'Marcar como lida',
+    deleteNotification: 'Excluir notificação',
+    
+    // Filters
+    category: 'Categoria',
+    allCategories: 'Todas as categorias',
+    status: 'Status',
+    allStatus: 'Todos os status',
+    sortBy: 'Ordenar por',
+    sorting: 'Ordenação',
+    
+    // Filter options
+    read: 'Lidas',
+    
+    // Category labels
+    booking: 'Reserva',
+    bookings: 'Reservas',
+    payment: 'Pagamento',
+    payments: 'Pagamentos',
+    review: 'Avaliação',
+    reviews: 'Avaliações',
+    system: 'Sistema',
+    notification: 'Notificação',
+    
+    // Sort options
+    dateDesc: 'Data (Mais recente)',
+    dateAsc: 'Data (Mais antiga)',
+    priority: 'Prioridade',
+    unreadFirst: 'Não lidas primeiro',
+    
+    // Status labels
+    urgentTag: 'URGENTE',
+    
+    // Results
+    notificationsFound: 'notificação(ões) encontrada(s)',
+    
+    // Loading
+    loading: 'Carregando notificações...',
+    
+    // Empty state
+    noNotifications: 'Nenhuma notificação encontrada',
+    noNotificationsDesc: 'Não há notificações que correspondam aos filtros selecionados.',
+    
+    // Time formatting
+    justNow: 'Agora mesmo',
+    ago: 'atrás',
+    yesterday: 'Ontem',
+    daysAgo: 'dias atrás',
+    minutesAgo: 'm atrás',
+    hoursAgo: 'h atrás'
   },
 
   // Earnings
@@ -929,6 +1006,8 @@ export default {
     emailValidValidation: 'Por favor, insira um e-mail válido',
     instructionsSentSuccess: 'Instruções enviadas com sucesso!',
     sendInstructionsError: 'Erro ao enviar instruções. Tente novamente.',
+    noAccountError: 'Este email está registado como cliente mas não possui uma conta de acesso.',
+    emailNotFoundError: 'Não existe nenhuma conta associada a este email.',
     emailResentSuccess: 'E-mail reenviado com sucesso!',
     resendEmailError: 'Erro ao reenviar e-mail. Tente novamente.',
     
@@ -998,7 +1077,33 @@ export default {
     pwWeak: 'Fraca',
     pwMedium: 'Média',
     pwGood: 'Boa',
-    pwStrong: 'Forte'
+    pwStrong: 'Forte',
+    // Validation extras
+    passwordRequiredValidation: 'Por favor, insira a sua palavra-passe',
+    otpRequired: 'Por favor, insira o código OTP',
+    otpLength: 'O código OTP deve ter 6 dígitos',
+    newPasswordRequired: 'Por favor, insira a nova palavra-passe',
+    resetPasswordErrorInvalidOtp: 'Código OTP inválido. Verifique o código recebido ou solicite um novo.',
+    resetPasswordErrorOtpExpired: 'O código OTP expirou. Por favor solicite um novo código.',
+    resetPasswordErrorUserNotFound: 'Nenhuma conta encontrada com este e-mail.',
+    resetPasswordErrorOtpUsed: 'Este código OTP já foi utilizado. Solicite um novo.',
+    resetPasswordErrorGeneric: 'Erro ao redefinir senha. Verifique os dados e tente novamente.',
+    resendCodeSuccess: 'Código reenviado com sucesso!',
+    resendCodeError: 'Erro ao reenviar o código. Tente novamente.',
+    // Recovery page static
+    recoverySubtitle: 'Insira o código OTP enviado para o seu email e defina uma nova senha',
+    otpLabel: 'Código OTP',
+    otpPlaceholder: 'Insira o código de 6 dígitos',
+    notReceivedCode: 'Não recebeu o código?',
+    resendLabel: 'Reenviar',
+    newPasswordLabel: 'Nova Senha',
+    newPasswordPlaceholder: 'Insira a nova senha',
+    confirmNewPasswordLabel: 'Confirmar Nova Senha',
+    confirmNewPasswordPlaceholder: 'Confirme a nova senha',
+    resetPasswordBtn: 'Redefinir Senha',
+    passwordResetSuccessTitle: 'Senha Redefinida com Sucesso!',
+    passwordResetSuccessMessage: 'A sua senha foi alterada com sucesso.',
+    passwordResetSuccessHint: 'Agora pode fazer login com a sua nova senha.'
   },
 
   // Search & Vehicles
@@ -1020,9 +1125,11 @@ export default {
     filters: 'Filtros',
     brand: 'Marca',
     selectBrand: 'Selecione uma marca',
+    noData: 'Sem resultados',
     pickupDate: 'Data Recolha',
     returnDate: 'Data Devolução',
     selectDate: 'Selecione a data',
+    selectTime: 'Hora',
     
     // Transmission filter
     transmissionManual: 'Manual',
@@ -1091,6 +1198,8 @@ export default {
     noResults: 'Nenhum veículo encontrado',
     adjustFilters: 'Tente ajustar os filtros de busca',
     showAllVehicles: 'Mostrar Todos os Veículos',
+    selectDatesFirst: 'Por favor escolha as datas e horas de recolha e devolução antes de ver os detalhes.',
+    fieldRequired: 'Campos data e hora obrigatório',
     
     // General
 
@@ -1122,6 +1231,8 @@ export default {
       defaultLocation: 'Achada Santo António, Santiago',
       pickupLocation: 'Local de entrega',
       returnLocation: 'Local de devolução',
+      others: 'Outros',
+      customLocationPlaceholder: 'Indique a localização',
       withDriver: 'Com motorista',
       carSeat: 'Assento Criança',
       dailyPrice: 'Preço diário',
@@ -1129,12 +1240,15 @@ export default {
       withDriverDays: 'Com motorista ({days} dias)',
       carSeatDays: 'Assento Criança ({days} dias)',
       serviceFee: 'Taxa de serviço',
+      securityDeposit: 'Caução',
       reserveNow: 'Reservar Agora',
       viewVehicleDetails: 'Ver Detalhes do Veículo',
       selectDatesWarning: 'Por favor, selecione as datas de recolha e devolução',
       reservationSuccess: 'Reserva efetuada com sucesso!',
       shareError: 'Erro ao compartilhar',
       shareNotSupported: 'Compartilhamento não suportado nesse navegador.',
+      shareCopy: 'Copiar link',
+      shareCopied: 'Link copiado!',
       seats: 'Lugares'
     }
   },
@@ -1150,6 +1264,7 @@ export default {
       locations: 'Local de Entrega e Devolução:',
       period: 'Período:',
       serviceFee: 'Taxa de serviço:',
+      securityDeposit: 'Caução:',
       withDriver: 'Com motorista',
       carSeat: 'Assento Criança',
       dailyValue: 'Valor Diário:',
@@ -1163,14 +1278,21 @@ export default {
       lastNamePlaceholder: 'Apelido',
       birthDatePlaceholder: 'Data de nascimento',
       emailPlaceholder: 'seu.email{\'@\'}exemplo.com',
+      emailLabel: 'Email',
       phonePlaceholder: '+238 xxx xxxx',
+      phoneLabel: 'Telefone',
       drivingLicensePlaceholder: 'Número da carta de condução',
+      drivingLicenseLabel: 'Carta de Condução',
       licenseIssueDatePlaceholder: 'Data emissão da carta',
+      licenseIssueDateLabel: 'Data de Emissão',
+      termsLabel: 'Termos e Condições',
       termsText: 'Aceito os',
       termsLink: 'termos e condições',
       andText: 'e',
       privacyLink: 'política de privacidade',
       submitButton: 'Efetuar Reserva',
+      loginButton: 'Login',
+      exitButton: 'Sair',
       downloadButton: 'Download'
     },
     validation: {
@@ -1188,6 +1310,7 @@ export default {
       drivingLicenseMinLength: 'Número da carta deve ter pelo menos 5 caracteres',
       phoneRequired: 'Por favor insira o número de telefone',
       phoneInvalid: 'Por favor insira um número de telefone válido',
+      emailOrPhoneRequired: 'Por favor insira um e-mail ou número de telefone',
       licenseIssueDateRequired: 'Por favor selecione a data de emissão da carta',
       licenseIssueDateRequiredMsg: 'Data de emissão da carta é obrigatória',
       licenseExperienceRequired: 'Deve ter carta de condução há pelo menos 2 anos',
@@ -1195,12 +1318,27 @@ export default {
       termsRequired: 'Deve aceitar os termos e condições'
     },
     messages: {
+      rentalCode: 'Código de Aluguer',
+      emailAlreadyExists: 'Este email já está registado no sistema. Por favor, faça login antes de fazer uma reserva.',
       reservationSuccess: 'Reserva criada com sucesso!',
       reservationPendingPayment: 'Reserva Aguarda Confirmação de Pagamento',
       paymentInstructions: 'As informações da conta bancária para pagamento foram enviadas para o seu email. Por favor, verifique a sua caixa de entrada.',
       reservationError: 'Erro ao criar reserva. Tente novamente.',
       customerError: 'Erro ao criar cliente. Tente novamente.',
-      qrCodeText: 'Reserva Nº: {id}\nCliente: {name}\nVeículo: {vehicle}\nPeríodo: {dates}\nTotal: {total} CVE'
+      qrCodeText: 'Reserva Nº: {id}\nCliente: {name}\nVeículo: {vehicle}\nPeríodo: {dates}\nTotal: {total} CVE',
+      bankTransferTitle: 'DADOS BANCÁRIOS PARA TRANSFERÊNCIA',
+      bankTransferHolder: 'Titular',
+      bankTransferBank: 'Banco',
+      bankTransferAccount: 'Número da Conta',
+      bankTransferInstructionSend: 'Por favor, envie o comprovativo de transferência para',
+      bankTransferInstructionOr: 'ou via WhatsApp',
+      bankTransferInstructionRef: 'indicando o número da reserva #{id} como referência.',
+      bankCancellationWarning: 'Atenção: caso o pagamento não seja efetuado e confirmado no prazo de 24 horas, a reserva será automaticamente cancelada.',
+      bankCompanyAddress: 'Morada: Achada Santo António, Praia, Cabo Verde',
+      bankIbanTitle: 'Este é o seu IBAN',
+      bankCopy: 'Copiar',
+      bankCopied: 'Copiado!',
+      bankShareDetails: 'Enviar detalhes'
     }
   },
 
@@ -1322,7 +1460,7 @@ export default {
   // Booking Status Page
   bookingStatus: {
     pageTitle: 'Estado do Aluguel',
-    pageSubtitle: 'Insira o número do seu aluguel e email para consultar o estado da sua reserva',
+    pageSubtitle: 'Insira o número do seu aluguel para consultar o estado da sua reserva',
     searchBooking: 'Consultar Reserva',
     bookingNumber: 'Número do Aluguel',
     bookingNumberPlaceholder: 'Ex: #12345',
@@ -1352,6 +1490,7 @@ export default {
     subtotal: 'Subtotal',
     numberOfDays: 'Número de dias',
     commission: 'Taxa de Serviço',
+    securityDeposit: 'Caução',
     details: 'Detalhes',
     contact: 'Contato',
     cancel: 'Cancelar',
@@ -1360,7 +1499,7 @@ export default {
     print: 'Imprimir',
     download: 'Download',
     noBookingFound: 'Nenhuma reserva encontrada',
-    noBookingFoundDesc: 'Não foi possível encontrar uma reserva com os dados fornecidos. Verifique se o número do aluguel e o email estão corretos.',
+    noBookingFoundDesc: 'Não foi possível encontrar uma reserva com os dados fornecidos. Verifique se o número do aluguel está correto.',
     newSearch: 'Nova Consulta',
     loadingBooking: 'Consultando reserva...',
     bookingFound: 'Reserva encontrada com sucesso!',

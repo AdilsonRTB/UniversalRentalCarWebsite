@@ -578,6 +578,38 @@ const getClientClassification = (rating) => {
   if (rating >= 3.0) return 'Bronze'
   return 'Iniciante'
 }
+
+// My Bookings Functions
+const filterMyBookings = (filters) => {
+  console.log('[OwnerDashboard] Filtering bookings:', filters)
+  // TODO: Implement filtering logic
+  getRentalCustomers()
+}
+
+const viewMyBookingDetails = (booking) => {
+  console.log('[OwnerDashboard] Viewing booking details:', booking)
+  selectedReservation.value = booking
+  reservationDetailsVisible.value = true
+}
+
+const contactOwner = (booking) => {
+  console.log('[OwnerDashboard] Contacting owner for booking:', booking)
+  message.info(t('dashboard.contactingOwner') || 'Entrando em contato com o proprietário...')
+  // TODO: Implement contact logic
+}
+
+const cancelMyBooking = async (booking) => {
+  console.log('[OwnerDashboard] Canceling booking:', booking)
+  try {
+    // TODO: Implement cancel booking API call
+    message.success(t('dashboard.bookingCanceled') || 'Reserva cancelada com sucesso!')
+    await getRentalCustomers()
+  } catch (error) {
+    console.error('[OwnerDashboard] Error canceling booking:', error)
+    message.error(t('dashboard.errorCancelingBooking') || 'Erro ao cancelar reserva')
+  }
+}
+
 // ...existing code...
 </script>
 

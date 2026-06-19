@@ -15,9 +15,9 @@
           <div class="brand-logo">
             <CarOutlined />
           </div>
-          <h2 class="form-title">Recuperar Palavra-passe</h2>
+          <h2 class="form-title">{{ t('auth.forgotPasswordTitle') }}</h2>
           <p class="form-subtitle">
-            Insira o código OTP enviado para o seu email e defina uma nova senha
+            {{ t('auth.recoverySubtitle') }}
           </p>
         </div>
 
@@ -29,17 +29,18 @@
             :rules="formRules"
             layout="vertical"
             @finish="handlePasswordReset"
+            @finish-failed="formValidated = true"
           >
             <!-- Email Field -->
             <a-form-item
               name="email"
-              label="E-mail"
+              :label="t('auth.emailLabel')"
               class="form-item"
             >
               <a-input
                 v-model:value="formData.email"
                 size="large"
-                placeholder="Insira o seu e-mail"
+                :placeholder="t('auth.emailPlaceholderForgot')"
                 :prefix="() => h(MailOutlined, { style: { color: '#667eea' } })"
                 :disabled="emailFromUrl"
                 class="form-input"
@@ -49,30 +50,44 @@
             <!-- OTP Field -->
             <a-form-item
               name="otp"
-              label="Código OTP"
+              :label="t('auth.otpLabel')"
               class="form-item"
             >
               <a-input
                 v-model:value="formData.otp"
                 size="large"
-                placeholder="Insira o código de 6 dígitos"
+                :placeholder="t('auth.otpPlaceholder')"
                 maxlength="6"
                 :prefix="() => h(SafetyOutlined, { style: { color: '#667eea' } })"
                 :disabled="otpFromUrl"
                 class="form-input"
               />
+              <div class="resend-code-wrapper">
+                <span class="resend-hint">{{ t('auth.notReceivedCode') }}</span>
+                <a-button
+                  type="link"
+                  size="small"
+                  :loading="isResending"
+                  :disabled="!formData.email"
+                  @click="resendCode"
+                  class="resend-code-btn"
+                >
+                  <ReloadOutlined v-if="!isResending" />
+                  {{ t('auth.resendLabel') }}
+                </a-button>
+              </div>
             </a-form-item>
 
             <!-- New Password Field -->
             <a-form-item
               name="newPassword"
-              label="Nova Senha"
+              :label="t('auth.newPasswordLabel')"
               class="form-item"
             >
               <a-input-password
                 v-model:value="formData.newPassword"
                 size="large"
-                placeholder="Insira a nova senha"
+                :placeholder="t('auth.newPasswordPlaceholder')"
                 :prefix="() => h(LockOutlined, { style: { color: '#667eea' } })"
                 :iconRender="(visible) => (visible ? h(EyeTwoTone) : h(EyeInvisibleOutlined))"
                 class="form-input"
@@ -82,18 +97,22 @@
             <!-- Confirm Password Field -->
             <a-form-item
               name="confirmPassword"
-              label="Confirmar Nova Senha"
+              :label="t('auth.confirmNewPasswordLabel')"
               class="form-item"
             >
               <a-input-password
                 v-model:value="formData.confirmPassword"
                 size="large"
-                placeholder="Confirme a nova senha"
+                :placeholder="t('auth.confirmNewPasswordPlaceholder')"
                 :prefix="() => h(LockOutlined, { style: { color: '#667eea' } })"
                 :iconRender="(visible) => (visible ? h(EyeTwoTone) : h(EyeInvisibleOutlined))"
                 class="form-input"
               />
             </a-form-item>
+
+            <!-- Inline Messages -->
+            <span v-if="errorMessage" class="error-message">{{ errorMessage }}</span>
+            <span v-if="successMessage" class="success-inline-message">{{ successMessage }}</span>
 
             <!-- Submit Button -->
             <a-form-item class="submit-item">
@@ -106,7 +125,7 @@
                 class="submit-btn"
               >
                 <CheckCircleOutlined v-if="!isLoading" />
-                Redefinir Senha
+                {{ t('auth.resetPasswordBtn') }}
               </a-button>
             </a-form-item>
           </a-form>
@@ -117,29 +136,23 @@
           <div class="success-icon">
             <CheckCircleOutlined />
           </div>
-          <h3>Senha Redefinida com Sucesso!</h3>
+          <h3>{{ t('auth.passwordResetSuccessTitle') }}</h3>
           <p>
-            Sua senha foi alterada com sucesso.
+            {{ t('auth.passwordResetSuccessMessage') }}
           </p>
           <p class="hint">
-            Agora você pode fazer login com sua nova senha.
+            {{ t('auth.passwordResetSuccessHint') }}
           </p>
           
-          <a-button
-            @click="goToLogin"
-            type="primary"
-            class="login-btn"
-          >
-            Ir para Login
-          </a-button>
+
         </div>
 
         <!-- Back to Login -->
         <div class="back-link">
           <ArrowLeftOutlined />
-          <router-link to="/login" class="back-text">
-            Voltar ao Login
-          </router-link>
+          <span class="back-text" @click="goToLogin">
+            {{ t('auth.backToLogin') }}
+          </span>
         </div>
       </div>
     </div>
@@ -161,25 +174,38 @@ import {
   LockOutlined,
   SafetyOutlined,
   EyeInvisibleOutlined,
-  EyeTwoTone
+  EyeTwoTone,
+  ReloadOutlined
 } from '@ant-design/icons-vue'
-import { ref, reactive, h, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, reactive, computed, h, onMounted, watch } from 'vue'
+
+import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {authService} from '../services/api'
 
 // Router
 const router = useRouter()
 const route = useRoute()
+const { t, locale } = useI18n()
 
 // Form references
 const formRef = ref(null)
+const formValidated = ref(false)
+
+watch(locale, () => {
+  if (formValidated.value) {
+    formRef.value?.validate().catch(() => {})
+  }
+})
 
 // Reactive data
 const isLoading = ref(false)
+const isResending = ref(false)
 const emailSent = ref(false)
 const emailFromUrl = ref(false)
 const otpFromUrl = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
 
 const formData = reactive({
   email: '',
@@ -189,61 +215,87 @@ const formData = reactive({
 })
 
 // Form validation rules
-const formRules = {
+const formRules = computed(() => ({
   email: [
-    { required: true, message: 'Por favor, insira o seu e-mail' },
-    { type: 'email', message: 'Por favor, insira um e-mail válido' }
+    { required: true, message: t('auth.emailRequiredValidation') },
+    { type: 'email', message: t('auth.emailValidValidation') }
   ],
   otp: [
-    { required: true, message: 'Por favor, insira o código OTP' },
-    { len: 6, message: 'O código OTP deve ter 6 dígitos' }
+    { required: true, message: t('auth.otpRequired') },
+    { len: 6, message: t('auth.otpLength') }
   ],
   newPassword: [
-    { required: true, message: 'Por favor, insira a nova senha' },
-    { min: 8, message: 'A senha deve ter pelo menos 8 caracteres' },
+    { required: true, message: t('auth.newPasswordRequired') },
+    { min: 8, message: t('auth.passwordMinLengthRegister') },
     { 
       pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
-      message: 'Deve conter pelo menos uma minúscula, maiúscula e um número' 
+      message: t('auth.passwordComplexity')
     }
   ],
   confirmPassword: [
-    { required: true, message: 'Por favor, confirme a senha' },
+    { required: true, message: t('auth.confirmPasswordRequired') },
     {
       validator: (rule, value) => {
         if (value && value !== formData.newPassword) {
-          return Promise.reject('As senhas não coincidem')
+          return Promise.reject(t('auth.passwordsDoNotMatch'))
         }
         return Promise.resolve()
       }
     }
   ]
-}
+}))
 
 // Methods
+const resendCode = async () => {
+  errorMessage.value = ''
+  successMessage.value = ''
+  try {
+    isResending.value = true
+    await authService.forgotPassword(formData.email)
+    successMessage.value = t('auth.resendCodeSuccess')
+  } catch (error) {
+    errorMessage.value = t('auth.resendCodeError')
+  } finally {
+    isResending.value = false
+  }
+}
+
+const getResetErrorMessage = (apiError) => {
+  if (!apiError) return t('auth.resetPasswordErrorGeneric')
+  if (apiError.includes('Invalid OTP')) return t('auth.resetPasswordErrorInvalidOtp')
+  if (apiError.toLowerCase().includes('expired')) return t('auth.resetPasswordErrorOtpExpired')
+  if (apiError.includes('User not found')) return t('auth.resetPasswordErrorUserNotFound')
+  if (apiError.includes('already used')) return t('auth.resetPasswordErrorOtpUsed')
+  return t('auth.resetPasswordErrorGeneric')
+}
+
 const handlePasswordReset = async (values) => {
+  errorMessage.value = ''
+  successMessage.value = ''
   try {
     isLoading.value = true
-    
+
     await authService.resetPassword(
       values.email,
       values.otp,
       values.newPassword,
       values.confirmPassword
     )
-    
+
     emailSent.value = true
-    message.success('Senha redefinida com sucesso!')
-    
+
   } catch (error) {
     console.error('Password reset error:', error)
-    message.error(error.message || 'Erro ao redefinir senha. Verifique os dados e tente novamente.')
+    const apiError = error.response?.data?.error || error.response?.data?.detail || null
+    errorMessage.value = getResetErrorMessage(apiError)
   } finally {
     isLoading.value = false
   }
 }
 
 const goToLogin = () => {
-  router.push('/login')
+  sessionStorage.setItem('openLoginModal', 'true')
+  router.push('/')
 }
 
 // Load email and OTP from URL on mount
@@ -408,6 +460,31 @@ onMounted(() => {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+/* Inline Messages */
+.error-message {
+  display: block;
+  color: #ef4444;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.success-inline-message {
+  display: block;
+  color: #059669;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
 /* Submit Button */
 .submit-item {
   margin-bottom: 0;
@@ -427,6 +504,26 @@ onMounted(() => {
   background: linear-gradient(90deg,#3A1C71 0%,#FDBB2D 100%) !important;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.resend-code-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.resend-hint {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.resend-code-btn {
+  color: #667eea !important;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 4px !important;
+  height: auto !important;
 }
 
 /* Success Message */
@@ -509,6 +606,7 @@ onMounted(() => {
   color: #667eea;
   text-decoration: none;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .back-text:hover {

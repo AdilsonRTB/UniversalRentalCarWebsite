@@ -5,7 +5,7 @@ const currentCurrency = ref(localStorage.getItem('currency') || 'CVE')
 const currentLanguage = ref(localStorage.getItem('language') || 'pt') // Correção: usar 'pt' minúsculo
 
 const currencies = {
-  CVE: { symbol: '$', code: 'CVE', name: 'Escudos' },
+  CVE: { symbol: '$', code: 'CVE', name: 'Escudo' },
   USD: { symbol: '$', code: 'USD', name: 'Dollar' },
   EUR: { symbol: '€', code: 'EUR', name: 'Euro' },
 

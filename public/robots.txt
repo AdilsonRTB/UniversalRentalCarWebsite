@@ -1,0 +1,25 @@
+# robots.txt for Universal Rent-a-Car
+# https://www.robotstxt.org/
+
+User-agent: *
+Allow: /
+
+# Disallow admin/dashboard areas (if any private areas exist)
+# Disallow: /admin/
+# Disallow: /dashboard/
+
+# Sitemap location
+Sitemap: https://www.universalrental.cv/sitemap.xml
+
+# Crawl-delay for all bots
+Crawl-delay: 1
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /

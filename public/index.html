@@ -4,10 +4,83 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    
+    <!-- Prevent caching of HTML to ensure users get latest version after deploy -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Alugue veículos de forma simples e rápida. Encontre o carro perfeito para sua viagem com a Universal Rent-a-Car. Reservas online, preços competitivos e atendimento de qualidade.">
+    <meta name="keywords" content="aluguer de carros, rent a car, aluguel de veículos, carros para alugar, rental car, reserva de veículos, locação de automóveis">
+    <meta name="author" content="Universal Rent-a-Car">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <link rel="canonical" href="https://www.universalrental.cv/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.universalrental.cv/">
+    <meta property="og:title" content="Universal Rent-a-Car - Aluguer de Veículos">
+    <meta property="og:description" content="Alugue veículos de forma simples e rápida. Encontre o carro perfeito para sua viagem com a Universal Rent-a-Car.">
+    <meta property="og:image" content="https://www.universalrental.cv/og-image.jpg">
+    <meta property="og:locale" content="pt_PT">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:locale:alternate" content="fr_FR">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://www.universalrental.cv/">
+    <meta name="twitter:title" content="Universal Rent-a-Car - Aluguer de Veículos">
+    <meta name="twitter:description" content="Alugue veículos de forma simples e rápida. Encontre o carro perfeito para sua viagem.">
+    <meta name="twitter:image" content="https://www.universalrental.cv/twitter-image.jpg">
+    
+    <!-- Additional SEO -->
+    <meta name="theme-color" content="#FE7743">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Universal Rent">
+    
+    <!-- PWA Icons -->
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>Universal Rent-a-Car</title>
+    <link rel="apple-touch-icon" sizes="152x152" href="<%= BASE_URL %>img/icons/apple-touch-icon-152x152.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="<%= BASE_URL %>img/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="<%= BASE_URL %>img/icons/favicon-16x16.png">
+    <link rel="manifest" href="<%= BASE_URL %>manifest.json">
+    <meta name="msapplication-TileColor" content="#FE7743">
+    <meta name="msapplication-TileImage" content="<%= BASE_URL %>img/icons/msapplication-icon-144x144.png">
+    
+    <title>Universal Rent-a-Car - Aluguer de Veículos Online</title>
+    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AutoRental",
+      "name": "Universal Rent-a-Car",
+      "description": "Aluguer de veículos online com preços competitivos e atendimento de qualidade",
+      "url": "https://www.universalrental.cv",
+      "logo": "https://www.universalrental.cv/logo.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+351-XXX-XXX-XXX",
+        "contactType": "customer service",
+        "availableLanguage": ["pt-PT", "en-US", "fr-FR"]
+      },
+      "sameAs": [
+        "https://www.facebook.com/universalrentacar",
+        "https://www.instagram.com/universalrentacar"
+      ],
+      "priceRange": "$$",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "PT"
+      }
+    }
+    </script>
   </head>
   <body>
     <noscript>

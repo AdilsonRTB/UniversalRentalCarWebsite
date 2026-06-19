@@ -2,7 +2,9 @@ import axios from 'axios'
 
 
 const AUTH_API_BASE_URL = 'https://admin.universalrental.cv/vehicle-rental/api'
-//const AUTH_API_BASE_URL = 'http://127.0.0.1:8000/vehicle-rental/api'
+const AUTH_API_BASE_URL_MEDIA = 'https://admin.universalrental.cv'
+/*const AUTH_API_BASE_URL = 'http://127.0.0.1:8000/vehicle-rental/api'
+const AUTH_API_BASE_URL_MEDIA = 'http://127.0.0.1:8000'*/
 /*
 const api = axios.create({
   baseURL: AUTH_API_BASE_URL + 'vehicle-rental/api',
@@ -39,7 +41,7 @@ api.interceptors.response.use(
 
 export const authService = {
   login: (credentials) => api.post('/customer/login/', credentials),
-  register: (userData) => api.post('/customer/register/', userData),
+  register: (userData) => api.post('/customer/register/', { ...userData, notification_language: localStorage.getItem('language') || 'pt' }),
   updateProfile: (userData) => api.patch('/customer/register/update_profile', userData, {
     headers: {'Authorization': `Token ${localStorage.getItem('authToken')}`}
   }),
@@ -47,8 +49,10 @@ export const authService = {
     headers: {'Authorization': `Token ${localStorage.getItem('authToken')}`}
   }),
   allCustomers: () => api.get('/customers/'),
+  getCustomersByEmail: (email) => api.post(`customer/check-email/`, { email: email }),
   createCustomer: (customerData) => api.post('/customers/', customerData),
   updateCustomer: (id, customerData) => api.put(`/customers/${id}/`, customerData),
+  resolveGuest: (guestData) => api.post('/customer/resolve-guest/', { ...guestData, notification_language: localStorage.getItem('language') || 'pt' }),
   logout: () => {
     localStorage.removeItem('authToken')
     //localStorage.removeItem('userRole')
@@ -100,13 +104,12 @@ export const bookingService = {
     api.get(`/bookings/vehicle/${vehicleId}/availability`, {
       params: { startDate, endDate }
     }),*/
-  createBooking: (bookingData) => api.post('/rentals/', bookingData),
+  createBooking: (bookingData) => api.post('/customer/rentals/', { ...bookingData, notification_language: localStorage.getItem('language') || 'pt', notification_currency: localStorage.getItem('currency') || 'CVE' }),
   getBookingsByCustomer: () => api.get(`/customer/rentals/`, {
     headers: {'Authorization': `Token ${localStorage.getItem('authToken')}`}
   }),
-  getRentalDetails: (rentalId, email) => api.post(`/customer/rental-details/`, {
-    rental_number: rentalId,
-    email: email
+  getRentalDetails: (rentalId) => api.post(`/customer/rental-details/`, {
+    rental_code: rentalId
   }),
   //updateBooking: (id, bookingData) => api.put(`/bookings/${id}`, bookingData),
   //updateBookingStatus: (id, status) => api.patch(`/bookings/${id}/status`, null, { params: { status } }),
@@ -114,6 +117,8 @@ export const bookingService = {
 }
 
 export const baseURL = AUTH_API_BASE_URL || '/api'
+
+export const mediaURL = AUTH_API_BASE_URL_MEDIA || ''
 
 export default api
 
