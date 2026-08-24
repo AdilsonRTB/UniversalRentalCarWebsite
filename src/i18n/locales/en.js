@@ -1322,6 +1322,8 @@ export default {
       reservationSuccess: 'Reservation created successfully!',
       reservationPendingPayment: 'Reservation Awaiting Payment Confirmation',
       paymentInstructions: 'Bank account information for payment has been sent to your email. Please check your inbox.',
+      paymentInstructionsPhone: 'Bank account information for payment will be sent via SMS to your phone number. Please check your messages.',
+      paymentInstructionsGeneral: 'Bank account information for payment is available below. Please make the transfer and send the proof.',
       reservationError: 'Error creating reservation. Please try again.',
       customerError: 'Error creating customer. Please try again.',
       qrCodeText: 'Reservation #: {id}\nCustomer: {name}\nVehicle: {vehicle}\nPeriod: {dates}\nTotal: {total} CVE',

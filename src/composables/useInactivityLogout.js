@@ -5,6 +5,7 @@ import { useLanguageAndCurrency } from './useLanguageAndCurrency'
 
 const INACTIVITY_TIMEOUT = 30 * 60 * 1000 // 30 minutes in milliseconds
 const LAST_ACTIVITY_KEY = 'lastActivityTimestamp'
+const SESSION_EXPIRY_KEY = 'sessionExpiryTimestamp'
 
 const ACTIVITY_EVENTS = [
   'mousedown',
@@ -25,7 +26,10 @@ export function useInactivityLogout() {
 
   const updateLastActivity = () => {
     if (isAuthenticated()) {
-      localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString())
+      const now = Date.now()
+      const expiryTime = now + INACTIVITY_TIMEOUT
+      localStorage.setItem(LAST_ACTIVITY_KEY, now.toString())
+      localStorage.setItem(SESSION_EXPIRY_KEY, expiryTime.toString())
     }
   }
 
@@ -35,6 +39,7 @@ export function useInactivityLogout() {
     localStorage.removeItem('customerData')
     localStorage.removeItem('rememberMe')
     localStorage.removeItem(LAST_ACTIVITY_KEY)
+    localStorage.removeItem(SESSION_EXPIRY_KEY)
     localStorage.removeItem('vehicle_search_end_date')
     localStorage.removeItem('vehicle_search_start_date')
   }
@@ -61,10 +66,21 @@ export function useInactivityLogout() {
     }, INACTIVITY_TIMEOUT)
   }
 
-  // Check if session already expired (e.g. user left tab open)
+  // Check if session already expired (e.g. user left tab open or closed browser)
   const checkStoredActivity = () => {
     if (!isAuthenticated()) return
 
+    // Primeiro verifica o timestamp de expiração absoluto
+    const expiryTimestamp = localStorage.getItem(SESSION_EXPIRY_KEY)
+    if (expiryTimestamp) {
+      const expiry = parseInt(expiryTimestamp, 10)
+      if (Date.now() >= expiry) {
+        handleInactivityLogout()
+        return
+      }
+    }
+
+    // Fallback: verifica a última atividade (caso o SESSION_EXPIRY_KEY não exista)
     const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY)
     if (lastActivity) {
       const elapsed = Date.now() - parseInt(lastActivity, 10)
@@ -72,6 +88,9 @@ export function useInactivityLogout() {
         handleInactivityLogout()
         return
       }
+    } else {
+      // Se não há registro de atividade, define um agora
+      updateLastActivity()
     }
   }
 
@@ -97,6 +116,19 @@ export function useInactivityLogout() {
     ACTIVITY_EVENTS.forEach((event) => {
       document.addEventListener(event, resetTimer, { passive: true })
     })
+
+    // Adicionar listener para quando o usuário volta à aba/janela
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+  }
+
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      // Verificar se a sessão expirou enquanto estava ausente
+      checkStoredActivity()
+      if (isAuthenticated()) {
+        resetTimer()
+      }
+    }
   }
 
   const stopTracking = () => {
@@ -112,6 +144,8 @@ export function useInactivityLogout() {
     ACTIVITY_EVENTS.forEach((event) => {
       document.removeEventListener(event, resetTimer)
     })
+
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
   }
 
   onMounted(() => {

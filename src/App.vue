@@ -219,6 +219,15 @@ onMounted(() => {
   } else if (route.path === '/search') {
     selectedKeys.value = ['search']
   }
+
+  // Reload the page when a new service worker version is available
+  document.addEventListener('swUpdated', (event) => {
+    const registration = event.detail
+    if (registration && registration.waiting) {
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+    }
+    window.location.reload()
+  })
 })
 
 // change token when is change in localStorage

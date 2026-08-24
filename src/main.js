@@ -6,7 +6,7 @@ import 'ant-design-vue/dist/reset.css'
 import './styles/theme.css'
 import i18n from './i18n'
 import { useAuth } from './composables/useAuth'
-import { VueRecaptcha } from 'vue3-recaptcha2'
+// import { VueRecaptcha } from 'vue3-recaptcha2' // DESATIVADO
 import { createHead } from '@vueuse/head'
 import './registerServiceWorker'
 
@@ -20,8 +20,8 @@ async function initApp() {
   app.use(i18n)
   app.use(head)
   
-  // Register reCAPTCHA v2 component globally
-  app.component('VueRecaptcha', VueRecaptcha)
+  // reCAPTCHA v2 - DESATIVADO
+  // app.component('VueRecaptcha', VueRecaptcha)
   
   // Initialize authentication
   const { initAuth } = useAuth()

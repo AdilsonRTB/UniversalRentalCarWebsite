@@ -1323,6 +1323,8 @@ export default {
       reservationSuccess: 'Reserva criada com sucesso!',
       reservationPendingPayment: 'Reserva Aguarda Confirmação de Pagamento',
       paymentInstructions: 'As informações da conta bancária para pagamento foram enviadas para o seu email. Por favor, verifique a sua caixa de entrada.',
+      paymentInstructionsPhone: 'As informações da conta bancária para pagamento serão enviadas via SMS para o seu número de telefone. Por favor, verifique as suas mensagens.',
+      paymentInstructionsGeneral: 'As informações da conta bancária para pagamento estão disponíveis abaixo. Por favor, efetue a transferência e envie o comprovativo.',
       reservationError: 'Erro ao criar reserva. Tente novamente.',
       customerError: 'Erro ao criar cliente. Tente novamente.',
       qrCodeText: 'Reserva Nº: {id}\nCliente: {name}\nVeículo: {vehicle}\nPeríodo: {dates}\nTotal: {total} CVE',

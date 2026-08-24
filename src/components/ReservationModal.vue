@@ -300,7 +300,7 @@
               </a-col>
               <a-col :xs="24" :sm="14">
                 <div class="bank-details-card">
-                  <h4 class="bank-details-title">UNIVERSAL RENT A CAR LDA IBAN</h4>
+                  <h4 class="bank-details-title">UNIVERSAL LDA</h4>
 
                   <!-- IBAN highlight box -->
                   <div class="bank-iban-box">
@@ -786,19 +786,31 @@ const copyField = async (fieldName, value) => {
   setTimeout(() => { copiedField.value = null }, 2000)
 }
 
-const shareText = computed(() => [
-  `UNIVERSAL RENT A CAR LDA IBAN`,
-  `${t('reservation.messages.bankTransferAccount')}: 100400069902001`,
-  `NIB: 000810040006990200106`,
-  `IBAN: CV64000810040006990200106`,
-  `SWIFT/BIC: BAIPCVCV`
-].join('\n'))
+const shareText = computed(() => {
+  const lines = [
+    `UNIVERSAL LDA`
+  ]
+  
+  // Adicionar número da reserva se disponível
+  if (reservationId.value) {
+    lines.push(`${t('reservation.messages.rentalCode')}: ${reservationId.value}`)
+  }
+  
+  lines.push(
+    `${t('reservation.messages.bankTransferAccount')}: 100400069902001`,
+    `NIB: 000810040006990200106`,
+    `IBAN: CV64000810040006990200106`,
+    `SWIFT/BIC: BAIPCVCV`
+  )
+  
+  return lines.join('\n')
+})
 
 const shareBankDetails = async () => {
   if (navigator.share) {
     try {
       await navigator.share({
-        title: 'UNIVERSAL RENT A CAR LDA IBAN',
+        title: 'UNIVERSAL LDA - IBAN',
         text: shareText.value
       })
     } catch (err) {
@@ -1091,10 +1103,16 @@ const createBookingServices = async (custumerId) => {
 
     if (response && response.data) {
       if (response.data.rental.id > 0) {
-        // Show payment pending modal
+        // Show payment pending modal with appropriate message based on contact method
+        const paymentInstructionKey = formData.email
+          ? 'reservation.messages.paymentInstructions'
+          : formData.phone
+          ? 'reservation.messages.paymentInstructionsGeneral'
+          : 'reservation.messages.paymentInstructionsGeneral'
+
         Modal.info({
           title: t('reservation.messages.reservationPendingPayment'),
-          content: t('reservation.messages.paymentInstructions'),
+          content: t(paymentInstructionKey),
           okText: 'OK',
           onOk() {
             // Generate QR code after modal closes
