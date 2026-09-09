@@ -9,6 +9,8 @@ import BookingStatus from '@/components/BookingStatus.vue'
 import ForgotPasswordRecovery from '../auth/ForgotPasswordRecoveryPage.vue'
 import TermsAndConditions from '../views/TermsAndConditions.vue'
 import PrivacyPolicy from '../views/PrivacyPolicy.vue'
+import PaymentRedirect from '../views/PaymentRedirect.vue'
+import PaymentResult from '../views/PaymentResult.vue'
 
 const routes = [
   {
@@ -63,6 +65,18 @@ const routes = [
     name: 'PrivacyPolicy',
     component: PrivacyPolicy,
   },
+  {
+    path: '/payment/:rentalId',
+    name: 'PaymentRedirect',
+    component: PaymentRedirect,
+    props: true
+  },
+  {
+    path: '/payment/result/:token',
+    name: 'PaymentResult',
+    component: PaymentResult,
+    props: true
+  },
 ]
 
 const router = createRouter({
@@ -79,7 +93,7 @@ const router = createRouter({
 // Navigation guard for authentication
 router.beforeEach(async (to, from, next) => {
   // Routes that don't require authentication
-  const publicRoutes = ['Home', 'Login', 'Register', 'ForgotPassword', 'VehicleSearch', 'VehicleDetails', 'BookingStatus', 'ForgotPasswordRecovery', 'TermsAndConditions', 'PrivacyPolicy']
+  const publicRoutes = ['Home', 'Login', 'Register', 'ForgotPassword', 'VehicleSearch', 'VehicleDetails', 'BookingStatus', 'ForgotPasswordRecovery', 'TermsAndConditions', 'PrivacyPolicy', 'PaymentRedirect', 'PaymentResult']
 
   //console.log(`[Router] Navigating to: ${to.name} (${to.path}) from: ${from.name || 'initial'} (${from.path || 'initial'})`)
 

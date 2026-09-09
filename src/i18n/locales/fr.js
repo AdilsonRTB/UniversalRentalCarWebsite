@@ -1286,6 +1286,10 @@ export default {
       drivingLicenseLabel: 'Permis de Conduire',
       licenseIssueDatePlaceholder: 'Date d\'émission du permis',
       licenseIssueDateLabel: 'Date d\'Émission',
+      paymentMethodLabel: 'Mode de Paiement',
+      paymentMethodBankTransfer: 'Virement (Multibanco)',
+      paymentMethodCard: 'Paiement Vinti4 (Carte)',
+      paymentMethodCardRestricted: 'Le paiement par carte n\'est pas disponible pour les informations fournies. Veuillez utiliser le virement bancaire.',
       termsLabel: 'Termes et Conditions',
       termsText: 'J\'accepte les',
       termsLink: 'termes et conditions',
@@ -1693,5 +1697,30 @@ export default {
     contactTitle: 'Contact',
     contactText1: 'Pour toute question relative à la protection de vos données personnelles, contactez-nous :',
     contactPhone: 'Téléphone'
+  },
+
+  // Card Payment (SISP/Vinti4)
+  payment: {
+    redirecting: 'Redirection vers le paiement sécurisé...',
+    redirectingSubtitle: 'Ne fermez pas cette page. Vous allez être redirigé vers la page de paiement Vinti4.',
+    initiateError: "Impossible de démarrer le paiement. Veuillez réessayer.",
+    backToBooking: 'Retour',
+    checkingStatus: 'Vérification de l\'état du paiement...',
+    successTitle: 'Paiement confirmé !',
+    successSubtitle: 'Votre réservation a été confirmée avec succès.',
+    declinedTitle: 'Paiement refusé',
+    declinedSubtitle: "Le paiement n'a pas été autorisé. Réessayez ou contactez votre banque.",
+    cancelledTitle: 'Paiement annulé',
+    cancelledSubtitle: 'Vous avez annulé le processus de paiement.',
+    errorTitle: 'Erreur de paiement',
+    errorSubtitle: "Une erreur s'est produite lors du traitement du paiement. Contactez le support si le problème persiste.",
+    invalidTitle: 'Paiement invalide',
+    invalidSubtitle: "Nous n'avons pas trouvé ce paiement.",
+    payByCard: 'Payer par Carte (Vinti4)',
+    payByBankTransfer: 'Virement Bancaire',
+    choosePaymentMethod: 'Choisissez un mode de paiement',
+    goToDashboard: 'Aller au Tableau de Bord',
+    goToBookingStatus: 'Voir l\'état de la réservation',
+    tryAgain: 'Réessayer'
   }
 }

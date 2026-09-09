@@ -1285,6 +1285,10 @@ export default {
       drivingLicenseLabel: 'Carta de Condução',
       licenseIssueDatePlaceholder: 'Data emissão da carta',
       licenseIssueDateLabel: 'Data de Emissão',
+      paymentMethodLabel: 'Forma de Pagamento',
+      paymentMethodBankTransfer: 'Transferência (Multibanco)',
+      paymentMethodCard: 'Pagamento Vinti4 (Cartão)',
+      paymentMethodCardRestricted: 'O pagamento por cartão não está disponível para os dados introduzidos. Utilize a transferência bancária.',
       termsLabel: 'Termos e Condições',
       termsText: 'Aceito os',
       termsLink: 'termos e condições',
@@ -1695,5 +1699,30 @@ export default {
     contactTitle: 'Contactos',
     contactText1: 'Para questões relacionadas com a proteção dos seus dados pessoais, contacte-nos:',
     contactPhone: 'Telefone'
+  },
+
+  // Card Payment (SISP/Vinti4)
+  payment: {
+    redirecting: 'A redirecionar para o pagamento seguro...',
+    redirectingSubtitle: 'Não feche esta página. Vai ser reencaminhado para a página de pagamento da Vinti4.',
+    initiateError: 'Não foi possível iniciar o pagamento. Tente novamente.',
+    backToBooking: 'Voltar',
+    checkingStatus: 'A verificar o estado do pagamento...',
+    successTitle: 'Pagamento confirmado!',
+    successSubtitle: 'A sua reserva foi confirmada com sucesso.',
+    declinedTitle: 'Pagamento recusado',
+    declinedSubtitle: 'O pagamento não foi autorizado. Tente novamente ou contacte o seu banco.',
+    cancelledTitle: 'Pagamento cancelado',
+    cancelledSubtitle: 'Cancelou o processo de pagamento.',
+    errorTitle: 'Erro no pagamento',
+    errorSubtitle: 'Ocorreu um erro ao processar o pagamento. Contacte o suporte se o problema persistir.',
+    invalidTitle: 'Pagamento inválido',
+    invalidSubtitle: 'Não foi possível encontrar este pagamento.',
+    payByCard: 'Pagar com Cartão (Vinti4)',
+    payByBankTransfer: 'Transferência Bancária',
+    choosePaymentMethod: 'Escolha a forma de pagamento',
+    goToDashboard: 'Ir para o Painel',
+    goToBookingStatus: 'Ver Estado da Reserva',
+    tryAgain: 'Tentar Novamente'
   }
 }

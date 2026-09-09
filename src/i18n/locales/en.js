@@ -1284,6 +1284,10 @@ export default {
       drivingLicenseLabel: 'Driving License',
       licenseIssueDatePlaceholder: 'License issue date',
       licenseIssueDateLabel: 'Issue Date',
+      paymentMethodLabel: 'Payment Method',
+      paymentMethodBankTransfer: 'Bank Transfer (Multibanco)',
+      paymentMethodCard: 'Vinti4 Payment (Card)',
+      paymentMethodCardRestricted: 'Card payment is not available for the details provided. Please use bank transfer.',
       termsLabel: 'Terms and Conditions',
       termsText: 'I accept the',
       termsLink: 'terms and conditions',
@@ -1691,5 +1695,30 @@ export default {
     contactTitle: 'Contact',
     contactText1: 'For questions related to the protection of your personal data, contact us:',
     contactPhone: 'Phone'
+  },
+
+  // Card Payment (SISP/Vinti4)
+  payment: {
+    redirecting: 'Redirecting to secure payment...',
+    redirectingSubtitle: 'Please do not close this page. You will be redirected to the Vinti4 payment page.',
+    initiateError: 'Could not start the payment. Please try again.',
+    backToBooking: 'Back',
+    checkingStatus: 'Checking payment status...',
+    successTitle: 'Payment confirmed!',
+    successSubtitle: 'Your booking has been successfully confirmed.',
+    declinedTitle: 'Payment declined',
+    declinedSubtitle: 'The payment was not authorized. Please try again or contact your bank.',
+    cancelledTitle: 'Payment cancelled',
+    cancelledSubtitle: 'You cancelled the payment process.',
+    errorTitle: 'Payment error',
+    errorSubtitle: 'An error occurred while processing the payment. Contact support if the issue persists.',
+    invalidTitle: 'Invalid payment',
+    invalidSubtitle: 'We could not find this payment.',
+    payByCard: 'Pay by Card (Vinti4)',
+    payByBankTransfer: 'Bank Transfer',
+    choosePaymentMethod: 'Choose a payment method',
+    goToDashboard: 'Go to Dashboard',
+    goToBookingStatus: 'View Booking Status',
+    tryAgain: 'Try Again'
   }
 }

@@ -116,6 +116,12 @@ export const bookingService = {
   //deleteBooking: (id) => api.delete(`/bookings/${id}`)
 }
 
+export const paymentService = {
+  initiatePayment: (rentalId) => api.post(`/customer/rentals/${rentalId}/payment/initiate/`),
+  getPaymentStatus: (rentalId) => api.get(`/customer/rentals/${rentalId}/payment/status/`),
+  getPaymentStatusByToken: (token) => api.get(`/payments/vinti4/status/${token}/`),
+}
+
 export const baseURL = AUTH_API_BASE_URL || '/api'
 
 export const mediaURL = AUTH_API_BASE_URL_MEDIA || ''

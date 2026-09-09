@@ -250,6 +250,22 @@
                   </a-form-item>
                </div>
 
+              <!-- Payment Method -->
+              <div class="payment-method-section">
+                <a-form-item name="paymentMethod" :label="$t('reservation.form.paymentMethodLabel')" class="payment-method-item">
+                  <a-radio-group v-model:value="formData.paymentMethod" class="payment-method-group">
+                     <a-radio-button value="bank_transfer" class="payment-method-option">
+                      <BankOutlined /> {{ $t('reservation.form.paymentMethodBankTransfer') }}
+                    </a-radio-button>
+                    <a-radio-button value="card" class="payment-method-option" :disabled="!isCardPaymentAllowed">
+                      <CreditCardOutlined /> {{ $t('reservation.form.paymentMethodCard') }}
+                    </a-radio-button>
+                  </a-radio-group>
+                </a-form-item>
+                <p v-if="!isCardPaymentAllowed" class="payment-method-hint">
+                  {{ $t('reservation.form.paymentMethodCardRestricted') }}
+                </p>
+              </div>
 
               <!-- Terms and Conditions -->
               <div class="terms-section">
@@ -400,7 +416,9 @@ import {
   EnvironmentOutlined,
   SafetyOutlined,
   CopyOutlined,
-  ShareAltOutlined
+  ShareAltOutlined,
+  CreditCardOutlined,
+  BankOutlined
 } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt'
@@ -613,6 +631,7 @@ const formData = reactive({
   license_issue_date: null,
   phone: '',
   acceptTerms: false,
+  paymentMethod: 'bank_transfer',
   pickupLocation: null,
   returnLocation: null,
 })
@@ -740,6 +759,30 @@ const isLoggedIn = computed(() => {
   return token !== null && token !== '' && token !== undefined
 })
 
+// Card payment is only allowed for these specific emails / phone numbers
+const CARD_PAYMENT_ALLOWED_EMAILS = [
+  'michellafurtado2001@gmail.com',
+  'angelopassos10@gmail.com',
+  'universal.r.car@gmail.com'
+]
+const CARD_PAYMENT_ALLOWED_PHONES = [
+  '+2389999999',
+  '+23890000000'
+]
+
+const isCardPaymentAllowed = computed(() => {
+  const email = (formData.email || '').trim().toLowerCase()
+  const phone = (formData.phone || '').replace(/\s+/g, '')
+  return CARD_PAYMENT_ALLOWED_EMAILS.includes(email) || CARD_PAYMENT_ALLOWED_PHONES.includes(phone)
+})
+
+// If the card option becomes unavailable, fall back to bank transfer
+watch(isCardPaymentAllowed, (allowed) => {
+  if (!allowed && formData.paymentMethod === 'card') {
+    formData.paymentMethod = 'bank_transfer'
+  }
+}, { immediate: true })
+
 // Methods
 const handleCancel = () => {
   const reservationConfirmed = qrcode.value
@@ -752,6 +795,7 @@ const handleCancel = () => {
     formData.drivingLicense = ''
     formData.phone = ''
     formData.acceptTerms = false
+    formData.paymentMethod = 'bank_transfer'
     qrcode.value = false;
     reservationId.value = null
     textQrCode.value = ""
@@ -1103,30 +1147,36 @@ const createBookingServices = async (custumerId) => {
 
     if (response && response.data) {
       if (response.data.rental.id > 0) {
-        // Show payment pending modal with appropriate message based on contact method
-        const paymentInstructionKey = formData.email
-          ? 'reservation.messages.paymentInstructions'
-          : formData.phone
-          ? 'reservation.messages.paymentInstructionsGeneral'
-          : 'reservation.messages.paymentInstructionsGeneral'
+        const rentalId = response.data.rental.id
+        const rentalCode = response.data.rental.rental_code
 
-        Modal.info({
-          title: t('reservation.messages.reservationPendingPayment'),
-          content: t(paymentInstructionKey),
-          okText: 'OK',
-          onOk() {
-            // Generate QR code after modal closes
-            reservationId.value = response.data.rental.rental_code
-            textQrCode.value = t('reservation.messages.qrCodeText', {
-              id: response.data.rental.rental_code,
-              name: `${formData.firstName} ${formData.lastName}`,
-              vehicle: `${props.vehicle.brand_name} ${props.vehicle.model}`,
-              dates: `${formatDate(props.pickupDate)} a ${formatDate(props.returnDate)}`,
-              total: props.calculateTotal
-            })
-            qrcode.value = true
-          }
-        })
+        if (formData.paymentMethod === 'card' && isCardPaymentAllowed.value) {
+          emit('update:visible', false)
+          router.push(`/payment/${rentalId}`)
+        } else {
+          const paymentInstructionKey = formData.email
+            ? 'reservation.messages.paymentInstructions'
+            : formData.phone
+            ? 'reservation.messages.paymentInstructionsGeneral'
+            : 'reservation.messages.paymentInstructionsGeneral'
+
+          Modal.info({
+            title: t('reservation.messages.reservationPendingPayment'),
+            content: t(paymentInstructionKey),
+            okText: 'OK',
+            onOk() {
+              reservationId.value = rentalCode
+              textQrCode.value = t('reservation.messages.qrCodeText', {
+                id: rentalCode,
+                name: `${formData.firstName} ${formData.lastName}`,
+                vehicle: `${props.vehicle.brand_name} ${props.vehicle.model}`,
+                dates: `${formatDate(props.pickupDate)} a ${formatDate(props.returnDate)}`,
+                total: props.calculateTotal
+              })
+              qrcode.value = true
+            }
+          })
+        }
       }
       else {
         message.error(t('reservation.messages.reservationError'))
@@ -1485,6 +1535,40 @@ if (typeof window !== 'undefined') {
 .form-input :deep(.ant-input:focus) {
   border-color: #8b5cf6;
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Payment Method Section */
+.payment-method-section {
+  margin: 16px 0;
+}
+
+.payment-method-item {
+  margin-bottom: 0 !important;
+}
+
+.payment-method-hint {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  color: #92400e;
+  background: #fff8e1;
+  border-left: 3px solid #f59e0b;
+  padding: 8px 10px;
+  border-radius: 4px;
+  line-height: 1.5;
+}
+
+.payment-method-group {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.payment-method-option {
+  flex: 1;
+  text-align: center;
+  height: auto !important;
+  padding: 10px 8px !important;
+  line-height: 1.4 !important;
 }
 
 /* Terms Section */
