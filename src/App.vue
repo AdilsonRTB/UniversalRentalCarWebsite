@@ -125,14 +125,17 @@
             <div class="payment-section">
               <span class="payment-label">{{ t('footer.paymentMethods') }}</span>
               <div class="payment-icons-modern">
-                <div class="payment-icon-wrapper visa">
-                  <span class="payment-brand-text">VISA</span>
+                <div class="payment-icon-wrapper logo-tile">
+                  <img :src="vinti4Logo" alt="vinti4" />
                 </div>
-                <div class="payment-icon-wrapper mastercard">
-                  <span class="mc-circles">
-                    <span class="mc-circle mc-red"></span>
-                    <span class="mc-circle mc-orange"></span>
-                  </span>
+                <div class="payment-icon-wrapper logo-tile">
+                  <img :src="visaLogo" alt="Visa" />
+                </div>
+                <div class="payment-icon-wrapper logo-tile">
+                  <img :src="mastercardLogo" alt="Mastercard" />
+                </div>
+                <div class="payment-icon-wrapper logo-tile">
+                  <img :src="amexLogo" alt="American Express" />
                 </div>
                 <div class="payment-icon-wrapper bank-transfer">
                   <BankOutlined />
@@ -172,6 +175,10 @@ import { useRoute } from 'vue-router'
 import { useLanguageAndCurrency } from './composables/useLanguageAndCurrency'
 import { useInactivityLogout } from './composables/useInactivityLogout'
 import logo from './assets/logo2.png'
+import vinti4Logo from './assets/logos_pagamento/vinti4.png'
+import visaLogo from './assets/logos_pagamento/visa-secure_blu_2021_dkbg.png'
+import mastercardLogo from './assets/logos_pagamento/mc_idcheck_hrz_rgb_rev.png'
+import amexLogo from './assets/logos_pagamento/amex_SK_logo_full.png'
 import antLocale_pt_BR from 'ant-design-vue/es/locale/pt_BR'
 import antLocale_en_US from 'ant-design-vue/es/locale/en_US'
 import antLocale_fr_FR from 'ant-design-vue/es/locale/fr_FR'
@@ -810,14 +817,16 @@ watch(route, (newRoute) => {
 
 .payment-icons-modern {
   display: flex;
+  align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .payment-icon-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
+  min-width: 52px;
   height: 36px;
   border-radius: 8px;
   border: none;
@@ -829,46 +838,21 @@ watch(route, (newRoute) => {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-.payment-icon-wrapper.visa {
-  background: linear-gradient(135deg, #1a1f71 0%, #2a3cba 100%);
+/* Real brand logo tiles (vinti4, Visa, Mastercard, Amex) sit directly on the
+   footer's dark background — no card behind them, since the Mastercard
+   asset is a "reverse" (white text) variant meant for dark backgrounds and
+   would become invisible against a white/colored tile. */
+.payment-icon-wrapper.logo-tile {
+  background: transparent;
+  padding: 2px;
+  width: auto;
 }
 
-.payment-brand-text {
-  font-size: 13px;
-  font-weight: 800;
-  font-style: italic;
-  color: white;
-  letter-spacing: 1px;
-}
-
-.payment-icon-wrapper.mastercard {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-}
-
-.mc-circles {
-  display: flex;
-  align-items: center;
-  position: relative;
-  width: 28px;
-  height: 18px;
-}
-
-.mc-circle {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  position: absolute;
-}
-
-.mc-circle.mc-red {
-  background: #eb001b;
-  left: 0;
-}
-
-.mc-circle.mc-orange {
-  background: #f79e1b;
-  right: 0;
-  mix-blend-mode: hard-light;
+.logo-tile img {
+  height: 40px;
+  width: auto;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .payment-icon-wrapper.bank-transfer {

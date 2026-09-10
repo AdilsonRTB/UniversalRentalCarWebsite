@@ -1,10 +1,10 @@
 import axios from 'axios'
 
 
-const AUTH_API_BASE_URL = 'https://admin.universalrental.cv/vehicle-rental/api'
-const AUTH_API_BASE_URL_MEDIA = 'https://admin.universalrental.cv'
-/*const AUTH_API_BASE_URL = 'http://127.0.0.1:8000/vehicle-rental/api'
-const AUTH_API_BASE_URL_MEDIA = 'http://127.0.0.1:8000'*/
+/*const AUTH_API_BASE_URL = 'https://admin.universalrental.cv/vehicle-rental/api'
+const AUTH_API_BASE_URL_MEDIA = 'https://admin.universalrental.cv'*/
+const AUTH_API_BASE_URL = 'http://127.0.0.1:8000/vehicle-rental/api'
+const AUTH_API_BASE_URL_MEDIA = 'http://127.0.0.1:8000'
 /*
 const api = axios.create({
   baseURL: AUTH_API_BASE_URL + 'vehicle-rental/api',
