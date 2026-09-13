@@ -1,10 +1,19 @@
 services:
   rentapp:
     image: docker.io/adylsonrtb/rent-app:1.0.1
+    # Para construir a imagem a partir do código local em vez de puxar do registry:
+    #   docker compose build   (e comente a linha "image:" acima)
+    build: .
     container_name: rent_app
     ports:
       - "8011:80"
+    # host.docker.internal = host da máquina onde roda o Docker.
+    # Em produção troque pelos IPs/domínios reais dos backends.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # Alvos do proxy nginx. host.docker.internal:8000 = backend a rodar no host.
+    # Sobrescreva exportando as variáveis ou num ficheiro .env ao lado do compose.
     environment:
-      API_TARGET: http://localhost:8010
-      HEALTH_TARGET: http://localhost:8010
-      VEHICLE_TARGET: http://84.247.171.243:8090
+      API_TARGET: ${API_TARGET:-http://host.docker.internal:5080}
+      HEALTH_TARGET: ${HEALTH_TARGET:-http://host.docker.internal:5080}
+      VEHICLE_TARGET: ${VEHICLE_TARGET:-http://host.docker.internal:5080}

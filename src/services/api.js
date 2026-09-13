@@ -1,10 +1,12 @@
 import axios from 'axios'
 
 
-/*const AUTH_API_BASE_URL = 'https://admin.universalrental.cv/vehicle-rental/api'
-const AUTH_API_BASE_URL_MEDIA = 'https://admin.universalrental.cv'*/
-const AUTH_API_BASE_URL = 'http://127.0.0.1:8000/vehicle-rental/api'
-const AUTH_API_BASE_URL_MEDIA = 'http://127.0.0.1:8000'
+// Em produção/Docker, deixar relativo: o browser chama o mesmo host e o nginx
+// faz proxy (ver nginx.template.conf -> location /vehicle-rental/).
+// Para dev local, definir VUE_APP_API_URL / VUE_APP_API_URL_MEDIA no .env.local
+// (ex.: http://127.0.0.1:8000/vehicle-rental/api).
+const AUTH_API_BASE_URL = process.env.VUE_APP_API_URL || '/vehicle-rental/api'
+const AUTH_API_BASE_URL_MEDIA = process.env.VUE_APP_API_URL_MEDIA || ''
 /*
 const api = axios.create({
   baseURL: AUTH_API_BASE_URL + 'vehicle-rental/api',
@@ -23,9 +25,32 @@ const api = axios.create({
 })
 
 
+// O backend devolve URLs absolutas para /media/ (ex.: http://localhost/media/...)
+// sem a porta correta. Reescreve qualquer URL de media para a mesma origem:
+//  - dev/Docker (mediaURL = ''): vira /media/... e o nginx faz proxy
+//  - produção: definir VUE_APP_API_URL_MEDIA com o domínio real do backend
+const MEDIA_URL_RE = /^https?:\/\/[^/]+(\/media\/[^\s"']*)/i
+const rewriteMediaUrls = (data) => {
+  if (typeof data === 'string') {
+    const m = data.match(MEDIA_URL_RE)
+    return m ? AUTH_API_BASE_URL_MEDIA + m[1] : data
+  }
+  if (Array.isArray(data)) return data.map(rewriteMediaUrls)
+  if (data && typeof data === 'object') {
+    for (const k of Object.keys(data)) data[k] = rewriteMediaUrls(data[k])
+    return data
+  }
+  return data
+}
+
 // Interceptor para tratar respostas
 api.interceptors.response.use(
-  response => response,
+  response => {
+    if (response && response.data != null) {
+      response.data = rewriteMediaUrls(response.data)
+    }
+    return response
+  },
   error => {
     // Não redirecionar em rotas de autenticação (login, register, etc.)
     const url = error.config?.url || ''
@@ -84,7 +109,7 @@ export const vehicleService = {
     headers: {'Authorization': `Token ${localStorage.getItem('authToken')}`}
   }),
 
-  getEvaluationsStats: () => api.get(`/vehicle-rental/api/evaluations/statistics/`),
+  getEvaluationsStats: () => api.get(`/evaluations/statistics/`),
   getAllEvaluations: () => api.get('/evaluations/'),
   getAllVehiclesBrands: () => api.get('/customer/vehicle-brands/'),
   getAllLocations: () => api.get('/delivery-locations/'),

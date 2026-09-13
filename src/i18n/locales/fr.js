@@ -512,6 +512,12 @@ export default {
     subtotal: 'Sous-total',
     servicesFees: 'Frais de Services',
     total: 'Total',
+    payment: {
+      title: 'Effectuer le Paiement',
+      card: 'Carte',
+      bankTransfer: 'Virement',
+      payButton: 'Payer Maintenant'
+    },
     notes: 'Remarques',
     bookedOn: 'Réservé le',
     // Rating submission messages
@@ -1287,7 +1293,7 @@ export default {
       licenseIssueDatePlaceholder: 'Date d\'émission du permis',
       licenseIssueDateLabel: 'Date d\'Émission',
       paymentMethodLabel: 'Mode de Paiement',
-      paymentMethodBankTransfer: 'Virement (Multibanco)',
+      paymentMethodBankTransfer: 'Virement',
       paymentMethodCard: 'Paiement Vinti4 (Carte)',
       paymentMethodCardRestricted: 'Le paiement par carte n\'est pas disponible pour les informations fournies. Veuillez utiliser le virement bancaire.',
       termsLabel: 'Termes et Conditions',
@@ -1510,6 +1516,12 @@ export default {
     bookingNotFound: 'Réservation non trouvée. Vérifiez les données et réessayez.',
     qrDataLoaded: 'Données du QR Code chargées!',
     qrDataLoadedSearching: 'Données du QR Code chargées! Recherche en cours...',
+    payment: {
+      title: 'Effectuer le Paiement',
+      bankTransfer: 'Virement Bancaire',
+      card: 'Carte',
+      payButton: 'Payer Maintenant'
+    },
     status: {
       pending: 'En attente',
       confirmed: 'Confirmée',
@@ -1721,6 +1733,29 @@ export default {
     choosePaymentMethod: 'Choisissez un mode de paiement',
     goToDashboard: 'Aller au Tableau de Bord',
     goToBookingStatus: 'Voir l\'état de la réservation',
-    tryAgain: 'Réessayer'
+    tryAgain: 'Réessayer',
+
+    reservationDetailsTitle: 'Détails de la Réservation',
+    detailVehicle: 'Véhicule',
+    detailPlate: 'Immatriculation',
+    detailStartDate: 'Date de Début',
+    detailEndDate: 'Date de Fin',
+    detailDays: 'Nb de Jours',
+    detailPickupLocation: 'Lieu de Prise en Charge',
+    detailReturnLocation: 'Lieu de Restitution',
+    detailEstimatedTotal: 'Total Estimé',
+    detailDeposit: 'Caution',
+    detailTotal: 'Total',
+
+    bankDetailsTitle: 'Coordonnées Bancaires pour le Virement',
+    bankDetailsHint: 'Affiché uniquement en cas d\'annulation ou d\'erreur de paiement.',
+    bankHolder: 'Titulaire du Compte',
+    bankName: 'Banque',
+    bankAccountType: 'Type de Compte',
+    bankAccountNumber: 'Numéro de Compte',
+    bankRefIntro: 'Important : veuillez envoyer le justificatif de virement à',
+    bankRefOr: 'ou via WhatsApp',
+    bankRefCode: 'en indiquant le numéro de réservation {code} comme référence.',
+    bankCancellationWarning: 'Attention : si le paiement n\'est pas effectué et confirmé dans un délai de 24 heures, la réservation sera automatiquement annulée.'
   }
 }

@@ -512,6 +512,12 @@ export default {
     subtotal: 'Subtotal',
     servicesFees: 'Services Fees',
     total: 'Total',
+    payment: {
+      title: 'Make Payment',
+      card: 'Card',
+      bankTransfer: 'Bank Transfer',
+      payButton: 'Pay Now'
+    },
     notes: 'Notes',
     bookedOn: 'Booked on',
     // Rating submission messages
@@ -1285,7 +1291,7 @@ export default {
       licenseIssueDatePlaceholder: 'License issue date',
       licenseIssueDateLabel: 'Issue Date',
       paymentMethodLabel: 'Payment Method',
-      paymentMethodBankTransfer: 'Bank Transfer (Multibanco)',
+      paymentMethodBankTransfer: 'Bank Transfer',
       paymentMethodCard: 'Vinti4 Payment (Card)',
       paymentMethodCardRestricted: 'Card payment is not available for the details provided. Please use bank transfer.',
       termsLabel: 'Terms and Conditions',
@@ -1508,6 +1514,12 @@ export default {
     bookingNotFound: 'Reservation not found. Please verify the data and try again.',
     qrDataLoaded: 'QR Code data loaded!',
     qrDataLoadedSearching: 'QR Code data loaded! Searching...',
+    payment: {
+      title: 'Make Payment',
+      bankTransfer: 'Bank Transfer',
+      card: 'Card',
+      payButton: 'Pay Now'
+    },
     status: {
       pending: 'Pending',
       confirmed: 'Confirmed',
@@ -1719,6 +1731,29 @@ export default {
     choosePaymentMethod: 'Choose a payment method',
     goToDashboard: 'Go to Dashboard',
     goToBookingStatus: 'View Booking Status',
-    tryAgain: 'Try Again'
+    tryAgain: 'Try Again',
+
+    reservationDetailsTitle: 'Booking Details',
+    detailVehicle: 'Vehicle',
+    detailPlate: 'Plate',
+    detailStartDate: 'Start Date',
+    detailEndDate: 'End Date',
+    detailDays: 'No. of Days',
+    detailPickupLocation: 'Pickup Location',
+    detailReturnLocation: 'Return Location',
+    detailEstimatedTotal: 'Estimated Total',
+    detailDeposit: 'Security Deposit',
+    detailTotal: 'Total',
+
+    bankDetailsTitle: 'Bank Details for Transfer',
+    bankDetailsHint: 'Only shown if the payment was cancelled or failed.',
+    bankHolder: 'Account Holder',
+    bankName: 'Bank',
+    bankAccountType: 'Account Type',
+    bankAccountNumber: 'Account Number',
+    bankRefIntro: 'Important: Please send the transfer receipt to',
+    bankRefOr: 'or via WhatsApp',
+    bankRefCode: 'quoting booking number {code} as the reference.',
+    bankCancellationWarning: 'Warning: if the payment is not made and confirmed within 24 hours, the booking will be automatically cancelled.'
   }
 }

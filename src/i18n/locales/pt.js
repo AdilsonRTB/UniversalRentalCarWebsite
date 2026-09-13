@@ -512,6 +512,12 @@ export default {
     subtotal: 'Subtotal',
     servicesFees: 'Taxas de Serviços',
     total: 'Total',
+    payment: {
+      title: 'Efetuar Pagamento',
+      card: 'Cartão',
+      bankTransfer: 'Transferência',
+      payButton: 'Pagar Agora'
+    },
     notes: 'Observações',
     bookedOn: 'Reservado em',
     // Rating submission messages
@@ -1286,7 +1292,7 @@ export default {
       licenseIssueDatePlaceholder: 'Data emissão da carta',
       licenseIssueDateLabel: 'Data de Emissão',
       paymentMethodLabel: 'Forma de Pagamento',
-      paymentMethodBankTransfer: 'Transferência (Multibanco)',
+      paymentMethodBankTransfer: 'Transferência',
       paymentMethodCard: 'Pagamento Vinti4 (Cartão)',
       paymentMethodCardRestricted: 'O pagamento por cartão não está disponível para os dados introduzidos. Utilize a transferência bancária.',
       termsLabel: 'Termos e Condições',
@@ -1512,6 +1518,12 @@ export default {
     bookingNotFound: 'Reserva não encontrada. Verifique os dados e tente novamente.',
     qrDataLoaded: 'Dados do QR Code carregados!',
     qrDataLoadedSearching: 'Dados do QR Code carregados! Realizando consulta...',
+    payment: {
+      title: 'Efetuar Pagamento',
+      bankTransfer: 'Transferência',
+      card: 'Cartão',
+      payButton: 'Pagar Agora'
+    },
     status: {
       pending: 'Pendente',
       confirmed: 'Confirmada',
@@ -1723,6 +1735,29 @@ export default {
     choosePaymentMethod: 'Escolha a forma de pagamento',
     goToDashboard: 'Ir para o Painel',
     goToBookingStatus: 'Ver Estado da Reserva',
-    tryAgain: 'Tentar Novamente'
+    tryAgain: 'Tentar Novamente',
+
+    reservationDetailsTitle: 'Detalhes da Reserva',
+    detailVehicle: 'Veículo',
+    detailPlate: 'Matrícula',
+    detailStartDate: 'Data Início',
+    detailEndDate: 'Data Fim',
+    detailDays: 'Nº de Dias',
+    detailPickupLocation: 'Local de Entrega',
+    detailReturnLocation: 'Local de Devolução',
+    detailEstimatedTotal: 'Total Estimado',
+    detailDeposit: 'Caução',
+    detailTotal: 'Total',
+
+    bankDetailsTitle: 'Dados Bancários para Transferência',
+    bankDetailsHint: 'Só aparece em caso de cancelamento ou erro no pagamento.',
+    bankHolder: 'Titular da Conta',
+    bankName: 'Banco',
+    bankAccountType: 'Tipo de Conta',
+    bankAccountNumber: 'Número da Conta',
+    bankRefIntro: 'Importante: Por favor, envie o comprovativo de transferência para',
+    bankRefOr: 'ou via WhatsApp',
+    bankRefCode: 'indicando o número da reserva {code} como referência.',
+    bankCancellationWarning: 'Atenção: caso o pagamento não seja efetuado e confirmado no prazo de 24 horas, a reserva será automaticamente cancelada.'
   }
 }

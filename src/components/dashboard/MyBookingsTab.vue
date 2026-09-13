@@ -102,7 +102,7 @@
           <div class="vehicle-cover">
             <div class="vehicle-icon-wrapper">
               <CarOutlined class="vehicle-icon-similar" v-if="!booking.vehicle_info.primary_photo && !booking.vehicle_info.photo"/>
-              <img :src="booking.vehicle_info.primary_photo || mediaURL + booking.vehicle_info.photo" :alt="`${booking.vehicle_info?.brand} ${booking.vehicle_info?.model}`" class="vehicle-photo-modern" v-else/>
+              <img :src="booking.vehicle_info.primary_photo || booking.vehicle_info.photo" :alt="`${booking.vehicle_info?.brand} ${booking.vehicle_info?.model}`" class="vehicle-photo-modern" v-else/>
             </div>
             <div class="status-badge" :class="booking.status.toLowerCase()">
               {{ booking.status_display }}
@@ -253,7 +253,7 @@
           <div class="details-vehicle-card">
             <div class="details-vehicle-image">
               <CarOutlined v-if="!selectedBookingDetails.vehicle_info?.primary_photo && !selectedBookingDetails.vehicle_info?.photo" />
-              <img :src="mediaURL + selectedBookingDetails.vehicle_info?.photo" :alt="selectedBookingDetails.vehicle_info?.brand" v-else />
+              <img :src="selectedBookingDetails.vehicle_info?.photo" :alt="selectedBookingDetails.vehicle_info?.brand" v-else />
             </div>
             <div class="details-vehicle-info">
               <h5>{{ selectedBookingDetails.vehicle_info?.brand }} {{ selectedBookingDetails.vehicle_info?.model }}</h5>
@@ -375,6 +375,36 @@
           </div>
         </div>
 
+        <!-- Payment Action (só enquanto a reserva aguarda confirmação de pagamento) -->
+        <div class="details-section payment-action-section" v-if="selectedBookingDetails.status === 'pending'">
+          <h4 class="details-section-title">
+            <CreditCardOutlined /> {{ $t('bookings.payment.title') }}
+          </h4>
+          <a-radio-group v-model:value="selectedPaymentMethod" class="payment-method-group">
+            <a-radio-button value="card">
+              <CreditCardOutlined /> <span class="payment-method-label">{{ $t('bookings.payment.card') }}</span>
+            </a-radio-button>
+            <a-radio-button value="bank_transfer">
+              <BankOutlined /> <span class="payment-method-label">{{ $t('bookings.payment.bankTransfer') }}</span>
+            </a-radio-button>
+          </a-radio-group>
+
+          <a-button
+            v-if="selectedPaymentMethod === 'card'"
+            type="primary"
+            class="pay-now-btn"
+            @click="handlePayNow(selectedBookingDetails)"
+          >
+            <CreditCardOutlined /> {{ $t('bookings.payment.payButton') }}
+          </a-button>
+
+          <BankTransferDetails
+            v-else
+            :rental-code="selectedBookingDetails.rental_code"
+            :show-cancellation-warning="false"
+          />
+        </div>
+
         <!-- Notes -->
         <div class="details-section" v-if="selectedBookingDetails.notes">
           <h4 class="details-section-title">
@@ -407,7 +437,7 @@
         <div class="vehicle-info-header" v-if="selectedBooking">
           <div class="vehicle-image">
             <CarOutlined v-if="!selectedBooking.vehicle_info.photo" />
-            <img :src="url + selectedBooking.vehicle_info.photo" :alt="selectedBooking.vehicle_info.brand" v-else />
+            <img :src="selectedBooking.vehicle_info.photo" :alt="selectedBooking.vehicle_info.brand" v-else />
           </div>
           <div class="vehicle-details">
             <h4>{{ selectedBooking.vehicle_info.brand }} {{ selectedBooking.vehicle_info.model }}</h4>
@@ -566,7 +596,9 @@ import {
   SafetyOutlined,
   FileTextOutlined,
   PercentageOutlined,
-  ToolOutlined
+  ToolOutlined,
+  BankOutlined,
+  CreditCardOutlined
 } from '@ant-design/icons-vue'
 
 import dayjs from 'dayjs'
@@ -574,9 +606,8 @@ import { defineProps, defineEmits, ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useLanguageAndCurrency } from '../../composables/useLanguageAndCurrency'
-import { baseURL, vehicleService, mediaURL } from '../../services/api'
-
-const url = computed(() => baseURL)
+import { vehicleService } from '../../services/api'
+import BankTransferDetails from '../BankTransferDetails.vue'
 
 // Internationalization
 const { t } = useI18n()
@@ -879,8 +910,16 @@ const navigateToSearch = () => {
   router.push({ path: '/', hash: '#filtro' })
 }
 
+// Pagamento (mesma regra da Consulta de Estado: só reservas ainda "pending")
+const selectedPaymentMethod = ref('card')
+const handlePayNow = (booking) => {
+  if (!booking?.id) return
+  router.push(`/payment/${booking.id}`)
+}
+
 const navigateToVehicleDetails = (booking) => {
   selectedBookingDetails.value = booking
+  selectedPaymentMethod.value = 'card'
   detailsModalVisible.value = true
 }
 
@@ -1932,6 +1971,38 @@ onMounted(() => {
 .payment-row.total span:last-child {
   color: #059669;
   font-size: 18px;
+}
+
+/* Payment Action (pagar reserva pendente) */
+.payment-action-section .payment-method-group {
+  display: flex;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.payment-action-section :deep(.ant-radio-button-wrapper) {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.pay-now-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #3a1c71 0%, #fdbb2d 100%) !important;
+  border: none;
+  font-weight: 600;
+}
+
+/* Em ecrãs muito estreitos mostra só o ícone para evitar quebra de linha */
+@media (max-width: 360px) {
+  .payment-action-section .payment-method-label {
+    display: none;
+  }
+
+  .payment-action-section :deep(.ant-radio-button-wrapper) {
+    padding: 0 4px;
+  }
 }
 
 .details-notes {

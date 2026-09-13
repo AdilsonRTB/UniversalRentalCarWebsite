@@ -1,12 +1,29 @@
 const { defineConfig } = require('@vue/cli-service')
 const webpack = require('webpack')
 
+// Alvo do backend para o proxy do dev server (npm run serve).
+// Sobrescreva com DEV_API_TARGET no .env.local se necessário.
+const DEV_API_TARGET = process.env.DEV_API_TARGET || 'http://127.0.0.1:8000'
+
 module.exports = defineConfig({
   publicPath: '/',
   transpileDependencies: true,
   // Ensure files have unique hashes for cache busting
   filenameHashing: true,
-  
+  // Não publicar o código-fonte original em produção.
+  productionSourceMap: false,
+
+  // Em dev, replica o proxy do nginx para que as chamadas relativas
+  // (/vehicle-rental/, /api/, /health/, /media/) funcionem com npm run serve.
+  devServer: {
+    proxy: {
+      '^/(vehicle-rental|api|health|media)/': {
+        target: DEV_API_TARGET,
+        changeOrigin: true,
+      },
+    },
+  },
+
   // PWA Configuration
   pwa: {
     name: 'Universal Rent a Car',

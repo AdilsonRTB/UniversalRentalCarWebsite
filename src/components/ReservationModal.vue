@@ -254,17 +254,14 @@
               <div class="payment-method-section">
                 <a-form-item name="paymentMethod" :label="$t('reservation.form.paymentMethodLabel')" class="payment-method-item">
                   <a-radio-group v-model:value="formData.paymentMethod" class="payment-method-group">
-                     <a-radio-button value="bank_transfer" class="payment-method-option">
-                      <BankOutlined /> {{ $t('reservation.form.paymentMethodBankTransfer') }}
+                    <a-radio-button value="card" class="payment-method-option">
+                      <CreditCardOutlined /> <span class="payment-method-label">{{ $t('reservation.form.paymentMethodCard') }}</span>
                     </a-radio-button>
-                    <a-radio-button value="card" class="payment-method-option" :disabled="!isCardPaymentAllowed">
-                      <CreditCardOutlined /> {{ $t('reservation.form.paymentMethodCard') }}
+                    <a-radio-button value="bank_transfer" class="payment-method-option">
+                      <BankOutlined /> <span class="payment-method-label">{{ $t('reservation.form.paymentMethodBankTransfer') }}</span>
                     </a-radio-button>
                   </a-radio-group>
                 </a-form-item>
-                <p v-if="!isCardPaymentAllowed" class="payment-method-hint">
-                  {{ $t('reservation.form.paymentMethodCardRestricted') }}
-                </p>
               </div>
 
               <!-- Terms and Conditions -->
@@ -631,7 +628,7 @@ const formData = reactive({
   license_issue_date: null,
   phone: '',
   acceptTerms: false,
-  paymentMethod: 'bank_transfer',
+  paymentMethod: 'card',
   pickupLocation: null,
   returnLocation: null,
 })
@@ -759,30 +756,6 @@ const isLoggedIn = computed(() => {
   return token !== null && token !== '' && token !== undefined
 })
 
-// Card payment is only allowed for these specific emails / phone numbers
-const CARD_PAYMENT_ALLOWED_EMAILS = [
-  'michellafurtado2001@gmail.com',
-  'angelopassos10@gmail.com',
-  'universal.r.car@gmail.com'
-]
-const CARD_PAYMENT_ALLOWED_PHONES = [
-  '+2389999999',
-  '+23890000000'
-]
-
-const isCardPaymentAllowed = computed(() => {
-  const email = (formData.email || '').trim().toLowerCase()
-  const phone = (formData.phone || '').replace(/\s+/g, '')
-  return CARD_PAYMENT_ALLOWED_EMAILS.includes(email) || CARD_PAYMENT_ALLOWED_PHONES.includes(phone)
-})
-
-// If the card option becomes unavailable, fall back to bank transfer
-watch(isCardPaymentAllowed, (allowed) => {
-  if (!allowed && formData.paymentMethod === 'card') {
-    formData.paymentMethod = 'bank_transfer'
-  }
-}, { immediate: true })
-
 // Methods
 const handleCancel = () => {
   const reservationConfirmed = qrcode.value
@@ -795,7 +768,7 @@ const handleCancel = () => {
     formData.drivingLicense = ''
     formData.phone = ''
     formData.acceptTerms = false
-    formData.paymentMethod = 'bank_transfer'
+    formData.paymentMethod = 'card'
     qrcode.value = false;
     reservationId.value = null
     textQrCode.value = ""
@@ -1150,7 +1123,7 @@ const createBookingServices = async (custumerId) => {
         const rentalId = response.data.rental.id
         const rentalCode = response.data.rental.rental_code
 
-        if (formData.paymentMethod === 'card' && isCardPaymentAllowed.value) {
+        if (formData.paymentMethod === 'card') {
           emit('update:visible', false)
           router.push(`/payment/${rentalId}`)
         } else {
@@ -1569,6 +1542,19 @@ if (typeof window !== 'undefined') {
   height: auto !important;
   padding: 10px 8px !important;
   line-height: 1.4 !important;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Em ecrãs muito estreitos mostra só o ícone para evitar quebra de linha */
+@media (max-width: 360px) {
+  .payment-method-label {
+    display: none;
+  }
+
+  .payment-method-option {
+    padding: 10px 4px !important;
+  }
 }
 
 /* Terms Section */

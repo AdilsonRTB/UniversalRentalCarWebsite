@@ -87,12 +87,12 @@
       <div class="booking-result">
         <div 
           class="booking-card"
-          :class="{ 
-            'pending': searchResult.status === 'PENDING',
-            'confirmed': searchResult.status === 'CONFIRMED',
-            'active': searchResult.status === 'ACTIVE',
-            'completed': searchResult.status === 'COMPLETED',
-            'cancelled': searchResult.status === 'CANCELLED'
+          :class="{
+            'pending': normalizedStatus === 'PENDING',
+            'confirmed': normalizedStatus === 'CONFIRMED',
+            'active': normalizedStatus === 'ACTIVE',
+            'completed': normalizedStatus === 'COMPLETED',
+            'cancelled': normalizedStatus === 'CANCELLED'
           }"
         >
           <!-- Vehicle Image/Icon -->
@@ -198,6 +198,34 @@
             </div>
           </div>
 
+          <!-- Payment Section (só enquanto a reserva aguarda confirmação de pagamento) -->
+          <div class="payment-action-section" v-if="canPayNow">
+            <h6 class="extras-title">{{ t('bookingStatus.payment.title') }}</h6>
+            <a-radio-group v-model:value="selectedPaymentMethod" class="payment-method-group">
+              <a-radio-button value="card">
+                <CreditCardOutlined /> <span class="payment-method-label">{{ t('bookingStatus.payment.card') }}</span>
+              </a-radio-button>
+              <a-radio-button value="bank_transfer">
+                <BankOutlined /> <span class="payment-method-label">{{ t('bookingStatus.payment.bankTransfer') }}</span>
+              </a-radio-button>
+            </a-radio-group>
+
+            <a-button
+              v-if="selectedPaymentMethod === 'card'"
+              type="primary"
+              class="pay-now-btn"
+              @click="handlePayNow"
+            >
+              <CreditCardOutlined /> {{ t('bookingStatus.payment.payButton') }}
+            </a-button>
+
+            <BankTransferDetails
+              v-else
+              :rental-code="searchResult.rental_code"
+              :show-cancellation-warning="false"
+            />
+          </div>
+
           <!-- Progress Bar -->
           <div class="progress-section">
             <div class="progress-info">
@@ -278,14 +306,18 @@ import {
   /*PrinterOutlined,
   DownloadOutlined,
   MessageOutlined,*/
-  QrcodeOutlined
+  QrcodeOutlined,
+  BankOutlined,
+  CreditCardOutlined
 } from '@ant-design/icons-vue'
 
 import dayjs from 'dayjs'
-import { ref, reactive, computed, h, watch, onMounted } from 'vue'
+import { ref, reactive, computed, h, watch, onMounted, nextTick } from 'vue'
 import { message } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import QRCodeScanner from './QRCodeScanner.vue'
+import BankTransferDetails from './BankTransferDetails.vue'
 //import { baseURL } from '../services/api'
 import HeaderPage from './HeaderPage.vue'
 import {bookingService, vehicleService} from '../services/api'
@@ -293,6 +325,8 @@ import { useUtilities } from '../composables/utilits.js'
 import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency.js'
 
 const { t, locale } = useI18n()
+const route = useRoute()
+const router = useRouter()
 const { calculateRentalDays } = useUtilities()
 const { currentCurrency } = useLanguageAndCurrency()
 
@@ -307,6 +341,7 @@ const isLoading = ref(false)
 const searchResult = ref(null)
 const showEmptyState = ref(false)
 const formRef = ref(null)
+const selectedPaymentMethod = ref('card')
 
 const searchForm = reactive({
   bookingNumber: ''
@@ -366,7 +401,8 @@ const dailyRate = computed(() => {
 
 const subtotal = computed(() => {
   if (!searchResult.value) return 0
-  return convertValue(searchResult.value.subtotal)
+  const days = searchResult.value.number_of_days || calculateDuration(searchResult.value.start_date, searchResult.value.end_date)
+  return dailyRate.value * days
 })
 
 const driverFee = computed(() => {
@@ -422,16 +458,29 @@ const loadSystemConfig = async () => {
   }
 }
 
+// A API devolve o status em minúsculas (ex.: "pending"); normalizamos para
+// maiúsculas para comparar de forma previsível em todo o componente.
+const normalizedStatus = computed(() => (searchResult.value?.status || '').toUpperCase())
+
+// Only a reservation still awaiting payment confirmation can be paid here.
+const canPayNow = computed(() => normalizedStatus.value === 'PENDING')
+
+const handlePayNow = () => {
+  if (!searchResult.value?.id) return
+  router.push(`/payment/${searchResult.value.id}`)
+}
+
 // Methods
 const handleSearch = async (values) => {
+  const bookingNumber = (values?.bookingNumber || searchForm.bookingNumber || '').trim()
+  if (!bookingNumber) return
   try {
     isLoading.value = true
     showEmptyState.value = false
     searchResult.value = null
-    
-    const result = await bookingService.getRentalDetails(
-      values.bookingNumber
-    )
+    selectedPaymentMethod.value = 'card'
+
+    const result = await bookingService.getRentalDetails(bookingNumber)
 
     searchResult.value = result.data
     //message.success(t('bookingStatus.bookingFound'))
@@ -457,6 +506,7 @@ const clearSearch = () => {
   searchResult.value = null
   showEmptyState.value = false
   searchForm.bookingNumber = ''
+  selectedPaymentMethod.value = 'card'
   formRef.value?.resetFields()
 }
 
@@ -491,7 +541,7 @@ const getStatusDisplay = (status) => {
     'COMPLETED': t('bookingStatus.status.completed'),
     'CANCELLED': t('bookingStatus.status.cancelled')
   }
-  return statusMap[status] || status
+  return statusMap[(status || '').toUpperCase()] || status
 }
 
 /*const printBooking = () => {
@@ -525,8 +575,17 @@ const handleQRCodeDetected = (qrData) => {
 }
 
 // Load configuration on component mount
-onMounted(() => {
+onMounted(async () => {
   loadSystemConfig()
+
+  // Pré-preencher e pesquisar automaticamente quando chega com ?code=XXXX
+  // (ex.: a partir da página de resultado do pagamento).
+  const code = route.query.code
+  if (code) {
+    searchForm.bookingNumber = String(code).trim()
+    await nextTick()
+    handleSearch()
+  }
 })
 </script>
 
@@ -1614,6 +1673,42 @@ onMounted(() => {
 
 .extras-total-line .total-value {
   color: #059669;
+}
+
+/* Payment Action Section */
+.payment-action-section {
+  padding: 16px 24px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.payment-action-section .payment-method-group {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.payment-action-section :deep(.ant-radio-button-wrapper) {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.pay-now-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #3a1c71 0%, #fdbb2d 100%) !important;
+  border: none;
+  font-weight: 600;
+}
+
+/* Em ecrãs muito estreitos mostra só o ícone para evitar quebra de linha */
+@media (max-width: 360px) {
+  .payment-action-section .payment-method-label {
+    display: none;
+  }
+
+  .payment-action-section :deep(.ant-radio-button-wrapper) {
+    padding: 0 4px;
+  }
 }
 
 /* Progress Section */

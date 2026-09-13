@@ -4,8 +4,15 @@ yarn-debug.log*
 yarn-error.log*
 .git/
 .gitignore
-README.md
+*.md
 Dockerfile
 .dockerignore
+docker-compose.yml
 dist/
 
+# env files (o build no Docker usa os defaults relativos; segredos via env vars)
+.env
+.env.*
+
+.vscode/
+.idea/

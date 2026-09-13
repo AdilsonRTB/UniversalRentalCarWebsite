@@ -21,4 +21,4 @@ ENV HEALTH_TARGET=http://localhost:8000
 ENV VEHICLE_TARGET=http://84.247.171.243:8090
 
 # Substituir variáveis e iniciar nginx
-CMD envsubst '$API_TARGET $HEALTH_TARGET $VEHICLE_TARGET' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'
+CMD ["/bin/sh", "-c", "envsubst '$API_TARGET $HEALTH_TARGET $VEHICLE_TARGET' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
