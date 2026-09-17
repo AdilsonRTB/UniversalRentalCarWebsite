@@ -103,6 +103,8 @@ export default {
     faq: 'FAQ',
     termsOfUse: 'Terms of Use',
     privacyPolicy: 'Privacy Policy',
+    contactUs: 'Contact Us',
+    deliveryReturnPolicy: 'Delivery & Return Policy',
     insurance: 'Insurance',
     contact: 'Contacts',
     contactEmail: 'contact{\'@\'}vehiclerental.com',
@@ -1614,6 +1616,34 @@ export default {
     contactPhone: 'Phone'
   },
 
+  // Contact Us
+  contact: {
+    title: 'Contact Us',
+    intro: 'Have a question about a booking, a payment, or our service? We are available through any of the channels below.',
+    emailLabel: 'Email',
+    whatsappLabel: 'WhatsApp',
+    phoneLabel: 'Phone',
+    addressLabel: 'Address',
+  },
+
+  // Delivery & Return Policy
+  deliveryReturn: {
+    title: 'Delivery & Return Policy',
+    placeholderNotice: 'This page is under construction. Sections marked "content to be defined" will be updated with Universal Rent-A-Car\'s final policy.',
+    pickupTitle: 'Vehicle Pickup',
+    pickupText: 'The vehicle is delivered at the location, date and time agreed in the booking. The customer must present a valid ID document and driving license at pickup.',
+    returnTitle: 'Vehicle Return',
+    returnText: 'The vehicle must be returned at the agreed location, date and time, in the same condition it was received in, subject to normal wear and tear.',
+    fuelTitle: 'Fuel Policy',
+    fuelPlaceholder: 'Content to be defined: rules on fuel level at pickup and return.',
+    lateReturnTitle: 'Late Return',
+    lateReturnPlaceholder: 'Content to be defined: grace period and any fees for a late return.',
+    inspectionTitle: 'Return Inspection',
+    inspectionPlaceholder: 'Content to be defined: vehicle condition inspection process at return.',
+    seeTermsIntro: 'For more details on cancellations and contractual obligations, see our',
+    seeTermsLink: 'Terms and Conditions',
+  },
+
   // Privacy Policy
   privacy: {
     title: 'Privacy Policy',
@@ -1744,6 +1774,12 @@ export default {
     detailEstimatedTotal: 'Estimated Total',
     detailDeposit: 'Security Deposit',
     detailTotal: 'Total',
+    detailTransactionRef: 'Transaction Reference',
+    detailPaymentDate: 'Payment Date',
+    detailDccNotice: 'Currency Conversion (DCC)',
+    detailDccRate: 'Applied Rate',
+    supportContactTitle: 'Need Help?',
+    supportContactIntro: 'If you have any questions about your payment or booking, contact us:',
 
     bankDetailsTitle: 'Bank Details for Transfer',
     bankDetailsHint: 'Only shown if the payment was cancelled or failed.',

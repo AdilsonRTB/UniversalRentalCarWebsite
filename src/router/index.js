@@ -11,6 +11,8 @@ import TermsAndConditions from '../views/TermsAndConditions.vue'
 import PrivacyPolicy from '../views/PrivacyPolicy.vue'
 import PaymentRedirect from '../views/PaymentRedirect.vue'
 import PaymentResult from '../views/PaymentResult.vue'
+import ContactUs from '../views/ContactUs.vue'
+import DeliveryReturnPolicy from '../views/DeliveryReturnPolicy.vue'
 
 const routes = [
   {
@@ -66,6 +68,16 @@ const routes = [
     component: PrivacyPolicy,
   },
   {
+    path: '/contact',
+    name: 'ContactUs',
+    component: ContactUs,
+  },
+  {
+    path: '/delivery-return-policy',
+    name: 'DeliveryReturnPolicy',
+    component: DeliveryReturnPolicy,
+  },
+  {
     path: '/payment/:rentalId',
     name: 'PaymentRedirect',
     component: PaymentRedirect,
@@ -93,7 +105,7 @@ const router = createRouter({
 // Navigation guard for authentication
 router.beforeEach(async (to, from, next) => {
   // Routes that don't require authentication
-  const publicRoutes = ['Home', 'Login', 'Register', 'ForgotPassword', 'VehicleSearch', 'VehicleDetails', 'BookingStatus', 'ForgotPasswordRecovery', 'TermsAndConditions', 'PrivacyPolicy', 'PaymentRedirect', 'PaymentResult']
+  const publicRoutes = ['Home', 'Login', 'Register', 'ForgotPassword', 'VehicleSearch', 'VehicleDetails', 'BookingStatus', 'ForgotPasswordRecovery', 'TermsAndConditions', 'PrivacyPolicy', 'PaymentRedirect', 'PaymentResult', 'ContactUs', 'DeliveryReturnPolicy']
 
   //console.log(`[Router] Navigating to: ${to.name} (${to.path}) from: ${from.name || 'initial'} (${from.path || 'initial'})`)
 

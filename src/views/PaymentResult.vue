@@ -64,8 +64,32 @@
                 <th>{{ t('payment.detailTotal') }}</th>
                 <td>{{ formatMoney(rental.total_amount) }}</td>
               </tr>
+              <template v-if="payment?.status === 'authorized'">
+                <tr>
+                  <th>{{ t('payment.detailTransactionRef') }}</th>
+                  <td>{{ payment.merchant_ref }}<span v-if="payment.transaction_id"> ({{ payment.transaction_id }})</span></td>
+                </tr>
+                <tr>
+                  <th>{{ t('payment.detailPaymentDate') }}</th>
+                  <td>{{ formatDate(payment.updated_at) }}</td>
+                </tr>
+                <tr v-if="payment.dcc_applied">
+                  <th>{{ t('payment.detailDccNotice') }}</th>
+                  <td>{{ payment.dcc_amount }} {{ payment.dcc_currency }}<span v-if="payment.dcc_rate"> · {{ t('payment.detailDccRate') }}: {{ payment.dcc_rate }}</span></td>
+                </tr>
+              </template>
             </tbody>
           </table>
+        </section>
+
+        <!-- Contacto de apoio (pagamento com sucesso) -->
+        <section v-if="payment?.status === 'authorized'" class="details-block support-contact-block">
+          <h3 class="details-block-title">{{ t('payment.supportContactTitle') }}</h3>
+          <p class="support-contact-intro">{{ t('payment.supportContactIntro') }}</p>
+          <ul class="support-contact-list">
+            <li><a :href="`mailto:${SUPPORT_EMAIL}`"><MailOutlined /> {{ SUPPORT_EMAIL }}</a></li>
+            <li><a :href="SUPPORT_WHATSAPP_URL" target="_blank" rel="noopener noreferrer"><WhatsAppOutlined /> {{ SUPPORT_WHATSAPP }}</a></li>
+          </ul>
         </section>
 
         <!-- Dados bancários (só em cancelamento / erro) -->
@@ -84,10 +108,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { MailOutlined, WhatsAppOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import HeaderPage from '../components/HeaderPage.vue'
 import BankTransferDetails from '../components/BankTransferDetails.vue'
 import { paymentService, bookingService, vehicleService } from '../services/api'
+import { SUPPORT_EMAIL, SUPPORT_WHATSAPP, SUPPORT_WHATSAPP_URL } from '../constants/contact'
 
 const route = useRoute()
 const router = useRouter()
@@ -256,6 +282,30 @@ function goToBookingStatus() {
   font-weight: 800;
   color: #111827;
   border-bottom: none;
+}
+
+.support-contact-intro {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 10px;
+}
+
+.support-contact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.support-contact-list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #4680ff;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 @media (max-width: 480px) {

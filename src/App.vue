@@ -41,6 +41,8 @@
                 <ul class="footer-links-modern">
                     <li><router-link to="/">{{ t('nav.bookVehicles') }}</router-link></li>
                     <li><router-link :to="(token !== null && token !== '') ? '/owner-dashboard?tab=my-bookings' : '/booking-status'">{{ t('nav.myReservations') }}</router-link></li>
+                    <li><router-link to="/contact">{{ t('footer.contactUs') }}</router-link></li>
+                    <li><router-link to="/delivery-return-policy">{{ t('footer.deliveryReturnPolicy') }}</router-link></li>
                     <li><router-link to="/terms" target="_blank">{{ t('footer.termsOfUse') }}</router-link></li>
                     <li><router-link to="/privacy" target="_blank">{{ t('footer.privacyPolicy') }}</router-link></li>
                 </ul>
@@ -53,28 +55,28 @@
                 <ul class="footer-links-modern">
                 <!-- Link de email -->
                 <li>
-                  <a href="mailto:universal.r.car@gmail.com">
-                    <MailOutlined /> universal.r.car@gmail.com
+                  <a :href="`mailto:${SUPPORT_EMAIL}`">
+                    <MailOutlined /> {{ SUPPORT_EMAIL }}
                   </a>
                 </li>
 
                 <!-- Link de WhatsApp -->
                 <li>
-                  <a href="https://wa.me/2389781304" target="_blank" rel="noopener noreferrer">
-                    <WhatsAppOutlined /> (+238) 978 13 04
+                  <a :href="SUPPORT_WHATSAPP_URL" target="_blank" rel="noopener noreferrer">
+                    <WhatsAppOutlined /> {{ SUPPORT_WHATSAPP }}
                   </a>
                 </li>
 
                 <li>
-                  <a href="tel:+2383476581" rel="noopener noreferrer">
-                    <PhoneOutlined /> (+238) 347 6581
+                  <a :href="SUPPORT_PHONE_TEL_URL" rel="noopener noreferrer">
+                    <PhoneOutlined /> {{ SUPPORT_PHONE }}
                   </a>
                 </li>
 
                 <!-- Localização -->
                 <li>
-                  <a href="https://share.google/2O3o2Be5o7msaRhqJ" target="_blank" rel="noopener noreferrer">
-                    <EnvironmentOutlined /> Achada Santo António, Praia
+                  <a :href="SUPPORT_ADDRESS_MAP_URL" target="_blank" rel="noopener noreferrer">
+                    <EnvironmentOutlined /> {{ SUPPORT_ADDRESS }}
                   </a>
                 </li>
               </ul>
@@ -182,6 +184,15 @@ import amexLogo from './assets/logos_pagamento/amex_SK_logo_full.png'
 import antLocale_pt_BR from 'ant-design-vue/es/locale/pt_BR'
 import antLocale_en_US from 'ant-design-vue/es/locale/en_US'
 import antLocale_fr_FR from 'ant-design-vue/es/locale/fr_FR'
+import {
+  SUPPORT_EMAIL,
+  SUPPORT_PHONE,
+  SUPPORT_PHONE_TEL_URL,
+  SUPPORT_WHATSAPP,
+  SUPPORT_WHATSAPP_URL,
+  SUPPORT_ADDRESS,
+  SUPPORT_ADDRESS_MAP_URL,
+} from './constants/contact'
 
 const route = useRoute()
 

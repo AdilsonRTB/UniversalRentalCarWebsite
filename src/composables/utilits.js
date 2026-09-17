@@ -4,28 +4,26 @@ import dayjs from 'dayjs'
 export function useUtilities() {
 
 const formatImageUrl = (url) => {
-
-  console.log('URL original:', url);
   if (!url) return null;
 
-  // Verifica se a URL já contém a porta 5085
+  // Porta local/dev de media do backend - deixada como está (ver nota no gap-analysis sobre
+  // confirmar TLS deste host antes de forçar https aqui).
   if (url.includes(':5085')) return url;
 
-  // Se a URL contiver 'https://www.universalrental.cv/', substitui por 'https://admin.universalrental.cv/'
-  if (url.includes('http://www.universalrental.cv/')) {
-
-    return url.replace('http://www.universalrental.cv/', 'https://admin.universalrental.cv/');
+  // Domínio de produção: força sempre https, seja qual for o subdomínio (www/admin) ou o
+  // esquema original guardado na BD.
+  if (url.includes('universalrental.cv')) {
+    return url.replace(/^http:\/\//, 'https://');
   }
 
-  if (url.includes('http://www.universalrental.cv/')) {
-
-    return url.replace('http://admin.universalrental.cv/', 'https://admin.universalrental.cv/');
+  // IP legado do host de media: reescreve para a porta 5085.
+  if (url.includes('212.47.74.168')) {
+    return url.replace('http://212.47.74.168/', 'http://212.47.74.168:5085/');
   }
-  // Se a URL já contiver os domínios especificados, retorna a URL sem alterações
-  if (url.includes('https://admin.universalrental.cv/')) return url;
 
-  // Caso contrário, substitui 'http://212.47.74.168/' por 'http://212.47.74.168:5085/'
-  return url.replace('http://212.47.74.168/', 'http://212.47.74.168:5085/');
+  // Rede de segurança final: nunca deixar escapar uma URL http:// não tratada acima, para evitar
+  // mixed-content numa página servida por https.
+  return url.replace(/^http:\/\//, 'https://');
 }
 
 /**

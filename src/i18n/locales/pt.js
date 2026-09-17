@@ -103,6 +103,8 @@ export default {
     faq: 'FAQ',
     termsOfUse: 'Termos de Uso',
     privacyPolicy: 'Política de Privacidade',
+    contactUs: 'Contacte-nos',
+    deliveryReturnPolicy: 'Política de Entrega/Devolução',
     insurance: 'Seguro',
     contact: 'Contatos',
     contactEmail: 'contato{\'@\'}veiculosaluguel.com',
@@ -1618,6 +1620,34 @@ export default {
     contactPhone: 'Telefone'
   },
 
+  // Contact Us
+  contact: {
+    title: 'Contacte-nos',
+    intro: 'Tem alguma questão sobre uma reserva, um pagamento ou o nosso serviço? Estamos disponíveis através de qualquer um dos seguintes canais.',
+    emailLabel: 'Email',
+    whatsappLabel: 'WhatsApp',
+    phoneLabel: 'Telefone',
+    addressLabel: 'Morada',
+  },
+
+  // Delivery & Return Policy
+  deliveryReturn: {
+    title: 'Política de Entrega e Devolução',
+    placeholderNotice: 'Esta página está em construção. As secções marcadas como "conteúdo a definir" serão atualizadas com a política definitiva da Universal Rent-A-Car.',
+    pickupTitle: 'Levantamento do Veículo',
+    pickupText: 'O veículo é entregue no local, data e hora acordados na reserva. O cliente deve apresentar um documento de identificação válido e a carta de condução no momento do levantamento.',
+    returnTitle: 'Devolução do Veículo',
+    returnText: 'O veículo deve ser devolvido no local, data e hora acordados, no mesmo estado em que foi recebido, salvo desgaste normal de utilização.',
+    fuelTitle: 'Política de Combustível',
+    fuelPlaceholder: 'Conteúdo a definir: regras sobre o nível de combustível na entrega e na devolução.',
+    lateReturnTitle: 'Atraso na Devolução',
+    lateReturnPlaceholder: 'Conteúdo a definir: período de tolerância e eventuais taxas por atraso na devolução.',
+    inspectionTitle: 'Inspeção na Devolução',
+    inspectionPlaceholder: 'Conteúdo a definir: processo de verificação do estado do veículo na devolução.',
+    seeTermsIntro: 'Para mais detalhes sobre cancelamentos e obrigações contratuais, consulte os nossos',
+    seeTermsLink: 'Termos e Condições',
+  },
+
   // Privacy Policy
   privacy: {
     title: 'Política de Privacidade',
@@ -1748,6 +1778,12 @@ export default {
     detailEstimatedTotal: 'Total Estimado',
     detailDeposit: 'Caução',
     detailTotal: 'Total',
+    detailTransactionRef: 'Referência de Pagamento',
+    detailPaymentDate: 'Data de Pagamento',
+    detailDccNotice: 'Conversão de Moeda (DCC)',
+    detailDccRate: 'Taxa Aplicada',
+    supportContactTitle: 'Precisa de Ajuda?',
+    supportContactIntro: 'Se tiver alguma questão sobre o seu pagamento ou reserva, contacte-nos:',
 
     bankDetailsTitle: 'Dados Bancários para Transferência',
     bankDetailsHint: 'Só aparece em caso de cancelamento ou erro no pagamento.',

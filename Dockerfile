@@ -1,5 +1,5 @@
 # Etapa 1: Build do Vue
-FROM node:20-alpine AS build
+FROM docker.io/library/node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build
 
 # Etapa 2: Servir com Nginx
-FROM nginx:alpine
+FROM docker.io/library/nginx:alpine
 
 # Copiar build
 COPY --from=build /app/dist /usr/share/nginx/html

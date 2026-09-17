@@ -51,6 +51,7 @@
 <script setup>
 import { defineProps } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { SUPPORT_EMAIL, SUPPORT_WHATSAPP, SUPPORT_WHATSAPP_URL } from '../constants/contact'
 
 defineProps({
   rentalCode: { type: String, default: '' },
@@ -70,9 +71,9 @@ const BANK = {
   nib: '000810040006990200106',
   iban: 'CV64000810040006990200106',
   swift: 'BAIPCVCV',
-  email: 'universal.r.car@gmail.com',
-  whatsapp: '(+238) 978 13 04',
-  whatsappUrl: 'https://wa.me/2389781304',
+  email: SUPPORT_EMAIL,
+  whatsapp: SUPPORT_WHATSAPP,
+  whatsappUrl: SUPPORT_WHATSAPP_URL,
 }
 </script>
 

@@ -103,6 +103,8 @@ export default {
     faq: 'FAQ',
     termsOfUse: "Conditions d'Utilisation",
     privacyPolicy: 'Politique de Confidentialité',
+    contactUs: 'Contactez-nous',
+    deliveryReturnPolicy: 'Politique de Livraison/Retour',
     insurance: 'Assurance',
     contact: 'Contacts',
     contactEmail: 'contact{\'@\'}locationvehicules.com',
@@ -1616,6 +1618,34 @@ export default {
     contactPhone: 'Téléphone'
   },
 
+  // Contact Us
+  contact: {
+    title: 'Contactez-nous',
+    intro: 'Vous avez une question sur une réservation, un paiement ou notre service ? Nous sommes disponibles via l\'un des canaux ci-dessous.',
+    emailLabel: 'Email',
+    whatsappLabel: 'WhatsApp',
+    phoneLabel: 'Téléphone',
+    addressLabel: 'Adresse',
+  },
+
+  // Delivery & Return Policy
+  deliveryReturn: {
+    title: 'Politique de Livraison et de Retour',
+    placeholderNotice: 'Cette page est en cours de construction. Les sections marquées "contenu à définir" seront mises à jour avec la politique définitive de Universal Rent-A-Car.',
+    pickupTitle: 'Prise en Charge du Véhicule',
+    pickupText: 'Le véhicule est livré au lieu, à la date et à l\'heure convenus lors de la réservation. Le client doit présenter une pièce d\'identité valide et son permis de conduire lors de la prise en charge.',
+    returnTitle: 'Retour du Véhicule',
+    returnText: 'Le véhicule doit être restitué au lieu, à la date et à l\'heure convenus, dans l\'état où il a été reçu, sous réserve de l\'usure normale.',
+    fuelTitle: 'Politique de Carburant',
+    fuelPlaceholder: 'Contenu à définir : règles sur le niveau de carburant à la prise en charge et au retour.',
+    lateReturnTitle: 'Retard de Restitution',
+    lateReturnPlaceholder: 'Contenu à définir : délai de tolérance et éventuels frais en cas de retard de restitution.',
+    inspectionTitle: 'Inspection au Retour',
+    inspectionPlaceholder: 'Contenu à définir : processus d\'inspection de l\'état du véhicule au retour.',
+    seeTermsIntro: 'Pour plus de détails sur les annulations et les obligations contractuelles, consultez nos',
+    seeTermsLink: 'Conditions Générales',
+  },
+
   // Privacy Policy
   privacy: {
     title: 'Politique de Confidentialité',
@@ -1746,6 +1776,12 @@ export default {
     detailEstimatedTotal: 'Total Estimé',
     detailDeposit: 'Caution',
     detailTotal: 'Total',
+    detailTransactionRef: 'Référence de Transaction',
+    detailPaymentDate: 'Date de Paiement',
+    detailDccNotice: 'Conversion de Devise (DCC)',
+    detailDccRate: 'Taux Appliqué',
+    supportContactTitle: 'Besoin d\'Aide ?',
+    supportContactIntro: 'Si vous avez des questions sur votre paiement ou réservation, contactez-nous :',
 
     bankDetailsTitle: 'Coordonnées Bancaires pour le Virement',
     bankDetailsHint: 'Affiché uniquement en cas d\'annulation ou d\'erreur de paiement.',
