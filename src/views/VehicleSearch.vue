@@ -906,28 +906,44 @@ const searchVehicles = async () => {
   })
 
   /* filtrar por data active_rentals */
-  if (filters.value.startDate && filters.value.endDate) {
-    const start = dayjs(filters.value.startDate)
-    const end = dayjs(filters.value.endDate)
-
-    console.log('Filtering vehicles between', start.format(), 'and', end.format())
-
-    vehicles.value = vehicles.value.map(vehicle => {
-      const hasOverlap = vehicle.active_rentals?.some(rental => {
-        const rentalStart = dayjs(rental.start_date)
-        const rentalEnd = dayjs(rental.end_date)
-        return start.isBefore(rentalEnd) && end.isAfter(rentalStart)
-      })
-
-      return {
-        ...vehicle,
-        is_available: !hasOverlap
-      }
-  })
-
-  }
+  vehicles.value = markAvailability(vehicles.value)
   loading.value = false
   rentaldetails.value = false;
+}
+
+// O date-picker devolve a data com a hora do momento em que foi clicado (não a hora
+// escolhida no select ao lado). Para a disponibilidade conta a hora do select, por isso
+// junta-se a data (00:00) com essa hora. Sem hora escolhida, assume-se o dia inteiro
+// (início do dia na recolha, fim do dia na devolução) para nunca dar disponível por engano.
+const withTime = (date, time, endOfDayIfMissing = false) => {
+  const day = dayjs(date).startOf('day')
+  if (!time) return endOfDayIfMissing ? day.endOf('day') : day
+  const [hour, minute] = time.split(':').map(Number)
+  return day.hour(hour).minute(minute).second(0)
+}
+
+// Marca is_available consoante haja ou não sobreposição com alguma reserva ativa.
+// Reservas encostadas (devolução às 11:00, nova recolha às 11:00) não sobrepõem.
+const markAvailability = (list) => {
+  if (!(filters.value.startDate && filters.value.endDate)) return list
+
+  const start = withTime(filters.value.startDate, filters.value.startTime)
+  const end = withTime(filters.value.endDate, filters.value.endTime, true)
+
+  console.log('Filtering vehicles between', start.format(), 'and', end.format())
+
+  return list.map(vehicle => {
+    const hasOverlap = vehicle.active_rentals?.some(rental => {
+      const rentalStart = dayjs(rental.start_date)
+      const rentalEnd = dayjs(rental.end_date)
+      return start.isBefore(rentalEnd) && end.isAfter(rentalStart)
+    })
+
+    return {
+      ...vehicle,
+      is_available: !hasOverlap
+    }
+  })
 }
 
 const loadSystemConfig = async () => {
@@ -980,23 +996,7 @@ const filterByTransmission = () => {
   }
   
   // Apply date filtering if dates are selected
-  if (filters.value.startDate && filters.value.endDate) {
-    const start = dayjs(filters.value.startDate)
-    const end = dayjs(filters.value.endDate)
-
-    vehicles.value = vehicles.value.map(vehicle => {
-      const hasOverlap = vehicle.active_rentals?.some(rental => {
-        const rentalStart = dayjs(rental.start_date)
-        const rentalEnd = dayjs(rental.end_date)
-        return start.isBefore(rentalEnd) && end.isAfter(rentalStart)
-      })
-
-      return {
-        ...vehicle,
-        is_available: !hasOverlap
-      }
-    })
-  }
+  vehicles.value = markAvailability(vehicles.value)
 }
 
 onMounted(() => {

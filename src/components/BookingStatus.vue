@@ -196,6 +196,14 @@
                 <span class="total-value">{{ totalWithDeposit }} {{ currencySymbol }}</span>
               </div>
             </div>
+            <a-button
+              v-if="!canPayNow"
+              class="receipt-download-btn"
+              :loading="downloadingReceipt"
+              @click="handleDownloadReceipt"
+            >
+              <DownloadOutlined v-if="!downloadingReceipt" /> {{ t('bookingStatus.downloadReceipt') }}
+            </a-button>
           </div>
 
           <!-- Payment Section (só enquanto a reserva aguarda confirmação de pagamento) -->
@@ -303,8 +311,8 @@ import {
   InboxOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
-  /*PrinterOutlined,
   DownloadOutlined,
+  /*PrinterOutlined,
   MessageOutlined,*/
   QrcodeOutlined,
   BankOutlined,
@@ -546,11 +554,31 @@ const getStatusDisplay = (status) => {
 
 /*const printBooking = () => {
   window.print()
-}
-
-const downloadBooking = () => {
-  // Implement download functionality
 }*/
+
+const downloadingReceipt = ref(false)
+const handleDownloadReceipt = async () => {
+  const rentalCode = searchResult.value?.rental_code
+  if (!rentalCode || downloadingReceipt.value) return
+  downloadingReceipt.value = true
+  try {
+    const response = await bookingService.getRentalReceiptByCode(rentalCode)
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `recibo-${rentalCode}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    message.error(t('bookingStatus.receiptDownloadError'))
+    console.error('Erro ao descarregar recibo:', error)
+  } finally {
+    downloadingReceipt.value = false
+  }
+}
 
 // QR Scanner functionality
 const qrScannerRef = ref(null)
@@ -1697,6 +1725,12 @@ onMounted(async () => {
   width: 100%;
   background: linear-gradient(90deg, #3a1c71 0%, #fdbb2d 100%) !important;
   border: none;
+  font-weight: 600;
+}
+
+.receipt-download-btn {
+  width: 100%;
+  margin-top: 12px;
   font-weight: 600;
 }
 

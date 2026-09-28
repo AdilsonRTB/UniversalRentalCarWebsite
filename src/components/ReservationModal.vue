@@ -262,6 +262,15 @@
                     </a-radio-button>
                   </a-radio-group>
                 </a-form-item>
+                <div class="accepted-cards-row">
+                  <span class="accepted-cards-label">{{ $t('reservation.form.acceptedCardsLabel') }}</span>
+                  <div class="accepted-cards-logos">
+                    <img :src="vinti4Logo" alt="vinti4" class="accepted-card-logo" />
+                    <img :src="visaLogo" alt="Visa" class="accepted-card-logo" />
+                    <img :src="mastercardLogo" alt="Mastercard" class="accepted-card-logo" />
+                    <img :src="amexLogo" alt="American Express" class="accepted-card-logo" />
+                  </div>
+                </div>
               </div>
 
               <!-- Terms and Conditions -->
@@ -441,6 +450,10 @@ dayjs.extend(advancedFormat)
 dayjs.locale('pt')
 
 //import logo from '../assets/logo.png'
+import vinti4Logo from '../assets/logos_pagamento/vinti4.png'
+import visaLogo from '../assets/logos_pagamento/visa-secure_blu_2021_dkbg.png'
+import mastercardLogo from '../assets/logos_pagamento/mc_idcheck_hrz_rgb_rev.png'
+import amexLogo from '../assets/logos_pagamento/amex_SK_logo_full.png'
 import {authService, bookingService, vehicleService} from '../services/api'
 import { useLanguageAndCurrency } from '../composables/useLanguageAndCurrency'
 import LoginPageModal from '../auth/LoginPageModal.vue'
@@ -1544,6 +1557,38 @@ if (typeof window !== 'undefined') {
   line-height: 1.4 !important;
   white-space: nowrap;
   overflow: hidden;
+}
+
+/* Accepted card logos (checkout) */
+.accepted-cards-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.accepted-cards-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.accepted-cards-logos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.accepted-card-logo {
+  height: 22px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  padding: 3px 6px;
 }
 
 /* Em ecrãs muito estreitos mostra só o ícone para evitar quebra de linha */

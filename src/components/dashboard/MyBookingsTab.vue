@@ -373,6 +373,14 @@
               <span>{{ formatPrice(selectedBookingDetails.total_amount) }}</span>
             </div>
           </div>
+          <a-button
+            v-if="selectedBookingDetails.status !== 'pending'"
+            class="receipt-download-btn"
+            :loading="downloadingReceipt"
+            @click="handleDownloadReceipt(selectedBookingDetails)"
+          >
+            <DownloadOutlined v-if="!downloadingReceipt" /> {{ $t('bookings.downloadReceipt') }}
+          </a-button>
         </div>
 
         <!-- Payment Action (só enquanto a reserva aguarda confirmação de pagamento) -->
@@ -598,7 +606,8 @@ import {
   PercentageOutlined,
   ToolOutlined,
   BankOutlined,
-  CreditCardOutlined
+  CreditCardOutlined,
+  DownloadOutlined
 } from '@ant-design/icons-vue'
 
 import dayjs from 'dayjs'
@@ -606,7 +615,7 @@ import { defineProps, defineEmits, ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useLanguageAndCurrency } from '../../composables/useLanguageAndCurrency'
-import { vehicleService } from '../../services/api'
+import { vehicleService, bookingService } from '../../services/api'
 import BankTransferDetails from '../BankTransferDetails.vue'
 
 // Internationalization
@@ -915,6 +924,30 @@ const selectedPaymentMethod = ref('card')
 const handlePayNow = (booking) => {
   if (!booking?.id) return
   router.push(`/payment/${booking.id}`)
+}
+
+const downloadingReceipt = ref(false)
+const handleDownloadReceipt = async (booking) => {
+  if (!booking?.id || downloadingReceipt.value) return
+  downloadingReceipt.value = true
+  try {
+    const response = await bookingService.getRentalReceipt(booking.id)
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `recibo-${booking.rental_code || booking.id}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    const { message } = await import('ant-design-vue')
+    message.error(t('bookings.receiptDownloadError'))
+    console.error('Erro ao descarregar recibo:', error)
+  } finally {
+    downloadingReceipt.value = false
+  }
 }
 
 const navigateToVehicleDetails = (booking) => {
@@ -1991,6 +2024,12 @@ onMounted(() => {
   width: 100%;
   background: linear-gradient(90deg, #3a1c71 0%, #fdbb2d 100%) !important;
   border: none;
+  font-weight: 600;
+}
+
+.receipt-download-btn {
+  width: 100%;
+  margin-top: 12px;
   font-weight: 600;
 }
 

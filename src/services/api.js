@@ -136,6 +136,14 @@ export const bookingService = {
   getRentalDetails: (rentalId) => api.post(`/customer/rental-details/`, {
     rental_code: rentalId
   }),
+  getRentalReceipt: (rentalId) => api.get(`/customer/rentals/${rentalId}/receipt/`, {
+    headers: {'Authorization': `Token ${localStorage.getItem('authToken')}`},
+    responseType: 'blob'
+  }),
+  getRentalReceiptByCode: (rentalCode) => api.get(`/customer/rental-details/receipt/`, {
+    params: { rental_code: rentalCode },
+    responseType: 'blob'
+  }),
   //updateBooking: (id, bookingData) => api.put(`/bookings/${id}`, bookingData),
   //updateBookingStatus: (id, status) => api.patch(`/bookings/${id}/status`, null, { params: { status } }),
   //deleteBooking: (id) => api.delete(`/bookings/${id}`)
