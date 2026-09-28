@@ -238,13 +238,24 @@ onMounted(() => {
     selectedKeys.value = ['search']
   }
 
-  // Reload the page when a new service worker version is available
+  // Recarrega a página quando o novo service worker assume o controlo - uma única vez
+  // (não logo que a atualização é detetada), para evitar um ciclo de vários reloads seguidos
+  // enquanto o novo SW ainda está a instalar/ativar (skipWaiting/clientsClaim já tratam da
+  // ativação automática no vue.config.js).
+  if ('serviceWorker' in navigator) {
+    let refreshing = false
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return
+      refreshing = true
+      window.location.reload()
+    })
+  }
+
   document.addEventListener('swUpdated', (event) => {
     const registration = event.detail
     if (registration && registration.waiting) {
       registration.waiting.postMessage({ type: 'SKIP_WAITING' })
     }
-    window.location.reload()
   })
 })
 
