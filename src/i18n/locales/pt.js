@@ -1789,6 +1789,8 @@ export default {
     detailDccRate: 'Taxa Aplicada',
     supportContactTitle: 'Precisa de Ajuda?',
     supportContactIntro: 'Se tiver alguma questão sobre o seu pagamento ou reserva, contacte-nos:',
+    downloadReceipt: 'Descarregar Recibo',
+    receiptDownloadError: 'Não foi possível descarregar o recibo. Tente novamente.',
 
     bankDetailsTitle: 'Dados Bancários para Transferência',
     bankDetailsHint: 'Só aparece em caso de cancelamento ou erro no pagamento.',

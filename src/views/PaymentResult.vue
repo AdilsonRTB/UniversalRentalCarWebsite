@@ -82,6 +82,17 @@
           </table>
         </section>
 
+        <!-- Recibo em PDF (pagamento com sucesso) -->
+        <section v-if="payment?.status === 'authorized' && rental?.rental_code" class="details-block">
+          <a-button
+            class="receipt-download-btn"
+            :loading="downloadingReceipt"
+            @click="handleDownloadReceipt"
+          >
+            <DownloadOutlined v-if="!downloadingReceipt" /> {{ t('payment.downloadReceipt') }}
+          </a-button>
+        </section>
+
         <!-- Contacto de apoio (pagamento com sucesso) -->
         <section v-if="payment?.status === 'authorized'" class="details-block support-contact-block">
           <h3 class="details-block-title">{{ t('payment.supportContactTitle') }}</h3>
@@ -108,7 +119,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { MailOutlined, WhatsAppOutlined } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
+import { MailOutlined, WhatsAppOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import HeaderPage from '../components/HeaderPage.vue'
 import BankTransferDetails from '../components/BankTransferDetails.vue'
@@ -216,6 +228,32 @@ function goToBookingStatus() {
   const code = rental.value?.rental_code || payment.value?.rental_code
   router.push({ name: 'BookingStatus', query: code ? { code } : {} })
 }
+
+const downloadingReceipt = ref(false)
+async function handleDownloadReceipt() {
+  const rentalCode = rental.value?.rental_code
+  if (!rentalCode || downloadingReceipt.value) return
+  downloadingReceipt.value = true
+  try {
+    // Usa o endpoint público por código de reserva (não a versão autenticada) porque o
+    // pagamento por cartão também pode ser feito por convidados sem conta.
+    const response = await bookingService.getRentalReceiptByCode(rentalCode)
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `recibo-${rentalCode}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    message.error(t('payment.receiptDownloadError'))
+    console.error('Erro ao descarregar recibo:', error)
+  } finally {
+    downloadingReceipt.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -282,6 +320,11 @@ function goToBookingStatus() {
   font-weight: 800;
   color: #111827;
   border-bottom: none;
+}
+
+.receipt-download-btn {
+  width: 100%;
+  font-weight: 600;
 }
 
 .support-contact-intro {

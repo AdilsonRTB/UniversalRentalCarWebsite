@@ -1787,6 +1787,8 @@ export default {
     detailDccRate: 'Taux Appliqué',
     supportContactTitle: 'Besoin d\'Aide ?',
     supportContactIntro: 'Si vous avez des questions sur votre paiement ou réservation, contactez-nous :',
+    downloadReceipt: 'Télécharger le Reçu',
+    receiptDownloadError: 'Impossible de télécharger le reçu. Veuillez réessayer.',
 
     bankDetailsTitle: 'Coordonnées Bancaires pour le Virement',
     bankDetailsHint: 'Affiché uniquement en cas d\'annulation ou d\'erreur de paiement.',

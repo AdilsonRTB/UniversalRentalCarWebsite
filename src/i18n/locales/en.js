@@ -1785,6 +1785,8 @@ export default {
     detailDccRate: 'Applied Rate',
     supportContactTitle: 'Need Help?',
     supportContactIntro: 'If you have any questions about your payment or booking, contact us:',
+    downloadReceipt: 'Download Receipt',
+    receiptDownloadError: 'Could not download the receipt. Please try again.',
 
     bankDetailsTitle: 'Bank Details for Transfer',
     bankDetailsHint: 'Only shown if the payment was cancelled or failed.',
