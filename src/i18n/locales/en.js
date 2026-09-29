@@ -1780,6 +1780,7 @@ export default {
     detailDeposit: 'Security Deposit',
     detailTotal: 'Total',
     detailTransactionRef: 'Transaction Reference',
+    detailTid: 'Transaction ID (TID)',
     detailPaymentDate: 'Payment Date',
     detailDccNotice: 'Currency Conversion (DCC)',
     detailDccRate: 'Applied Rate',

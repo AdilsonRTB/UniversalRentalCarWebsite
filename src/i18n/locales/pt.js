@@ -1784,6 +1784,7 @@ export default {
     detailDeposit: 'Caução',
     detailTotal: 'Total',
     detailTransactionRef: 'Referência de Pagamento',
+    detailTid: 'ID da Transação (TID)',
     detailPaymentDate: 'Data de Pagamento',
     detailDccNotice: 'Conversão de Moeda (DCC)',
     detailDccRate: 'Taxa Aplicada',

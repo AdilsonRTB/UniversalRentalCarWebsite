@@ -67,7 +67,11 @@
               <template v-if="payment?.status === 'authorized'">
                 <tr>
                   <th>{{ t('payment.detailTransactionRef') }}</th>
-                  <td>{{ payment.merchant_ref }}<span v-if="payment.transaction_id"> ({{ payment.transaction_id }})</span></td>
+                  <td>{{ payment.merchant_ref }}</td>
+                </tr>
+                <tr v-if="payment.transaction_id">
+                  <th>{{ t('payment.detailTid') }}</th>
+                  <td>{{ payment.transaction_id }}</td>
                 </tr>
                 <tr>
                   <th>{{ t('payment.detailPaymentDate') }}</th>
