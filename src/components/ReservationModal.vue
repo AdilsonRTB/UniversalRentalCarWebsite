@@ -576,6 +576,11 @@ const props = defineProps({
     type: String,
     required: false,
     default: 'fixed' // or 'percentage'
+  },
+  serviceFeePercentage: {
+    type: Number,
+    required: false,
+    default: 0
   }
 })
 
@@ -1090,8 +1095,9 @@ const createBookingServices = async (custumerId) => {
     start_date: formatDateForAPI(props.pickupDate),
     end_date: formatDateForAPI(props.returnDate),
     daily_rate: props.vehicle.daily_rate.toString(),
-    commission_percent: props.serviceFeeType !== 'fixed' ? commissionCVE : null,
-    commission_amount: props.serviceFeeType === 'fixed' ? commissionCVE : null,
+    // Backend computes the fee from commission_percent (base × %), so send the rate itself
+    commission_percent: props.serviceFeeType === 'percentage' ? props.serviceFeePercentage : null,
+    commission_amount: props.serviceFeeType !== 'percentage' ? commissionCVE : null,
     insurance_fee: 0,
     security_deposit: (props.vehicle.security_deposit || 0).toString(), // Always in CVE
     late_return_fee: "0", // Example value

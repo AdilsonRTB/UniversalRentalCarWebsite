@@ -251,7 +251,7 @@
               <span class="price-label">{{ t('search.gallery.carSeatDays', { days: totalDays }) }}</span>
               <span class="price-value">{{ (totalDays * carSeatDailyRate) }} {{ currencySymbol }}</span>
             </div>
-            <div class="price-line">
+            <div v-if="serviceFeeAmount > 0" class="price-line">
               <span class="price-label">{{ t('search.gallery.serviceFee') }}</span>
               <span class="price-value">{{ serviceFeeAmount }} {{ currencySymbol }}</span>
             </div>
@@ -297,6 +297,8 @@
       :serviceFeeAmount="serviceFeeAmount"
       :currencySymbol="currencySymbol"
       :dailyRate="dailyRate * totalDays"
+      :serviceFeeType="config?.service_fee_type"
+      :serviceFeePercentage="parseFloat(config?.service_fee_percentage) || 0"
       :securityDeposit="securityDeposit"
     />
   </div>
@@ -673,15 +675,25 @@ const carSeatDailyRate = computed(() => {
   }
 })
 
+// A 0/null fee means no service fee is applied — never fall back to a hardcoded value
 const serviceFeeAmount = computed(() => {
+  const config = props.config
+  if (!config) return 0
+
+  // Percentage fee applies to the base rental amount (days × daily rate), same as the backend
+  if (config.service_fee_type === 'percentage') {
+    const percent = Number(config.service_fee_percentage) || 0
+    return Math.round(props.totalDays * dailyRate.value * percent) / 100
+  }
+
   switch (currentCurrency.value) {
     case 'USD':
-      return parseFloat(props.config?.service_fee_usd || 10)
+      return Number(config.service_fee_usd) || 0
     case 'EUR':
-      return parseFloat(props.config?.service_fee_eur || 10)
+      return Number(config.service_fee_eur) || 0
     case 'CVE':
     default:
-      return parseFloat(props.config?.service_fee_amount || 1000)
+      return Number(config.service_fee_amount) || 0
   }
 })
 
