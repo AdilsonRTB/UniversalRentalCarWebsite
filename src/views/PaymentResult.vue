@@ -52,11 +52,27 @@
                 <th>{{ t('payment.detailReturnLocation') }}</th>
                 <td>{{ returnLocationName }}</td>
               </tr>
-              <tr class="details-row-strong">
-                <th>{{ t('payment.detailEstimatedTotal') }}</th>
-                <td>{{ formatMoney(rental.subtotal) }}</td>
-              </tr>
               <tr>
+                <th>{{ t('payment.detailDailyRate') }}</th>
+                <td>{{ formatMoney(dailyRateAmount) }}</td>
+              </tr>
+              <tr v-if="serviceFeeAmount">
+                <th>{{ serviceFeeLabel }}</th>
+                <td>{{ formatMoney(serviceFeeAmount) }}</td>
+              </tr>
+              <tr v-if="rental.driver">
+                <th>{{ t('payment.detailDriverFee') }}</th>
+                <td>{{ formatMoney(rental.driver_fee) }}</td>
+              </tr>
+              <tr v-if="rental.car_seat">
+                <th>{{ t('payment.detailCarSeatFee') }}</th>
+                <td>{{ formatMoney(rental.car_seat_fee) }}</td>
+              </tr>
+              <tr v-if="rental.insurance_fee">
+                <th>{{ t('payment.detailInsuranceFee') }}</th>
+                <td>{{ formatMoney(rental.insurance_fee) }}</td>
+              </tr>
+              <tr v-if="rental.security_deposit">
                 <th>{{ t('payment.detailDeposit') }}</th>
                 <td>{{ formatMoney(rental.security_deposit) }}</td>
               </tr>
@@ -185,6 +201,33 @@ const returnLocationName = computed(() =>
   locationName(rental.value?.return_location, rental.value?.return_location_custom))
 
 const formatDate = (value) => (value ? dayjs(value).format('DD/MM/YYYY HH:mm') : '-')
+
+// Mesma decomposição usada no recibo em PDF (apps/payments/receipt.py): diária (dias x
+// preço/dia) e, à parte, a taxa de serviço - percentual sobre a diária quando commission_percent
+// está preenchido, ou valor fixo quando é commission_amount.
+const dailyRateAmount = computed(() => {
+  const rate = Number(rental.value?.daily_rate) || 0
+  const days = Number(rental.value?.number_of_days) || 0
+  return rate * days
+})
+const serviceFeeAmount = computed(() => {
+  const r = rental.value
+  if (!r) return 0
+  if (r.commission_percent !== null && r.commission_percent !== undefined) {
+    return (dailyRateAmount.value * Number(r.commission_percent)) / 100
+  }
+  if (r.commission_amount !== null && r.commission_amount !== undefined) {
+    return Number(r.commission_amount)
+  }
+  return 0
+})
+const serviceFeeLabel = computed(() => {
+  const percent = rental.value?.commission_percent
+  if (percent !== null && percent !== undefined) {
+    return `${t('payment.detailServiceFee')} (${Number(percent).toFixed(2)}%)`
+  }
+  return t('payment.detailServiceFee')
+})
 
 const formatMoney = (value) => {
   const n = Number(value) || 0
