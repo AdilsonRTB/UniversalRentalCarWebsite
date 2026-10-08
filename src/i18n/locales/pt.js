@@ -1299,6 +1299,7 @@ export default {
       paymentMethodBankTransfer: 'Transferência',
       paymentMethodCard: 'Pagamento Vinti4 (Cartão)',
       paymentMethodCardRestricted: 'O pagamento por cartão não está disponível para os dados introduzidos. Utilize a transferência bancária.',
+      paymentMethodCardRequiresEmail: 'Indique o seu email para poder pagar online com cartão.',
       acceptedCardsLabel: 'Cartões aceites:',
       termsLabel: 'Termos e Condições',
       termsText: 'Aceito os',
@@ -1529,7 +1530,8 @@ export default {
       title: 'Efetuar Pagamento',
       bankTransfer: 'Transferência',
       card: 'Cartão',
-      payButton: 'Pagar Agora'
+      payButton: 'Pagar Agora',
+      cardRequiresEmail: 'O pagamento por cartão requer um email associado à reserva. Utilize a transferência bancária ou contacte-nos para adicionar o email.'
     },
     status: {
       pending: 'Pendente',

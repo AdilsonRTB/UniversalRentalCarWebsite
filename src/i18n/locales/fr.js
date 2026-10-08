@@ -1300,6 +1300,7 @@ export default {
       paymentMethodBankTransfer: 'Virement',
       paymentMethodCard: 'Paiement Vinti4 (Carte)',
       paymentMethodCardRestricted: 'Le paiement par carte n\'est pas disponible pour les informations fournies. Veuillez utiliser le virement bancaire.',
+      paymentMethodCardRequiresEmail: 'Indiquez votre email pour pouvoir payer en ligne par carte.',
       acceptedCardsLabel: 'Cartes acceptées :',
       termsLabel: 'Termes et Conditions',
       termsText: 'J\'accepte les',
@@ -1527,7 +1528,8 @@ export default {
       title: 'Effectuer le Paiement',
       bankTransfer: 'Virement Bancaire',
       card: 'Carte',
-      payButton: 'Payer Maintenant'
+      payButton: 'Payer Maintenant',
+      cardRequiresEmail: 'Le paiement par carte nécessite un email associé à la réservation. Utilisez le virement bancaire ou contactez-nous pour ajouter votre email.'
     },
     status: {
       pending: 'En attente',

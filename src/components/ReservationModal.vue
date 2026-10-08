@@ -253,8 +253,8 @@
               <!-- Payment Method -->
               <div class="payment-method-section">
                 <a-form-item name="paymentMethod" :label="$t('reservation.form.paymentMethodLabel')" class="payment-method-item">
-                  <a-radio-group v-model:value="formData.paymentMethod" class="payment-method-group">
-                    <a-radio-button value="card" class="payment-method-option">
+                  <a-radio-group v-model:value="formData.paymentMethod" class="payment-method-group" @change="cardAutoSwitched = false">
+                    <a-radio-button value="card" class="payment-method-option" :disabled="!cardPaymentAvailable">
                       <CreditCardOutlined /> <span class="payment-method-label">{{ $t('reservation.form.paymentMethodCard') }}</span>
                     </a-radio-button>
                     <a-radio-button value="bank_transfer" class="payment-method-option">
@@ -262,6 +262,9 @@
                     </a-radio-button>
                   </a-radio-group>
                 </a-form-item>
+                <p v-if="!cardPaymentAvailable" class="payment-method-hint">
+                  {{ $t('reservation.form.paymentMethodCardRequiresEmail') }}
+                </p>
                 <div class="accepted-cards-row">
                   <span class="accepted-cards-label">{{ $t('reservation.form.acceptedCardsLabel') }}</span>
                   <div class="accepted-cards-logos">
@@ -902,6 +905,21 @@ watch(() => formData.phone, () => {
   }
 })
 
+// Pagamento online (SISP) exige email: sem email, o cartão fica bloqueado e passa a transferência.
+// Se a troca foi automática, volta ao cartão quando o email é preenchido.
+const cardPaymentAvailable = computed(() => !!(formData.email && formData.email.trim()))
+const cardAutoSwitched = ref(false)
+
+watch([cardPaymentAvailable, () => formData.paymentMethod], ([available, method]) => {
+  if (!available && method === 'card') {
+    formData.paymentMethod = 'bank_transfer'
+    cardAutoSwitched.value = true
+  } else if (available && cardAutoSwitched.value) {
+    formData.paymentMethod = 'card'
+    cardAutoSwitched.value = false
+  }
+}, { immediate: true })
+
 // Disable future dates for license issue date
 const disabledLicenseDate = (current) => {
   // Disable dates in the future and dates more than 50 years ago
@@ -1142,7 +1160,7 @@ const createBookingServices = async (custumerId) => {
         const rentalId = response.data.rental.id
         const rentalCode = response.data.rental.rental_code
 
-        if (formData.paymentMethod === 'card') {
+        if (formData.paymentMethod === 'card' && cardPaymentAvailable.value) {
           emit('update:visible', false)
           router.push(`/payment/${rentalId}`)
         } else {

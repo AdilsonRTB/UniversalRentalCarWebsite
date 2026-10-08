@@ -1298,6 +1298,7 @@ export default {
       paymentMethodBankTransfer: 'Bank Transfer',
       paymentMethodCard: 'Vinti4 Payment (Card)',
       paymentMethodCardRestricted: 'Card payment is not available for the details provided. Please use bank transfer.',
+      paymentMethodCardRequiresEmail: 'Enter your email to be able to pay online by card.',
       acceptedCardsLabel: 'Accepted cards:',
       termsLabel: 'Terms and Conditions',
       termsText: 'I accept the',
@@ -1525,7 +1526,8 @@ export default {
       title: 'Make Payment',
       bankTransfer: 'Bank Transfer',
       card: 'Card',
-      payButton: 'Pay Now'
+      payButton: 'Pay Now',
+      cardRequiresEmail: 'Card payment requires an email linked to the booking. Please use bank transfer or contact us to add your email.'
     },
     status: {
       pending: 'Pending',

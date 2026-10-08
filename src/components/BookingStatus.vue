@@ -210,16 +210,19 @@
           <div class="payment-action-section" v-if="canPayNow">
             <h6 class="extras-title">{{ t('bookingStatus.payment.title') }}</h6>
             <a-radio-group v-model:value="selectedPaymentMethod" class="payment-method-group">
-              <a-radio-button value="card">
+              <a-radio-button value="card" :disabled="!cardPaymentAvailable">
                 <CreditCardOutlined /> <span class="payment-method-label">{{ t('bookingStatus.payment.card') }}</span>
               </a-radio-button>
               <a-radio-button value="bank_transfer">
                 <BankOutlined /> <span class="payment-method-label">{{ t('bookingStatus.payment.bankTransfer') }}</span>
               </a-radio-button>
             </a-radio-group>
+            <p v-if="!cardPaymentAvailable" class="card-requires-email-hint">
+              {{ t('bookingStatus.payment.cardRequiresEmail') }}
+            </p>
 
             <a-button
-              v-if="selectedPaymentMethod === 'card'"
+              v-if="selectedPaymentMethod === 'card' && cardPaymentAvailable"
               type="primary"
               class="pay-now-btn"
               @click="handlePayNow"
@@ -472,6 +475,13 @@ const normalizedStatus = computed(() => (searchResult.value?.status || '').toUpp
 
 // Only a reservation still awaiting payment confirmation can be paid here.
 const canPayNow = computed(() => normalizedStatus.value === 'PENDING')
+
+// Pagamento online (SISP) exige email no cliente da reserva; sem email só resta a transferência.
+const cardPaymentAvailable = computed(() => !!searchResult.value?.customer?.email)
+
+watch(searchResult, () => {
+  selectedPaymentMethod.value = cardPaymentAvailable.value ? 'card' : 'bank_transfer'
+})
 
 const handlePayNow = () => {
   if (!searchResult.value?.id) return
@@ -1719,6 +1729,17 @@ onMounted(async () => {
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.card-requires-email-hint {
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  color: #92400e;
+  background: #fff8e1;
+  border-left: 3px solid #f59e0b;
+  padding: 8px 10px;
+  border-radius: 4px;
+  line-height: 1.5;
 }
 
 .pay-now-btn {
