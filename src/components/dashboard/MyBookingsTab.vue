@@ -668,10 +668,6 @@ const convertFromCVE = (amountInCVE) => {
   const amount = parseFloat(amountInCVE)
   
   switch (currentCurrency.value) {
-    case 'USD': {
-      const usdRate = parseFloat(config.value.usd_exchange_rate || 100)
-      return amount / usdRate
-    }
     case 'EUR': {
       const eurRate = parseFloat(config.value.euro_exchange_rate || 100)
       return amount / eurRate
@@ -687,11 +683,6 @@ const formatPrice = (amountInCVE) => {
   const convertedAmount = convertFromCVE(amountInCVE)
   
   switch (currentCurrency.value) {
-    case 'USD':
-      return `$${convertedAmount.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })}`
     case 'EUR':
       return `${convertedAmount.toLocaleString('fr-FR', {
         minimumFractionDigits: 2,

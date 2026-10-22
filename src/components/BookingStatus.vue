@@ -390,12 +390,9 @@ const formRules = computed(() => ({
 // Currency conversion helper
 const convertValue = (cveValue) => {
   const baseValue = Number(cveValue) || 0
-  const usdRate = Number(config.value?.usd_exchange_rate) || 1
   const eurRate = Number(config.value?.euro_exchange_rate) || 1
 
   switch (currentCurrency.value) {
-    case 'USD':
-      return Math.round(usdRate ? baseValue / usdRate : 0)
     case 'EUR':
       return Math.round(eurRate ? baseValue / eurRate : 0)
     case 'CVE':
@@ -446,7 +443,6 @@ const totalWithDeposit = computed(() => {
 
 const currencySymbol = computed(() => {
   switch (currentCurrency.value) {
-    case 'USD': return 'USD'
     case 'EUR': return 'EUR'
     case 'CVE': default: return 'CVE'
   }

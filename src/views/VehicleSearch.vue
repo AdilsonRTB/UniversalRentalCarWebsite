@@ -775,14 +775,6 @@ const formatPriceWithApiRates = (amount) => {
   if (!amount || !config.value) return `${amount} CVE`
   
   switch (currentCurrency.value) {
-    case 'USD': {
-      const usdRate = parseFloat(config.value.usd_exchange_rate || 100)
-      const usdAmount = amount / usdRate
-      return `$${usdAmount.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })}`
-    }
     case 'EUR': {
       const eurRate = parseFloat(config.value.euro_exchange_rate || 100)
       const eurAmount = amount / eurRate

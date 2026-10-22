@@ -80,6 +80,16 @@
                 <th>{{ t('payment.detailTotal') }}</th>
                 <td>{{ formatMoney(rental.total_amount) }}</td>
               </tr>
+              <template v-if="payment?.original_currency === 'EUR' && payment.exchange_rate">
+                <tr>
+                  <th>{{ t('payment.detailOriginalTotal') }}</th>
+                  <td>{{ formatMoney(payment.original_amount, 'EUR') }}</td>
+                </tr>
+                <tr>
+                  <th>{{ t('payment.detailChargedAmount') }}</th>
+                  <td>{{ formatMoney(payment.amount_cve) }} · {{ t('payment.detailExchangeRate') }}: 1 EUR = {{ Number(payment.exchange_rate) }} CVE</td>
+                </tr>
+              </template>
               <template v-if="payment?.status === 'authorized'">
                 <tr>
                   <th>{{ t('payment.detailTransactionRef') }}</th>
@@ -229,9 +239,8 @@ const serviceFeeLabel = computed(() => {
   return t('payment.detailServiceFee')
 })
 
-const formatMoney = (value) => {
+const formatMoney = (value, currency = rental.value?.currency || 'CVE') => {
   const n = Number(value) || 0
-  const currency = rental.value?.currency || 'CVE'
   return `${n.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`
 }
 

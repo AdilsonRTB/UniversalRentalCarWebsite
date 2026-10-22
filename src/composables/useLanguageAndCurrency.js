@@ -1,18 +1,19 @@
 import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const currentCurrency = ref(localStorage.getItem('currency') || 'CVE')
-const currentLanguage = ref(localStorage.getItem('language') || 'pt') // Correção: usar 'pt' minúsculo
-
 const currencies = {
   CVE: { symbol: '$', code: 'CVE', name: 'Escudo' },
-  USD: { symbol: '$', code: 'USD', name: 'Dollar' },
   EUR: { symbol: '€', code: 'EUR', name: 'Euro' },
 
 }
 
+// Moedas retiradas (ex.: USD) que ainda estejam guardadas no browser voltam a CVE
+const storedCurrency = localStorage.getItem('currency')
+const currentCurrency = ref(currencies[storedCurrency] ? storedCurrency : 'CVE')
+if (storedCurrency !== currentCurrency.value) localStorage.setItem('currency', currentCurrency.value)
+const currentLanguage = ref(localStorage.getItem('language') || 'pt') // Correção: usar 'pt' minúsculo
+
 const exchangeRates = {
-  USD: 0.97,
   EUR: 110.0,
   CVE: 104.5
 }

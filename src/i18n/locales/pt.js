@@ -157,7 +157,6 @@ export default {
     portuguese: 'Português',
     english: 'Inglês',
     french: 'Francês',
-    usd: 'Dólar (USD)',
     eur: 'Euro (EUR)',
     cve: 'Escudos (CVE)'
   },
@@ -1279,6 +1278,7 @@ export default {
       carSeat: 'Assento Criança',
       dailyValue: 'Valor Diário:',
       totalToPay: 'Total a Pagar:',
+      paymentInCve: 'O pagamento é processado em CVE: ≈ {amount} CVE (1 EUR = {rate} CVE)',
       day: 'dia',
       days: 'dias'
     },
@@ -1794,6 +1794,9 @@ export default {
     detailPaymentDate: 'Data de Pagamento',
     detailDccNotice: 'Conversão de Moeda (DCC)',
     detailDccRate: 'Taxa Aplicada',
+    detailOriginalTotal: 'Total em EUR',
+    detailChargedAmount: 'Montante Cobrado',
+    detailExchangeRate: 'Taxa de Câmbio',
     supportContactTitle: 'Precisa de Ajuda?',
     supportContactIntro: 'Se tiver alguma questão sobre o seu pagamento ou reserva, contacte-nos:',
     downloadReceipt: 'Descarregar Recibo',

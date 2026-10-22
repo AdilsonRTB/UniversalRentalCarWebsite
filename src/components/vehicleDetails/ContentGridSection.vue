@@ -634,8 +634,6 @@ const vehicleDescription = computed(() => {
 // Computed properties para valores da configuração baseados na moeda selecionada
 const driverDailyRate = computed(() => {
   switch (currentCurrency.value) {
-    case 'USD':
-      return parseFloat(props.config?.driver_rate_usd || 30)
     case 'EUR':
       return parseFloat(props.config?.driver_rate_eur || 30)
     case 'CVE':
@@ -647,13 +645,9 @@ const driverDailyRate = computed(() => {
 const dailyRate = computed(() => {
   const baseRate = Number(props.vehicle?.daily_rate) || 0
 
-  const usdRate = Number(props.config?.usd_exchange_rate) || 1
   const eurRate = Number(props.config?.euro_exchange_rate) || 1
 
   switch (currentCurrency.value) {
-    case 'USD':
-      return usdRate ? baseRate / usdRate : 0
-
     case 'EUR':
       return eurRate ? baseRate / eurRate : 0
 
@@ -665,8 +659,6 @@ const dailyRate = computed(() => {
 
 const carSeatDailyRate = computed(() => {
   switch (currentCurrency.value) {
-    case 'USD':
-      return parseFloat(props.config?.car_seat_rate_usd || 5)
     case 'EUR':
       return parseFloat(props.config?.car_seat_rate_eur || 5)
     case 'CVE':
@@ -687,8 +679,6 @@ const serviceFeeAmount = computed(() => {
   }
 
   switch (currentCurrency.value) {
-    case 'USD':
-      return Number(config.service_fee_usd) || 0
     case 'EUR':
       return Number(config.service_fee_eur) || 0
     case 'CVE':
@@ -700,12 +690,9 @@ const serviceFeeAmount = computed(() => {
 const securityDeposit = computed(() => {
   const baseDeposit = Number(props.vehicle?.security_deposit) || 0
 
-  const usdRate = Number(props.config?.usd_exchange_rate) || 1
   const eurRate = Number(props.config?.euro_exchange_rate) || 1
 
   switch (currentCurrency.value) {
-    case 'USD':
-      return usdRate ? Math.round(baseDeposit / usdRate) : 0
     case 'EUR':
       return eurRate ? Math.round(baseDeposit / eurRate) : 0
     case 'CVE':
@@ -717,8 +704,6 @@ const securityDeposit = computed(() => {
 
 const currencySymbol = computed(() => {
   switch (currentCurrency.value) {
-    case 'USD':
-      return 'USD'
     case 'EUR':
       return 'EUR'
     case 'CVE':

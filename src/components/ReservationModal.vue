@@ -96,6 +96,9 @@
                     <span>{{ $t('reservation.details.totalToPay') }}</span>
                     <span>{{ calculateTotal }} {{ currencySymbol }}</span>
                   </div>
+                  <div class="pricing-payment-note" v-if="paymentAmountCVE">
+                    {{ $t('reservation.details.paymentInCve', { amount: paymentAmountCVE, rate: Number(config.euro_payment_exchange_rate) }) }}
+                  </div>
                 </div>
               </div>
             </a-col>
@@ -946,10 +949,6 @@ const convertToCVE = (amount) => {
   if (!amount || !config.value) return amount
   
   switch (currentCurrency.value) {
-    case 'USD': {
-      const usdRate = parseFloat(config.value.usd_exchange_rate || 100)
-      return amount * usdRate
-    }
     case 'EUR': {
       const eurRate = parseFloat(config.value.euro_exchange_rate || 100)
       return amount * eurRate
@@ -959,6 +958,13 @@ const convertToCVE = (amount) => {
       return amount
   }
 }
+
+// Reservas em EUR: a SISP cobra em CVE com a taxa real (euro_payment_exchange_rate), não com a de exibição
+const paymentAmountCVE = computed(() => {
+  const rate = parseFloat(config.value?.euro_payment_exchange_rate)
+  if (currentCurrency.value !== 'EUR' || !rate || !props.calculateTotal) return null
+  return (props.calculateTotal * rate).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+})
 
 const getCustomerData = async () => {
   isLoading.value = true
@@ -1481,6 +1487,13 @@ if (typeof window !== 'undefined') {
 .pricing-total span:last-child {
   color: #FE7743;
   font-size: 18px;
+}
+
+.pricing-payment-note {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
+  text-align: right;
 }
 
 /* Customer Form */
