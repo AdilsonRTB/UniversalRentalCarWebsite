@@ -88,9 +88,10 @@
                     <span>{{ $t('reservation.details.serviceFee') }}</span>
                     <span>{{ serviceFeeAmount }} {{ currencySymbol }}</span>
                   </div>
-                  <div class="pricing-row" v-if="securityDeposit > 0">
+                  <div class="pricing-row">
                     <span>{{ $t('reservation.details.securityDeposit') }}</span>
-                    <span>{{ securityDeposit }} {{ currencySymbol }}</span>
+                    <span v-if="securityDeposit > 0">{{ securityDeposit }} {{ currencySymbol }}</span>
+                    <span class="deposit-at-pickup" v-else>{{ $t('search.gallery.depositAtPickup') }}</span>
                   </div>
                   <div class="pricing-total">
                     <span>{{ $t('reservation.details.totalToPay') }}</span>
@@ -1487,6 +1488,12 @@ if (typeof window !== 'undefined') {
 .pricing-total span:last-child {
   color: #FE7743;
   font-size: 18px;
+}
+
+.pricing-row span.deposit-at-pickup {
+  font-size: 13px;
+  color: #b45309;
+  text-align: right;
 }
 
 .pricing-payment-note {

@@ -255,9 +255,10 @@
               <span class="price-label">{{ t('search.gallery.serviceFee') }}</span>
               <span class="price-value">{{ serviceFeeAmount }} {{ currencySymbol }}</span>
             </div>
-            <div class="price-line" v-if="securityDeposit > 0">
+            <div class="price-line">
               <span class="price-label">{{ t('search.gallery.securityDeposit') }}</span>
-              <span class="price-value">{{ securityDeposit }} {{ currencySymbol }}</span>
+              <span class="price-value" v-if="securityDeposit > 0">{{ securityDeposit }} {{ currencySymbol }}</span>
+              <span class="price-value deposit-at-pickup" v-else>{{ t('search.gallery.depositAtPickup') }}</span>
             </div>
           </div>
         </div>
@@ -1264,6 +1265,12 @@ watch(() => props.vehicle?.active_rentals, () => {
   font-size: 14px;
   color: #1e293b;
   font-weight: 600;
+}
+
+.price-value.deposit-at-pickup {
+  font-size: 13px;
+  color: #b45309;
+  text-align: right;
 }
 
 .hero-auth-btn {

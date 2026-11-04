@@ -1249,6 +1249,7 @@ export default {
       carSeatDays: 'Child Seat ({days} days)',
       serviceFee: 'Service fee',
       securityDeposit: 'Deposit',
+      depositAtPickup: 'Paid at vehicle pickup: 20,000 CVE / €200',
       reserveNow: 'Reserve Now',
       viewVehicleDetails: 'View Vehicle Details',
       selectDatesWarning: 'Please select pickup and return dates',

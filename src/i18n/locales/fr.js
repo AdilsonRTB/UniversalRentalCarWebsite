@@ -1251,6 +1251,7 @@ export default {
       carSeatDays: 'Siège Enfant ({days} jours)',
       serviceFee: 'Frais de service',
       securityDeposit: 'Caution',
+      depositAtPickup: 'Payée à la prise du véhicule : 20 000 CVE / 200 €',
       reserveNow: 'Réserver Maintenant',
       viewVehicleDetails: 'Voir les Détails du Véhicule',
       selectDatesWarning: 'Veuillez sélectionner les dates de prise en charge et de retour',
