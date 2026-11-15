@@ -5,13 +5,11 @@
       <div class="legal-content">
         <h1>{{ t('deliveryReturn.title') }}</h1>
 
-        <div class="placeholder-banner">
-          {{ t('deliveryReturn.placeholderNotice') }}
-        </div>
-
         <section class="legal-section">
           <h2>1. {{ t('deliveryReturn.pickupTitle') }}</h2>
-          <p>{{ t('deliveryReturn.pickupText') }}</p>
+          <p>{{ t('deliveryReturn.pickupText1') }}</p>
+          <p>{{ t('deliveryReturn.pickupText2') }}</p>
+          <p>{{ t('deliveryReturn.pickupText3') }}</p>
         </section>
 
         <section class="legal-section">
@@ -21,17 +19,20 @@
 
         <section class="legal-section">
           <h2>3. {{ t('deliveryReturn.fuelTitle') }}</h2>
-          <p class="placeholder-text">{{ t('deliveryReturn.fuelPlaceholder') }}</p>
+          <p>{{ t('deliveryReturn.fuelText1') }}</p>
+          <p>{{ t('deliveryReturn.fuelText2') }}</p>
         </section>
 
         <section class="legal-section">
           <h2>4. {{ t('deliveryReturn.lateReturnTitle') }}</h2>
-          <p class="placeholder-text">{{ t('deliveryReturn.lateReturnPlaceholder') }}</p>
+          <p>{{ t('deliveryReturn.lateReturnText1') }}</p>
+          <p>{{ t('deliveryReturn.lateReturnText2') }}</p>
         </section>
 
         <section class="legal-section">
           <h2>5. {{ t('deliveryReturn.inspectionTitle') }}</h2>
-          <p class="placeholder-text">{{ t('deliveryReturn.inspectionPlaceholder') }}</p>
+          <p>{{ t('deliveryReturn.inspectionText1') }}</p>
+          <p>{{ t('deliveryReturn.inspectionText2') }}</p>
         </section>
 
         <section class="legal-section">
@@ -89,25 +90,6 @@ watchEffect(() => {
   color: var(--secondary-color, #273F4F);
   font-weight: 700;
   margin-bottom: 20px;
-}
-
-.placeholder-banner {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  color: #92400e;
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 28px;
-}
-
-.placeholder-text {
-  font-style: italic;
-  color: #92400e;
-  background: #fffbeb;
-  border-radius: 6px;
-  padding: 10px 12px;
 }
 
 .legal-section {

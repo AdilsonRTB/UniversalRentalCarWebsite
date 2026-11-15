@@ -61,8 +61,6 @@
         <section class="legal-section">
           <h2>6. {{ t('terms.cancellationTitle') }}</h2>
           <p>{{ t('terms.cancellationText1') }}</p>
-          <p>{{ t('terms.cancellationText2') }}</p>
-          <p>{{ t('terms.cancellationText3') }}</p>
         </section>
 
         <!-- 7. Obrigações do Cliente -->
@@ -89,51 +87,43 @@
           </ul>
         </section>
 
-        <!-- 9. Responsabilidade -->
+        <!-- 9. Proteção de Dados -->
         <section class="legal-section">
-          <h2>9. {{ t('terms.liabilityTitle') }}</h2>
-          <p>{{ t('terms.liabilityText1') }}</p>
-          <p>{{ t('terms.liabilityText2') }}</p>
-          <p>{{ t('terms.liabilityText3') }}</p>
-        </section>
-
-        <!-- 10. Proteção de Dados -->
-        <section class="legal-section">
-          <h2>10. {{ t('terms.dataProtectionTitle') }}</h2>
+          <h2>9. {{ t('terms.dataProtectionTitle') }}</h2>
           <p>{{ t('terms.dataProtectionText1') }}</p>
           <p>{{ t('terms.dataProtectionText2') }}</p>
         </section>
 
-        <!-- 11. Propriedade Intelectual -->
+        <!-- 10. Propriedade Intelectual -->
         <section class="legal-section">
-          <h2>11. {{ t('terms.intellectualPropertyTitle') }}</h2>
+          <h2>10. {{ t('terms.intellectualPropertyTitle') }}</h2>
           <p>{{ t('terms.intellectualPropertyText1') }}</p>
           <p>{{ t('terms.intellectualPropertyText2') }}</p>
         </section>
 
-        <!-- 12. Resolução de Litígios -->
+        <!-- 11. Resolução de Litígios -->
         <section class="legal-section">
-          <h2>12. {{ t('terms.disputeTitle') }}</h2>
+          <h2>11. {{ t('terms.disputeTitle') }}</h2>
           <p>{{ t('terms.disputeText1') }}</p>
           <p>{{ t('terms.disputeText2') }}</p>
         </section>
 
-        <!-- 13. Lei Aplicável -->
+        <!-- 12. Lei Aplicável -->
         <section class="legal-section">
-          <h2>13. {{ t('terms.applicableLawTitle') }}</h2>
+          <h2>12. {{ t('terms.applicableLawTitle') }}</h2>
           <p>{{ t('terms.applicableLawText1') }}</p>
         </section>
 
-        <!-- 14. Alterações -->
+        <!-- 13. Alterações -->
         <section class="legal-section">
-          <h2>14. {{ t('terms.changesTitle') }}</h2>
+          <h2>13. {{ t('terms.changesTitle') }}</h2>
           <p>{{ t('terms.changesText1') }}</p>
           <p>{{ t('terms.changesText2') }}</p>
         </section>
 
-        <!-- 15. Contactos -->
+        <!-- 14. Contactos -->
         <section class="legal-section">
-          <h2>15. {{ t('terms.contactTitle') }}</h2>
+          <h2>14. {{ t('terms.contactTitle') }}</h2>
           <p>{{ t('terms.contactText1') }}</p>
           <ul class="contact-list">
             <li><strong>Email:</strong> universal.r.car@gmail.com</li>
