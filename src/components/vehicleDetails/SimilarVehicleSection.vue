@@ -48,7 +48,7 @@
             </div>
           </div>
           <div class="vehicle-price-modern">
-                <span class="price-value">{{ vehicle.daily_rate }} CVE</span>
+                <span class="price-value">{{ formatDailyRate(vehicle.daily_rate) }} {{ currentCurrency }}</span>
                 <span class="price-period">/ {{ t('search.perDay') }}</span>
             </div>
 
@@ -100,10 +100,24 @@ import { useI18n } from 'vue-i18n'
 import { vehicleService } from '../../services/api'
 import dayjs from 'dayjs'
 import { useUtilities } from '../../composables/utilits.js'
+import { useLanguageAndCurrency } from '../../composables/useLanguageAndCurrency'
 
 const { formatImageUrl } = useUtilities()
 
 const { t } = useI18n()
+const { currentCurrency } = useLanguageAndCurrency()
+
+const config = ref({})
+
+// Diária na moeda escolhida (os valores da API estão em CVE), sempre com 2 casas decimais
+const formatDailyRate = (dailyRateCVE) => {
+  const amount = Number(dailyRateCVE) || 0
+  const eurRate = Number(config.value?.euro_exchange_rate) || 0
+  if (currentCurrency.value === 'EUR' && eurRate) {
+    return (Math.round(amount / eurRate * 100) / 100).toFixed(2)
+  }
+  return amount.toFixed(2)
+}
 
 const STORAGE_KEYS = {
   START_DATE: 'vehicle_search_start_date',
@@ -172,39 +186,24 @@ const searchVehicles = async () => {
 // Initial load
 onMounted(() => {
   loadAvailableVehicles()
-
+  vehicleService.getSystemConfig()
+    .then(response => { config.value = response.data })
+    .catch(error => console.error('Erro ao carregar configuração do sistema:', error))
 })
 
 const navigateToVehicle = (vehicleId) => {
     window.location.href = `/vehicle/${vehicleId}`;
 }
 
+const FUEL_TYPES = ['gas', 'diesel', 'electric', 'hybrid', 'petrol']
+const GEARBOX_TYPES = ['manual', 'automatic']
+
 const fuelTypeMap = (type) => {
-  switch (type) {
-    case 'gas':
-      return 'Gasolina'
-    case 'diesel':
-      return 'Diesel'
-    case 'electric':
-      return 'Elétrico'
-    case 'hybrid':
-      return 'Híbrido'
-    case 'petrol':
-      return 'Gasóleo'
-    default:
-      return type
-  }
+  return FUEL_TYPES.includes(type) ? t(`vehicles.fuelTypes.${type}`) : type
 }
 
 const gearboxTypeMap = (type) => {
-  switch (type) {
-    case 'manual':
-      return 'Manual'
-    case 'automatic':
-      return 'Automático'
-    default:
-      return type
-  }
+  return GEARBOX_TYPES.includes(type) ? t(`vehicles.transmissionTypes.${type}`) : type
 }
 </script>
 

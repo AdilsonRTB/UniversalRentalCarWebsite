@@ -95,10 +95,7 @@
                   </div>
                   <div class="pricing-total">
                     <span>{{ $t('reservation.details.totalToPay') }}</span>
-                    <span>{{ calculateTotal }} {{ currencySymbol }}</span>
-                  </div>
-                  <div class="pricing-payment-note" v-if="paymentAmountCVE">
-                    {{ $t('reservation.details.paymentInCve', { amount: paymentAmountCVE, rate: Number(config.euro_payment_exchange_rate) }) }}
+                    <span>{{ calculateTotal.toFixed(2) }} {{ currencySymbol }}</span>
                   </div>
                 </div>
               </div>
@@ -952,20 +949,14 @@ const convertToCVE = (amount) => {
   switch (currentCurrency.value) {
     case 'EUR': {
       const eurRate = parseFloat(config.value.euro_exchange_rate || 100)
-      return amount * eurRate
+      // O backend só aceita 2 casas decimais (DecimalField); com taxas tipo 110.265 o produto teria mais
+      return Math.round(amount * eurRate * 100) / 100
     }
     case 'CVE':
     default:
       return amount
   }
 }
-
-// Reservas em EUR: a SISP cobra em CVE com a taxa real (euro_payment_exchange_rate), não com a de exibição
-const paymentAmountCVE = computed(() => {
-  const rate = parseFloat(config.value?.euro_payment_exchange_rate)
-  if (currentCurrency.value !== 'EUR' || !rate || !props.calculateTotal) return null
-  return (props.calculateTotal * rate).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-})
 
 const getCustomerData = async () => {
   isLoading.value = true
@@ -1188,7 +1179,7 @@ const createBookingServices = async (custumerId) => {
                 name: `${formData.firstName} ${formData.lastName}`,
                 vehicle: `${props.vehicle.brand_name} ${props.vehicle.model}`,
                 dates: `${formatDate(props.pickupDate)} a ${formatDate(props.returnDate)}`,
-                total: props.calculateTotal
+                total: props.calculateTotal.toFixed(2)
               })
               qrcode.value = true
             }
@@ -1201,7 +1192,8 @@ const createBookingServices = async (custumerId) => {
     }
 
   } catch (error) {
-    console.error('Erro ao carregar veículos:', error)
+    console.error('Erro ao criar reserva:', error.response?.data || error)
+    message.error(t('reservation.messages.reservationError'))
   } finally {
     isLoading.value = false
   }
@@ -1493,13 +1485,6 @@ if (typeof window !== 'undefined') {
 .pricing-row span.deposit-at-pickup {
   font-size: 13px;
   color: #b45309;
-  text-align: right;
-}
-
-.pricing-payment-note {
-  margin-top: 6px;
-  font-size: 12px;
-  color: #6b7280;
   text-align: right;
 }
 

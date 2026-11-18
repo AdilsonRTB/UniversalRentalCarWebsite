@@ -223,11 +223,11 @@
           <div class="extras-options">
             <div class="extra-option">
               <a-checkbox v-model:checked="withDriver">{{ t('search.gallery.withDriver') }}</a-checkbox>
-              <span class="extra-price">{{ driverDailyRate }} {{ currencySymbol }}</span>
+              <span class="extra-price">{{ money(driverDailyRate) }} {{ currencySymbol }}</span>
             </div>
             <div class="extra-option">
               <a-checkbox v-model:checked="carSeat">{{ t('search.gallery.carSeat') }}</a-checkbox>
-              <span class="extra-price">{{ carSeatDailyRate }} {{ currencySymbol }}</span>
+              <span class="extra-price">{{ money(carSeatDailyRate) }} {{ currencySymbol }}</span>
             </div>
           </div>
         </div>
@@ -237,27 +237,27 @@
           <div class="price-breakdown">
             <div class="price-line">
               <span class="price-label">{{ t('search.gallery.dailyPrice') }}</span>
-              <span class="price-value">{{ dailyRate }} {{ currencySymbol }}</span>
+              <span class="price-value">{{ money(dailyRate) }} {{ currencySymbol }}</span>
             </div>
             <div class="price-line">
               <span class="price-label">{{ totalDays }} {{ t('search.gallery.days') }}</span>
-              <span class="price-value">{{ (totalDays * dailyRate) }} {{ currencySymbol }}</span>
+              <span class="price-value">{{ money(totalDays * dailyRate) }} {{ currencySymbol }}</span>
             </div>
             <div v-if="withDriver" class="price-line">
               <span class="price-label">{{ t('search.gallery.withDriverDays', { days: totalDays }) }}</span>
-              <span class="price-value">{{ (totalDays * driverDailyRate) }} {{ currencySymbol }}</span>
+              <span class="price-value">{{ money(totalDays * driverDailyRate) }} {{ currencySymbol }}</span>
             </div>
             <div v-if="carSeat" class="price-line">
               <span class="price-label">{{ t('search.gallery.carSeatDays', { days: totalDays }) }}</span>
-              <span class="price-value">{{ (totalDays * carSeatDailyRate) }} {{ currencySymbol }}</span>
+              <span class="price-value">{{ money(totalDays * carSeatDailyRate) }} {{ currencySymbol }}</span>
             </div>
             <div v-if="serviceFeeAmount > 0" class="price-line">
               <span class="price-label">{{ t('search.gallery.serviceFee') }}</span>
-              <span class="price-value">{{ serviceFeeAmount }} {{ currencySymbol }}</span>
+              <span class="price-value">{{ money(serviceFeeAmount) }} {{ currencySymbol }}</span>
             </div>
             <div class="price-line">
               <span class="price-label">{{ t('search.gallery.securityDeposit') }}</span>
-              <span class="price-value" v-if="securityDeposit > 0">{{ securityDeposit }} {{ currencySymbol }}</span>
+              <span class="price-value" v-if="securityDeposit > 0">{{ money(securityDeposit) }} {{ currencySymbol }}</span>
               <span class="price-value deposit-at-pickup" v-else>{{ t('search.gallery.depositAtPickup') }}</span>
             </div>
           </div>
@@ -274,7 +274,7 @@
           >
             <div class="button-content">
               <span class="button-text">{{ t('vehicles.bookNow') }}</span>
-              <span class="button-total">{{ calculateTotal }} {{ currencySymbol }}</span>
+              <span class="button-total">{{ money(calculateTotal) }} {{ currencySymbol }}</span>
             </div>
           </a-button>
         </div>
@@ -289,8 +289,8 @@
       :calculate-total="calculateTotal"
       :with-driver="withDriver"
       :car-seat="carSeat"
-      :with-driver-value="totalDays * driverDailyRate"
-      :car-seat-value="totalDays * carSeatDailyRate"
+      :with-driver-value="round2(totalDays * driverDailyRate)"
+      :car-seat-value="round2(totalDays * carSeatDailyRate)"
       :pickupLocation="effectivePickupLocation"
       :returnLocation="effectiveReturnLocation"
       :locations="locations"
@@ -517,7 +517,7 @@ const calculateTotal = computed(() => {
   // Add security deposit
   const deposit = securityDeposit.value;
 
-  return Math.round(baseTotal + extras + serviceFee + deposit);
+  return round2(baseTotal + extras + serviceFee + deposit);
 })
 
 // Computed options for locations — includes 'Outros' for custom input
@@ -632,6 +632,11 @@ const vehicleDescription = computed(() => {
   return description.replace(/;/g, ';<br>')
 })
 
+// Arredonda valores monetários a 2 casas (evita 54.41436539246361 com taxas como 110.265)
+const round2 = (value) => Math.round(value * 100) / 100
+// Formata para mostrar sempre 2 casas decimais (ex.: 54.40, 200.00)
+const money = (value) => (Number(value) || 0).toFixed(2)
+
 // Computed properties para valores da configuração baseados na moeda selecionada
 const driverDailyRate = computed(() => {
   switch (currentCurrency.value) {
@@ -650,7 +655,7 @@ const dailyRate = computed(() => {
 
   switch (currentCurrency.value) {
     case 'EUR':
-      return eurRate ? baseRate / eurRate : 0
+      return eurRate ? round2(baseRate / eurRate) : 0
 
     case 'CVE':
     default:

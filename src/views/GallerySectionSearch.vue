@@ -152,15 +152,15 @@
                   </div>
                   <div class="price-line">
                     <span class="price-label">{{ days }} {{ $t('search.gallery.days') }}</span>
-                    <span class="price-value">{{ (days * dailyRate) }} {{ currencySymbol }}</span>
+                    <span class="price-value">{{ round2(days * dailyRate) }} {{ currencySymbol }}</span>
                   </div>
                   <div v-if="withDriver" class="price-line">
                     <span class="price-label">{{ $t('search.gallery.withDriverDays', { days }) }}</span>
-                    <span class="price-value">{{ (days * driverDailyRate) }} {{ currencySymbol }}</span>
+                    <span class="price-value">{{ round2(days * driverDailyRate) }} {{ currencySymbol }}</span>
                   </div>
                   <div v-if="carSeat" class="price-line">
                     <span class="price-label">{{ $t('search.gallery.carSeatDays', { days }) }}</span>
-                    <span class="price-value">{{ (days * carSeatDailyRate) }} {{ currencySymbol }}</span>
+                    <span class="price-value">{{ round2(days * carSeatDailyRate) }} {{ currencySymbol }}</span>
                   </div>
                   <div v-if="serviceFeeAmount > 0" class="price-line">
                     <span class="price-label">{{ $t('search.gallery.serviceFee') }}</span>
@@ -184,7 +184,7 @@
               >
                 <div class="button-content">
                   <span class="button-text">{{ $t('search.gallery.reserveNow') }}</span>
-                  <span class="button-total">{{ calculateTotal }} {{ currencySymbol }}</span>
+                  <span class="button-total">{{ calculateTotal.toFixed(2) }} {{ currencySymbol }}</span>
                 </div>
               </a-button>
 
@@ -209,8 +209,8 @@
       :calculate-total="calculateTotal"
       :with-driver="withDriver"
       :car-seat="carSeat"
-      :with-driver-value="days * driverDailyRate"
-      :car-seat-value="days * carSeatDailyRate"
+      :with-driver-value="round2(days * driverDailyRate)"
+      :car-seat-value="round2(days * carSeatDailyRate)"
       :pickupLocation="effectivePickupLocation"
       :returnLocation="effectiveReturnLocation"
       :locations="locations"
@@ -409,7 +409,7 @@ const calculateTotal = computed(() => {
   // Add security deposit
   const deposit = securityDeposit.value;
 
-  return Math.round(baseTotal + extras + serviceFee + deposit);
+  return round2(baseTotal + extras + serviceFee + deposit);
 })
 
 // Check if reserve button should be disabled
@@ -490,6 +490,9 @@ const vehicleDescription = computed(() => {
     //.replace(/;/g, ';<br>')          // Adiciona <br> após cada ;
 })
 
+// Arredonda valores monetários a 2 casas (evita 54.41436539246361 com taxas como 110.265)
+const round2 = (value) => Math.round(value * 100) / 100
+
 // Computed properties para valores da configuração baseados na moeda selecionada
 const driverDailyRate = computed(() => {
   switch (currentCurrency.value) {
@@ -508,7 +511,7 @@ const dailyRate = computed(() => {
 
   switch (currentCurrency.value) {
     case 'EUR':
-      return eurRate ? baseRate / eurRate : 0
+      return eurRate ? round2(baseRate / eurRate) : 0
 
     case 'CVE':
     default:

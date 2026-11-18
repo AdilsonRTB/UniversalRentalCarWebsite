@@ -1280,7 +1280,6 @@ export default {
       carSeat: 'Siège Enfant',
       dailyValue: 'Valeur Quotidienne:',
       totalToPay: 'Total à Payer:',
-      paymentInCve: 'Le paiement est traité en CVE : ≈ {amount} CVE (1 EUR = {rate} CVE)',
       day: 'jour',
       days: 'jours'
     },
